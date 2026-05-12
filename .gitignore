@@ -1,0 +1,3 @@
+# Ignore local model checkpoints and weights
+/evo-1-8k-base/
+/data/
