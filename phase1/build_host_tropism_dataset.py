@@ -419,6 +419,7 @@ def write_manifest(
     ]
     rows = []
     missing = 0
+    seen_sequences = set()
     for record, label in records:
         seq = sequences.get(record.accession)
         if seq is None:
@@ -426,7 +427,15 @@ def write_manifest(
             continue
         if len(seq) < min_length:
             continue
-        window = sample_window(seq, max_length, rng)
+        window = ""
+        for _attempt in range(10):
+            candidate = sample_window(seq, max_length, rng)
+            if candidate not in seen_sequences:
+                window = candidate
+                break
+        if not window:
+            continue
+        seen_sequences.add(window)
         if len(window) < min_length:
             continue
         rows.append(

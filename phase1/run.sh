@@ -37,6 +37,12 @@ python phase1/build_host_tropism_dataset.py \
     --manifest-only \
     --max-per-virus-tax-id 50
 
+# #baseline
+# python phase1/baseline_gc_1gram.py --manifest data/host_tropism/manifest.csv --out-dir data/host_tropism/baselines --feature gc_1gram_length
+
+
+# python phase1/baseline_gc_1gram.py --manifest data/host_tropism/manifest.csv --out-dir data/host_tropism/baselines --feature kmer --kmer-max 4 --kmer-binary --max-iter 1000
+
   # 然后跑 probe：
 
   python phase1/extract_features.py \
