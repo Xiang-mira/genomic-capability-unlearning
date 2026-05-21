@@ -1,0 +1,2 @@
+C,train_acc,train_auroc,val_acc,val_auroc,test_acc,test_auroc
+10,0.6225,0.6697,0.6150,0.6689,0.6400,0.6854
