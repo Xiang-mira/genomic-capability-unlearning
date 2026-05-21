@@ -12,7 +12,7 @@ All labels are based on taxonomy and host annotation only. No virulence, pathoge
 
 ### Phase 1 — Layer-wise Probe AUROC and Activation Patching
 
-![Activation patching analysis](data/host_tropism/activation_patching/patching_analysis.png)
+![Activation patching analysis](figures/patching_analysis.png)
 
 **Figure:** (a) Layer-wise probe AUROC. (b) Activation patching causal effect |Δprob| per layer. (c) PPL delta per layer (flat — single-layer patching is compensated downstream).
 
@@ -23,7 +23,7 @@ All labels are based on taxonomy and host annotation only. No virulence, pathoge
 
 ### Phase 2 — Targeted Unlearning
 
-![Phase 2 unlearning results](data/phase2/phase2_results.png)
+![Phase 2 unlearning results](figures/phase2_results.png)
 
 **Figure:** (a) Probe AUROC by layer after unlearning. (b) Forget–retain PPL trade-off (log scale).
 
@@ -40,7 +40,7 @@ All labels are based on taxonomy and host annotation only. No virulence, pathoge
 
 ### Phase 3 — Recovery Attacks
 
-![Phase 3 recovery attack results](data/phase3/phase3_results.png)
+![Phase 3 recovery attack results](figures/phase3_results.png)
 
 **Figure:** (a) Full method × attack matrix heatmap. (b) Tuned comparison: GD localized (α_retain=5.0) vs RMU full under SFT and LoRA attacks.
 
