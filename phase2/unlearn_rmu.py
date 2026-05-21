@@ -136,6 +136,8 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument("--steps", type=int, default=200)
     parser.add_argument("--log-every", type=int, default=10)
+    parser.add_argument("--run-name", type=str, default=None,
+                        help="Override the output directory name (default: rmu_<condition>).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     args = parser.parse_args()
@@ -255,7 +257,7 @@ def main() -> None:
     ref_hook.remove()
     print(f"[RMU] done in {elapsed:.1f}s")
 
-    run_name = f"rmu_{args.condition}"
+    run_name = args.run_name if args.run_name else f"rmu_{args.condition}"
     run_dir = os.path.join(args.out_dir, run_name)
     os.makedirs(run_dir, exist_ok=True)
     save_block_deltas(model, layers=layers, out_path=os.path.join(run_dir, "weights.safetensors"))

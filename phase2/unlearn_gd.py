@@ -31,6 +31,7 @@ from phase1.utils import load_local_checkpoint, read_manifest
 from evo.tokenizer import CharLevelTokenizer
 from phase2.utils import (
     LOCALIZED_LAYERS,
+    PROBE_LAYERS,
     count_trainable,
     freeze_all,
     iterate_batches,
@@ -54,6 +55,9 @@ def configure_trainable_blocks(model, condition: str, seed: int) -> List[int]:
             p.requires_grad_(True)
     elif condition == "localized":
         layers = LOCALIZED_LAYERS
+        set_block_grad(model, layers, True)
+    elif condition == "probe":
+        layers = PROBE_LAYERS
         set_block_grad(model, layers, True)
     elif condition == "random":
         layers = select_random_layers(seed, n=len(LOCALIZED_LAYERS))
@@ -91,7 +95,7 @@ def main() -> None:
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--out-dir", default="data/phase2/checkpoints")
     parser.add_argument("--device", default="cuda:0")
-    parser.add_argument("--condition", choices=["full", "localized", "random"], required=True)
+    parser.add_argument("--condition", choices=["full", "localized", "probe", "random"], required=True)
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--lr", type=float, default=1e-5)
@@ -99,6 +103,8 @@ def main() -> None:
     parser.add_argument("--alpha-forget", type=float, default=1.0)
     parser.add_argument("--alpha-retain", type=float, default=1.0)
     parser.add_argument("--log-every", type=int, default=10)
+    parser.add_argument("--run-name", type=str, default=None,
+                        help="Override the output directory name (default: gd_<condition>).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     args = parser.parse_args()
@@ -180,7 +186,7 @@ def main() -> None:
     print(f"[GD] done in {elapsed:.1f}s")
 
     # Save deltas
-    run_name = f"gd_{args.condition}"
+    run_name = args.run_name if args.run_name else f"gd_{args.condition}"
     run_dir = os.path.join(args.out_dir, run_name)
     os.makedirs(run_dir, exist_ok=True)
     save_block_deltas(model, ref_state=None, layers=layers,

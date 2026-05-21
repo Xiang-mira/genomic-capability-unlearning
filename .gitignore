@@ -1,3 +1,8 @@
 # Ignore local model checkpoints and weights
 /evo-1-8k-base/
 /data/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo

@@ -17,6 +17,7 @@ from evo.tokenizer import CharLevelTokenizer
 
 # Layers selected from activation_patching_analysis.md
 LOCALIZED_LAYERS = [3, 4, 5, 6, 7, 8, 9]  # 7 layers, causal effect
+PROBE_LAYERS = list(range(0, 11))           # layers 0-10, strongest probe AUROC
 RANDOM_LAYER_POOL = list(range(11, 31))  # exclude the unstable last block
 
 

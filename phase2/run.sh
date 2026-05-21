@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Phase 2 orchestration: splits -> 6 unlearning runs -> per-run evaluation.
+# Phase 2 orchestration: splits -> unlearning runs -> per-run evaluation.
 # Usage:
 #   bash phase2/run.sh splits   # one-time: build forget/retain CSVs
-#   bash phase2/run.sh gd       # all three GD conditions
+#   bash phase2/run.sh gd       # all four GD conditions (full, localized, probe, random)
 #   bash phase2/run.sh rmu      # all three RMU conditions
 #   bash phase2/run.sh eval     # eval every checkpoint
 #   bash phase2/run.sh all      # everything in sequence
@@ -16,7 +16,7 @@ BATCH=${BATCH:-2}
 MAX_LEN=${MAX_LEN:-512}
 
 run_gd() {
-    for cond in localized random full; do
+    for cond in localized probe random full; do
         echo "=== GD $cond ==="
         python phase2/unlearn_gd.py \
             --condition "$cond" \

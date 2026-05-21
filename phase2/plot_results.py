@@ -22,6 +22,7 @@ BASELINE_AUROC = {
 RUNS = [
     ("gd_full",       "GD full",       "tab:red",    "-",  "o"),
     ("gd_localized",  "GD localized",  "tab:orange", "-",  "s"),
+    ("gd_probe",      "GD probe(0-10)","tab:brown",  "-",  "D"),
     ("gd_random",     "GD random",     "tab:pink",   "--", "^"),
     ("rmu_full",      "RMU full",      "tab:blue",   "-",  "o"),
     ("rmu_localized", "RMU localized", "tab:cyan",   "-",  "s"),
@@ -86,6 +87,7 @@ def main():
     ax.set_ylabel("Retain perplexity ↓ (less collateral damage)", fontsize=10)
     ax.set_title("(b) Forget–Retain trade-off\n(ideal: top-right)", fontsize=10, loc="left")
     ax.legend(fontsize=7.5, loc="upper left")
+    ax.set_xscale("log")
     ax.grid(True, alpha=0.25)
 
     plt.tight_layout()
@@ -110,6 +112,7 @@ def main():
         rp = ppl["retain_val_perplexity"]
         print(f"{label:<16} {mean_auroc:>16.3f} {delta:>+9.3f} {fp:>11.2f} {rp:>11.2f}")
     print(f"{'Baseline':<16} {base_mean:>16.3f} {'—':>9} {'~4.2':>11} {'~4.2':>11}")
+    print("\nNote: gd_probe targets layers 0-10 (probe-based), gd_localized targets layers 3-9 (patching-based).")
 
 
 if __name__ == "__main__":
