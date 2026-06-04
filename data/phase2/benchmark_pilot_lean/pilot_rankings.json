@@ -1,0 +1,81 @@
+{
+  "base_dir": "data/phase2/benchmark_pilot_lean/base",
+  "n_runs": 2,
+  "top_k": 2,
+  "top_runs": [
+    {
+      "run": "gd_full_ar5",
+      "checkpoint_dir": "data/phase2/benchmark_pilot_lean/gd_full_ar5",
+      "hvue_forget_mean": 0.7825443410620819,
+      "hvue_forget_base": 0.8831144034762852,
+      "hvue_forget_drop": 0.10057006241420337,
+      "hvue_forget_ci_low": 0.08540658333654497,
+      "hvue_forget_ci_high": 0.11563580323783734,
+      "gue_retain_mean": 0.6679497271018696,
+      "gue_retain_base": 0.7689037721422975,
+      "gue_retain_delta": -0.10095404504042799,
+      "gue_retain_ci_low": -0.10795315657450873,
+      "gue_retain_ci_high": -0.09384512768094994,
+      "retain_penalty": 0.10095404504042799,
+      "selection_score": -0.00038398262622461876,
+      "n_hvue_pairs": 49,
+      "n_gue_pairs": 231
+    },
+    {
+      "run": "rmu_full_sc200",
+      "checkpoint_dir": "data/phase2/benchmark_pilot_lean/rmu_full_sc200",
+      "hvue_forget_mean": 0.866925285729633,
+      "hvue_forget_base": 0.8831144034762852,
+      "hvue_forget_drop": 0.016189117746652094,
+      "hvue_forget_ci_low": 0.01011234859146493,
+      "hvue_forget_ci_high": 0.0225531712586376,
+      "gue_retain_mean": 0.7467638591802336,
+      "gue_retain_base": 0.7689037721422975,
+      "gue_retain_delta": -0.022139912962064072,
+      "gue_retain_ci_low": -0.026432764138830372,
+      "gue_retain_ci_high": -0.017895503607826133,
+      "retain_penalty": 0.022139912962064072,
+      "selection_score": -0.005950795215411978,
+      "n_hvue_pairs": 49,
+      "n_gue_pairs": 231
+    }
+  ],
+  "rows": [
+    {
+      "run": "gd_full_ar5",
+      "checkpoint_dir": "data/phase2/benchmark_pilot_lean/gd_full_ar5",
+      "hvue_forget_mean": 0.7825443410620819,
+      "hvue_forget_base": 0.8831144034762852,
+      "hvue_forget_drop": 0.10057006241420337,
+      "hvue_forget_ci_low": 0.08540658333654497,
+      "hvue_forget_ci_high": 0.11563580323783734,
+      "gue_retain_mean": 0.6679497271018696,
+      "gue_retain_base": 0.7689037721422975,
+      "gue_retain_delta": -0.10095404504042799,
+      "gue_retain_ci_low": -0.10795315657450873,
+      "gue_retain_ci_high": -0.09384512768094994,
+      "retain_penalty": 0.10095404504042799,
+      "selection_score": -0.00038398262622461876,
+      "n_hvue_pairs": 49,
+      "n_gue_pairs": 231
+    },
+    {
+      "run": "rmu_full_sc200",
+      "checkpoint_dir": "data/phase2/benchmark_pilot_lean/rmu_full_sc200",
+      "hvue_forget_mean": 0.866925285729633,
+      "hvue_forget_base": 0.8831144034762852,
+      "hvue_forget_drop": 0.016189117746652094,
+      "hvue_forget_ci_low": 0.01011234859146493,
+      "hvue_forget_ci_high": 0.0225531712586376,
+      "gue_retain_mean": 0.7467638591802336,
+      "gue_retain_base": 0.7689037721422975,
+      "gue_retain_delta": -0.022139912962064072,
+      "gue_retain_ci_low": -0.026432764138830372,
+      "gue_retain_ci_high": -0.017895503607826133,
+      "retain_penalty": 0.022139912962064072,
+      "selection_score": -0.005950795215411978,
+      "n_hvue_pairs": 49,
+      "n_gue_pairs": 231
+    }
+  ]
+}

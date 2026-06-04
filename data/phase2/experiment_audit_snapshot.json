@@ -1,0 +1,97 @@
+{
+  "raw_hvue": {
+    "Host_Tropism/train.csv": 47194,
+    "Host_Tropism/dev.csv": 11256,
+    "Host_Tropism/test.csv": 10852,
+    "Pathogenecity/CINI/train.csv": 2539,
+    "Pathogenecity/CINI/dev.csv": 544,
+    "Pathogenecity/CINI/test.csv": 545,
+    "Pathogenecity/BVBRC_Calci/train.csv": 39376,
+    "Pathogenecity/BVBRC_Calci/dev.csv": 8438,
+    "Pathogenecity/BVBRC_Calci/test.csv": 8438,
+    "Transmissibility/Calcivirdae/train.csv": 38361,
+    "Transmissibility/Calcivirdae/dev.csv": 8233,
+    "Transmissibility/Calcivirdae/test.csv": 8225
+  },
+  "manifest_hvue": {
+    "hvue_human_host_tropism": {
+      "val": 11256,
+      "test": 10852,
+      "train": 47194
+    },
+    "hvue_human_transmissibility_caliciviridae": {
+      "train": 38361
+    },
+    "hvue_human_transmissibility_coronaviridae": {
+      "val": 26871,
+      "test": 26872,
+      "train": 125399
+    },
+    "hvue_human_transmissibility_orthomyxoviridae": {
+      "val": 62957,
+      "test": 63345,
+      "train": 294996
+    },
+    "hvue_human_virus_pathogenicity_bvbrc_calici": {
+      "val": 8438,
+      "test": 8438,
+      "train": 39376
+    },
+    "hvue_human_virus_pathogenicity_bvbrc_cov": {
+      "val": 19747,
+      "test": 19747,
+      "train": 92151
+    },
+    "hvue_human_virus_pathogenicity_cini": {
+      "val": 544,
+      "test": 545,
+      "train": 2539
+    }
+  },
+  "checkpoints": [
+    "gd_full",
+    "gd_localized",
+    "gd_probe",
+    "gd_random",
+    "rmu_full",
+    "rmu_localized",
+    "rmu_random"
+  ],
+  "tuned_checkpoints": [
+    "gd_localized",
+    "gd_localized_ar10.0",
+    "gd_localized_ar2.0",
+    "gd_localized_ar5",
+    "gd_localized_ar5.0",
+    "gd_localized_ar5_lr2e-5",
+    "gd_localized_ar5_lr5e-5",
+    "gd_localized_ar5_lr5e-6",
+    "gd_localized_ar5_s1000",
+    "gd_localized_ar5_s2000",
+    "gd_localized_ar5_s500",
+    "rmu_full_nonhuman",
+    "rmu_full_sc100",
+    "rmu_full_sc200",
+    "rmu_full_sc50",
+    "rmu_localized_nonhuman",
+    "rmu_localized_s500",
+    "rmu_localized_sc100"
+  ],
+  "phase3_runs": [
+    "gd_full_lora",
+    "gd_full_sft",
+    "gd_localized_lora",
+    "gd_localized_sft",
+    "gd_probe_lora",
+    "gd_probe_sft",
+    "gd_random_lora",
+    "gd_random_sft",
+    "rmu_full_lora",
+    "rmu_full_sft",
+    "rmu_localized_lora",
+    "rmu_localized_sft",
+    "rmu_random_lora",
+    "rmu_random_sft",
+    "tuned"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "status": "complete",
+  "task_index": 40,
+  "task_total": 40,
+  "completed_task_layers": 273,
+  "expected_task_layers": 280,
+  "elapsed_sec": 88152.22231698036,
+  "phase": "complete"
+}

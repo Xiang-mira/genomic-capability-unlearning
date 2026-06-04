@@ -1,0 +1,3 @@
+run,checkpoint_dir,hvue_forget_mean,hvue_forget_base,hvue_forget_drop,hvue_forget_ci_low,hvue_forget_ci_high,gue_retain_mean,gue_retain_base,gue_retain_delta,gue_retain_ci_low,gue_retain_ci_high,retain_penalty,selection_score,n_hvue_pairs,n_gue_pairs
+gd_full_ar5,data/phase2/benchmark_pilot_lean/gd_full_ar5,0.782544,0.883114,0.10057,0.0854066,0.115636,0.66795,0.768904,-0.100954,-0.107953,-0.0938451,0.100954,-0.000383983,49,231
+rmu_full_sc200,data/phase2/benchmark_pilot_lean/rmu_full_sc200,0.866925,0.883114,0.0161891,0.0101123,0.0225532,0.746764,0.768904,-0.0221399,-0.0264328,-0.0178955,0.0221399,-0.0059508,49,231

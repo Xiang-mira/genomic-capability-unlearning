@@ -1,0 +1,116 @@
+{
+  "groups": {
+    "gue_core_retain": {
+      "mean_score": 0.8166030146850448,
+      "n_task_layers": 147
+    },
+    "primary_forget": {
+      "mean_score": 0.8330575435582702,
+      "n_task_layers": 14
+    }
+  },
+  "benchmarks": {
+    "gue": {
+      "mean_score": 0.8166030146850448,
+      "n_task_layers": 147
+    },
+    "hvue": {
+      "mean_score": 0.8330575435582702,
+      "n_task_layers": 14
+    }
+  },
+  "tasks": {
+    "gue_emp_h3": {
+      "mean_score": 0.9218808253027564,
+      "n_layers": 7
+    },
+    "gue_emp_h3k36me3": {
+      "mean_score": 0.8230052030031514,
+      "n_layers": 7
+    },
+    "gue_emp_h3k4me3": {
+      "mean_score": 0.7192404414407788,
+      "n_layers": 7
+    },
+    "gue_emp_h3k9ac": {
+      "mean_score": 0.8277707869808585,
+      "n_layers": 7
+    },
+    "gue_emp_h4": {
+      "mean_score": 0.9460167427709931,
+      "n_layers": 7
+    },
+    "gue_epi_gm12878": {
+      "mean_score": 0.6152749865250281,
+      "n_layers": 7
+    },
+    "gue_epi_huvec": {
+      "mean_score": 0.6459390630779583,
+      "n_layers": 7
+    },
+    "gue_epi_k562": {
+      "mean_score": 0.6108483346632181,
+      "n_layers": 7
+    },
+    "gue_human_tf_0": {
+      "mean_score": 0.8898034285714286,
+      "n_layers": 7
+    },
+    "gue_human_tf_2": {
+      "mean_score": 0.844317142857143,
+      "n_layers": 7
+    },
+    "gue_human_tf_4": {
+      "mean_score": 0.8738954285714288,
+      "n_layers": 7
+    },
+    "gue_mouse_0": {
+      "mean_score": 0.7101870359483529,
+      "n_layers": 7
+    },
+    "gue_mouse_1": {
+      "mean_score": 0.9486963861617669,
+      "n_layers": 7
+    },
+    "gue_mouse_2": {
+      "mean_score": 0.9154786691595138,
+      "n_layers": 7
+    },
+    "gue_mouse_3": {
+      "mean_score": 0.7290916366546618,
+      "n_layers": 7
+    },
+    "gue_mouse_4": {
+      "mean_score": 0.7443342851534436,
+      "n_layers": 7
+    },
+    "gue_prom_300_all": {
+      "mean_score": 0.9584980041872934,
+      "n_layers": 7
+    },
+    "gue_prom_300_tata": {
+      "mean_score": 0.8272550183384315,
+      "n_layers": 7
+    },
+    "gue_prom_core_all": {
+      "mean_score": 0.8792371321323434,
+      "n_layers": 7
+    },
+    "gue_prom_core_tata": {
+      "mean_score": 0.8714162530111688,
+      "n_layers": 7
+    },
+    "gue_splice_reconstructed": {
+      "mean_score": 0.8464765038742222,
+      "n_layers": 7
+    },
+    "hvue_human_host_tropism": {
+      "mean_score": 0.9093020870091081,
+      "n_layers": 7
+    },
+    "hvue_human_virus_pathogenicity_cini": {
+      "mean_score": 0.7568130001074324,
+      "n_layers": 7
+    }
+  }
+}

@@ -1,0 +1,1320 @@
+{
+  "step0": {
+    "host_tropism_manifest": {
+      "path": "data/host_tropism/manifest.csv",
+      "exists": true,
+      "rows": 9521,
+      "split_label_counts": {
+        "test": {
+          "1": 453,
+          "0": 531
+        },
+        "train": {
+          "1": 3800,
+          "0": 3814
+        },
+        "val": {
+          "1": 416,
+          "0": 507
+        }
+      }
+    },
+    "hvue_raw": {
+      "files": {
+        "Host_Tropism/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Host_Tropism/dev.csv",
+          "exists": true,
+          "rows": 11256,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_host_tropism",
+          "split": "val",
+          "family": ""
+        },
+        "Host_Tropism/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Host_Tropism/test.csv",
+          "exists": true,
+          "rows": 10852,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_host_tropism",
+          "split": "test",
+          "family": ""
+        },
+        "Host_Tropism/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Host_Tropism/train.csv",
+          "exists": true,
+          "rows": 47194,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_host_tropism",
+          "split": "train",
+          "family": ""
+        },
+        "Pathogenecity/BVBRC_Calci/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_Calci/dev.csv",
+          "exists": true,
+          "rows": 8438,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_bvbrc_calici",
+          "split": "val",
+          "family": "Caliciviridae"
+        },
+        "Pathogenecity/BVBRC_Calci/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_Calci/test.csv",
+          "exists": true,
+          "rows": 8438,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_bvbrc_calici",
+          "split": "test",
+          "family": "Caliciviridae"
+        },
+        "Pathogenecity/BVBRC_Calci/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_Calci/train.csv",
+          "exists": true,
+          "rows": 39376,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_bvbrc_calici",
+          "split": "train",
+          "family": "Caliciviridae"
+        },
+        "Pathogenecity/BVBRC_CoV/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_CoV/dev.csv",
+          "exists": true,
+          "rows": 19747,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_bvbrc_cov",
+          "split": "val",
+          "family": "Coronaviridae"
+        },
+        "Pathogenecity/BVBRC_CoV/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_CoV/test.csv",
+          "exists": true,
+          "rows": 19747,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_bvbrc_cov",
+          "split": "test",
+          "family": "Coronaviridae"
+        },
+        "Pathogenecity/BVBRC_CoV/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_CoV/train.csv",
+          "exists": true,
+          "rows": 92151,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_bvbrc_cov",
+          "split": "train",
+          "family": "Coronaviridae"
+        },
+        "Pathogenecity/CINI/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/CINI/dev.csv",
+          "exists": true,
+          "rows": 544,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_cini",
+          "split": "val",
+          "family": "mixed"
+        },
+        "Pathogenecity/CINI/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/CINI/test.csv",
+          "exists": true,
+          "rows": 545,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_cini",
+          "split": "test",
+          "family": "mixed"
+        },
+        "Pathogenecity/CINI/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Pathogenecity/CINI/train.csv",
+          "exists": true,
+          "rows": 2539,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_virus_pathogenicity_cini",
+          "split": "train",
+          "family": "mixed"
+        },
+        "Transmissibility/Calcivirdae/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Calcivirdae/dev.csv",
+          "exists": true,
+          "rows": 8233,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_caliciviridae",
+          "split": "val",
+          "family": "Caliciviridae"
+        },
+        "Transmissibility/Calcivirdae/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Calcivirdae/test.csv",
+          "exists": true,
+          "rows": 8225,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_caliciviridae",
+          "split": "test",
+          "family": "Caliciviridae"
+        },
+        "Transmissibility/Calcivirdae/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Calcivirdae/train.csv",
+          "exists": true,
+          "rows": 38361,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_caliciviridae",
+          "split": "train",
+          "family": "Caliciviridae"
+        },
+        "Transmissibility/Coronovirdae/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Coronovirdae/dev.csv",
+          "exists": true,
+          "rows": 26871,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_coronaviridae",
+          "split": "val",
+          "family": "Coronaviridae"
+        },
+        "Transmissibility/Coronovirdae/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Coronovirdae/test.csv",
+          "exists": true,
+          "rows": 26872,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_coronaviridae",
+          "split": "test",
+          "family": "Coronaviridae"
+        },
+        "Transmissibility/Coronovirdae/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Coronovirdae/train.csv",
+          "exists": true,
+          "rows": 125399,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_coronaviridae",
+          "split": "train",
+          "family": "Coronaviridae"
+        },
+        "Transmissibility/Orthomyxovirdae/dev.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Orthomyxovirdae/dev.csv",
+          "exists": true,
+          "rows": 62957,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_orthomyxoviridae",
+          "split": "val",
+          "family": "Orthomyxoviridae"
+        },
+        "Transmissibility/Orthomyxovirdae/test.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Orthomyxovirdae/test.csv",
+          "exists": true,
+          "rows": 63345,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_orthomyxoviridae",
+          "split": "test",
+          "family": "Orthomyxoviridae"
+        },
+        "Transmissibility/Orthomyxovirdae/train.csv": {
+          "path": "data/benchmarks/raw/hvue/Transmissibility/Orthomyxovirdae/train.csv",
+          "exists": true,
+          "rows": 294996,
+          "columns": [
+            "sequence",
+            "label"
+          ],
+          "task": "hvue_human_transmissibility_orthomyxoviridae",
+          "split": "train",
+          "family": "Orthomyxoviridae"
+        }
+      },
+      "tasks": {
+        "hvue_human_host_tropism": {
+          "val": 11256,
+          "test": 10852,
+          "train": 47194
+        },
+        "hvue_human_transmissibility_caliciviridae": {
+          "val": 8233,
+          "test": 8225,
+          "train": 38361
+        },
+        "hvue_human_transmissibility_coronaviridae": {
+          "val": 26871,
+          "test": 26872,
+          "train": 125399
+        },
+        "hvue_human_transmissibility_orthomyxoviridae": {
+          "val": 62957,
+          "test": 63345,
+          "train": 294996
+        },
+        "hvue_human_virus_pathogenicity_bvbrc_calici": {
+          "val": 8438,
+          "test": 8438,
+          "train": 39376
+        },
+        "hvue_human_virus_pathogenicity_bvbrc_cov": {
+          "val": 19747,
+          "test": 19747,
+          "train": 92151
+        },
+        "hvue_human_virus_pathogenicity_cini": {
+          "val": 544,
+          "test": 545,
+          "train": 2539
+        }
+      }
+    },
+    "gue_raw": {
+      "exists": true,
+      "task_dirs": {
+        "EPI_GM12878": {
+          "train": 10000,
+          "dev": 2000,
+          "test": 2000
+        },
+        "EPI_HUVEC": {
+          "train": 10000,
+          "dev": 2000,
+          "test": 2000
+        },
+        "EPI_HeLa-S3": {
+          "train": 10000,
+          "dev": 2000,
+          "test": 2000
+        },
+        "EPI_IMR90": {
+          "train": 10000,
+          "dev": 2000,
+          "test": 2000
+        },
+        "EPI_K562": {
+          "train": 10000,
+          "dev": 2000,
+          "test": 2000
+        },
+        "EPI_NHEK": {
+          "train": 10000,
+          "dev": 2000,
+          "test": 2000
+        },
+        "emp_H3": {
+          "train": 11971,
+          "dev": 1497,
+          "test": 1497
+        },
+        "emp_H3K14ac": {
+          "train": 26438,
+          "dev": 3305,
+          "test": 3305
+        },
+        "emp_H3K36me3": {
+          "train": 27904,
+          "dev": 3488,
+          "test": 3488
+        },
+        "emp_H3K4me1": {
+          "train": 25341,
+          "dev": 3168,
+          "test": 3168
+        },
+        "emp_H3K4me2": {
+          "train": 24545,
+          "dev": 3069,
+          "test": 3069
+        },
+        "emp_H3K4me3": {
+          "train": 29439,
+          "dev": 3680,
+          "test": 3680
+        },
+        "emp_H3K79me3": {
+          "train": 23069,
+          "dev": 2884,
+          "test": 2884
+        },
+        "emp_H3K9ac": {
+          "train": 22224,
+          "dev": 2779,
+          "test": 2779
+        },
+        "emp_H4": {
+          "train": 11679,
+          "dev": 1461,
+          "test": 1461
+        },
+        "emp_H4ac": {
+          "train": 294,
+          "dev": 3410,
+          "test": 3410
+        },
+        "human_tf_0": {
+          "train": 32378,
+          "dev": 1000,
+          "test": 1000
+        },
+        "human_tf_1": {
+          "train": 30672,
+          "dev": 1000,
+          "test": 1000
+        },
+        "human_tf_2": {
+          "train": 19000,
+          "dev": 1000,
+          "test": 1000
+        },
+        "human_tf_3": {
+          "train": 27294,
+          "dev": 1000,
+          "test": 1000
+        },
+        "human_tf_4": {
+          "train": 19000,
+          "dev": 1000,
+          "test": 1000
+        },
+        "mouse_0": {
+          "train": 6478,
+          "dev": 810,
+          "test": 810
+        },
+        "mouse_1": {
+          "train": 53952,
+          "dev": 6745,
+          "test": 6745
+        },
+        "mouse_2": {
+          "train": 2620,
+          "dev": 328,
+          "test": 328
+        },
+        "mouse_3": {
+          "train": 1904,
+          "dev": 239,
+          "test": 239
+        },
+        "mouse_4": {
+          "train": 15064,
+          "dev": 1883,
+          "test": 1883
+        },
+        "prom_300_all": {
+          "train": 47356,
+          "dev": 5920,
+          "test": 5920
+        },
+        "prom_300_notata": {
+          "train": 42452,
+          "dev": 5307,
+          "test": 5307
+        },
+        "prom_300_tata": {
+          "train": 4904,
+          "dev": 613,
+          "test": 613
+        },
+        "prom_core_all": {
+          "train": 47356,
+          "dev": 5920,
+          "test": 5920
+        },
+        "prom_core_notata": {
+          "train": 42452,
+          "dev": 5307,
+          "test": 5307
+        },
+        "prom_core_tata": {
+          "train": 4904,
+          "dev": 613,
+          "test": 613
+        },
+        "splice_reconstructed": {
+          "train": 36496,
+          "dev": 4562,
+          "test": 4562
+        }
+      },
+      "n_task_dirs": 33
+    },
+    "vgue_scan": {
+      "workspace_scan_paths": [],
+      "present_tasks": [],
+      "missing_tasks": [
+        "dna_vs_rna_virus",
+        "hiv1_tropism",
+        "hiv1_vs_hiv2",
+        "host_range_prediction",
+        "sars_cov_2_lineage_typing"
+      ],
+      "task_hits": {
+        "host_range_prediction": [],
+        "dna_vs_rna_virus": [],
+        "hiv1_vs_hiv2": [],
+        "sars_cov_2_lineage_typing": [],
+        "hiv1_tropism": []
+      }
+    },
+    "status": {
+      "forget_set_available": true,
+      "retain_set_available": true,
+      "gue_available": true,
+      "vgue_available": false
+    }
+  },
+  "step1": {
+    "manifest_summary": {
+      "exists": true,
+      "path": "data/benchmarks/hvue_gue_manifest.csv",
+      "rows": 1781247,
+      "task_split_counts": {
+        "gue_emp_h3": {
+          "val": 1497,
+          "test": 1497,
+          "train": 11971
+        },
+        "gue_emp_h3k14ac": {
+          "val": 3305,
+          "test": 3305,
+          "train": 26438
+        },
+        "gue_emp_h3k36me3": {
+          "val": 3488,
+          "test": 3488,
+          "train": 27904
+        },
+        "gue_emp_h3k4me1": {
+          "val": 3168,
+          "test": 3168,
+          "train": 25341
+        },
+        "gue_emp_h3k4me2": {
+          "val": 3069,
+          "test": 3069,
+          "train": 24545
+        },
+        "gue_emp_h3k4me3": {
+          "val": 3680,
+          "test": 3680,
+          "train": 29439
+        },
+        "gue_emp_h3k79me3": {
+          "val": 2884,
+          "test": 2884,
+          "train": 23069
+        },
+        "gue_emp_h3k9ac": {
+          "val": 2779,
+          "test": 2779,
+          "train": 22224
+        },
+        "gue_emp_h4": {
+          "val": 1461,
+          "test": 1461,
+          "train": 11679
+        },
+        "gue_emp_h4ac": {
+          "val": 3410,
+          "test": 3410,
+          "train": 293
+        },
+        "gue_epi_gm12878": {
+          "val": 2000,
+          "test": 2000,
+          "train": 10000
+        },
+        "gue_epi_hela_s3": {
+          "val": 2000,
+          "test": 2000,
+          "train": 10000
+        },
+        "gue_epi_huvec": {
+          "val": 2000,
+          "test": 2000,
+          "train": 10000
+        },
+        "gue_epi_imr90": {
+          "val": 2000,
+          "test": 2000,
+          "train": 10000
+        },
+        "gue_epi_k562": {
+          "val": 2000,
+          "test": 2000,
+          "train": 10000
+        },
+        "gue_epi_nhek": {
+          "val": 2000,
+          "test": 2000,
+          "train": 10000
+        },
+        "gue_human_tf_0": {
+          "val": 1000,
+          "test": 1000,
+          "train": 32378
+        },
+        "gue_human_tf_1": {
+          "val": 1000,
+          "test": 1000,
+          "train": 30672
+        },
+        "gue_human_tf_2": {
+          "val": 1000,
+          "test": 1000,
+          "train": 19000
+        },
+        "gue_human_tf_3": {
+          "val": 1000,
+          "test": 1000,
+          "train": 27294
+        },
+        "gue_human_tf_4": {
+          "val": 1000,
+          "test": 1000,
+          "train": 19000
+        },
+        "gue_mouse_0": {
+          "val": 810,
+          "test": 810,
+          "train": 6478
+        },
+        "gue_mouse_1": {
+          "val": 6745,
+          "test": 6745,
+          "train": 53952
+        },
+        "gue_mouse_2": {
+          "val": 328,
+          "test": 328,
+          "train": 2620
+        },
+        "gue_mouse_3": {
+          "val": 239,
+          "test": 239,
+          "train": 1904
+        },
+        "gue_mouse_4": {
+          "val": 1883,
+          "test": 1883,
+          "train": 15064
+        },
+        "gue_prom_300_all": {
+          "val": 5920,
+          "test": 5920,
+          "train": 47356
+        },
+        "gue_prom_300_notata": {
+          "val": 5307,
+          "test": 5307,
+          "train": 42452
+        },
+        "gue_prom_300_tata": {
+          "val": 613,
+          "test": 613,
+          "train": 4904
+        },
+        "gue_prom_core_all": {
+          "val": 5920,
+          "test": 5920,
+          "train": 47356
+        },
+        "gue_prom_core_notata": {
+          "val": 5307,
+          "test": 5307,
+          "train": 42452
+        },
+        "gue_prom_core_tata": {
+          "val": 613,
+          "test": 613,
+          "train": 4904
+        },
+        "gue_splice_reconstructed": {
+          "val": 4562,
+          "test": 4562,
+          "train": 36496
+        },
+        "hvue_human_host_tropism": {
+          "val": 11256,
+          "test": 10852,
+          "train": 47194
+        },
+        "hvue_human_transmissibility_caliciviridae": {
+          "val": 8233,
+          "test": 8225,
+          "train": 38361
+        },
+        "hvue_human_transmissibility_coronaviridae": {
+          "val": 26871,
+          "test": 26872,
+          "train": 125399
+        },
+        "hvue_human_transmissibility_orthomyxoviridae": {
+          "val": 62957,
+          "test": 63345,
+          "train": 294996
+        },
+        "hvue_human_virus_pathogenicity_bvbrc_calici": {
+          "val": 8438,
+          "test": 8438,
+          "train": 39376
+        },
+        "hvue_human_virus_pathogenicity_bvbrc_cov": {
+          "val": 19747,
+          "test": 19747,
+          "train": 92151
+        },
+        "hvue_human_virus_pathogenicity_cini": {
+          "val": 544,
+          "test": 545,
+          "train": 2539
+        }
+      },
+      "group_counts": {
+        "gue_retain": 865161,
+        "hvue_forget": 916086
+      }
+    },
+    "manifest_hvue_coverage_issues": [],
+    "shortcut_audit": {
+      "calici_transmissibility": {
+        "task_dir": "data/benchmarks/raw/hvue/Transmissibility/Calcivirdae",
+        "splits": {
+          "train": {
+            "exists": true,
+            "rows": 38361,
+            "columns": [
+              "sequence",
+              "label"
+            ],
+            "sequence_overlap_with_host_manifest": 0
+          },
+          "dev": {
+            "exists": true,
+            "rows": 8233,
+            "columns": [
+              "sequence",
+              "label"
+            ],
+            "sequence_overlap_with_host_manifest": 0
+          },
+          "test": {
+            "exists": true,
+            "rows": 8225,
+            "columns": [
+              "sequence",
+              "label"
+            ],
+            "sequence_overlap_with_host_manifest": 0
+          }
+        },
+        "all_columns": [
+          "label",
+          "sequence"
+        ],
+        "has_taxonomy_columns": false,
+        "single_family_public_task": true,
+        "public_family_label": "Caliciviridae",
+        "sequence_overlap_with_host_manifest": 0,
+        "sequence_overlap_rate_with_host_manifest": 0.0,
+        "family_held_out_feasible": false,
+        "recommended_status": "blocked",
+        "reason": "Current public HVUE CSVs expose only sequence,label and the task is already restricted to Caliciviridae. A literal family-held-out split is therefore not identifiable from these files; a genus/species-held-out audit would require external taxonomy metadata."
+      },
+      "bvbrc_calici_pathogenicity": {
+        "task_dir": "data/benchmarks/raw/hvue/Pathogenecity/BVBRC_Calci",
+        "splits": {
+          "train": {
+            "exists": true,
+            "rows": 39376,
+            "columns": [
+              "sequence",
+              "label"
+            ],
+            "sequence_overlap_with_host_manifest": 0
+          },
+          "dev": {
+            "exists": true,
+            "rows": 8438,
+            "columns": [
+              "sequence",
+              "label"
+            ],
+            "sequence_overlap_with_host_manifest": 0
+          },
+          "test": {
+            "exists": true,
+            "rows": 8438,
+            "columns": [
+              "sequence",
+              "label"
+            ],
+            "sequence_overlap_with_host_manifest": 0
+          }
+        },
+        "all_columns": [
+          "label",
+          "sequence"
+        ],
+        "has_taxonomy_columns": false,
+        "single_family_public_task": true,
+        "public_family_label": "Caliciviridae",
+        "sequence_overlap_with_host_manifest": 0,
+        "sequence_overlap_rate_with_host_manifest": 0.0,
+        "family_held_out_feasible": false,
+        "recommended_status": "blocked",
+        "reason": "Current public HVUE CSVs expose only sequence,label and the task is already restricted to Caliciviridae. A literal family-held-out split is therefore not identifiable from these files; a genus/species-held-out audit would require external taxonomy metadata."
+      }
+    },
+    "recommended_primary_forget_benchmarks": [
+      "hvue_human_host_tropism",
+      "hvue_human_virus_pathogenicity_cini"
+    ]
+  },
+  "step2": {
+    "current_retain_strategy_in_repo": [
+      "gue_retain"
+    ],
+    "missing_for_requested_plan": [
+      "vGUE viral retain benchmark integration"
+    ],
+    "base_benchmark_summary": {
+      "groups": {
+        "gue_retain": {
+          "mean_score": 0.794184788489623,
+          "n_task_layers": 231
+        },
+        "hvue_forget": {
+          "mean_score": 0.9273479380369961,
+          "n_task_layers": 42
+        }
+      },
+      "benchmarks": {
+        "gue": {
+          "mean_score": 0.794184788489623,
+          "n_task_layers": 231
+        },
+        "hvue": {
+          "mean_score": 0.9273479380369961,
+          "n_task_layers": 42
+        }
+      },
+      "tasks": {
+        "gue_emp_h3": {
+          "mean_score": 0.9359161232905008,
+          "n_layers": 7
+        },
+        "gue_emp_h3k14ac": {
+          "mean_score": 0.8499890482735843,
+          "n_layers": 7
+        },
+        "gue_emp_h3k36me3": {
+          "mean_score": 0.8670574359245699,
+          "n_layers": 7
+        },
+        "gue_emp_h3k4me1": {
+          "mean_score": 0.8191971431283154,
+          "n_layers": 7
+        },
+        "gue_emp_h3k4me2": {
+          "mean_score": 0.7448813422947925,
+          "n_layers": 7
+        },
+        "gue_emp_h3k4me3": {
+          "mean_score": 0.7648899796168137,
+          "n_layers": 7
+        },
+        "gue_emp_h3k79me3": {
+          "mean_score": 0.895399718574652,
+          "n_layers": 7
+        },
+        "gue_emp_h3k9ac": {
+          "mean_score": 0.8524192064206938,
+          "n_layers": 7
+        },
+        "gue_emp_h4": {
+          "mean_score": 0.960032344112715,
+          "n_layers": 7
+        },
+        "gue_emp_h4ac": {
+          "mean_score": 0.0,
+          "n_layers": 7
+        },
+        "gue_epi_gm12878": {
+          "mean_score": 0.6423362688417652,
+          "n_layers": 7
+        },
+        "gue_epi_hela_s3": {
+          "mean_score": 0.6695950227630111,
+          "n_layers": 7
+        },
+        "gue_epi_huvec": {
+          "mean_score": 0.6916360375564631,
+          "n_layers": 7
+        },
+        "gue_epi_imr90": {
+          "mean_score": 0.6724127787340793,
+          "n_layers": 7
+        },
+        "gue_epi_k562": {
+          "mean_score": 0.6579906013830803,
+          "n_layers": 7
+        },
+        "gue_epi_nhek": {
+          "mean_score": 0.6704734945157095,
+          "n_layers": 7
+        },
+        "gue_human_tf_0": {
+          "mean_score": 0.8876005714285714,
+          "n_layers": 7
+        },
+        "gue_human_tf_1": {
+          "mean_score": 0.9139417142857142,
+          "n_layers": 7
+        },
+        "gue_human_tf_2": {
+          "mean_score": 0.8324965714285713,
+          "n_layers": 7
+        },
+        "gue_human_tf_3": {
+          "mean_score": 0.7661525714285713,
+          "n_layers": 7
+        },
+        "gue_human_tf_4": {
+          "mean_score": 0.8632834285714285,
+          "n_layers": 7
+        },
+        "gue_mouse_0": {
+          "mean_score": 0.741664815903499,
+          "n_layers": 7
+        },
+        "gue_mouse_1": {
+          "mean_score": 0.9473335306798764,
+          "n_layers": 7
+        },
+        "gue_mouse_2": {
+          "mean_score": 0.9254960907623014,
+          "n_layers": 7
+        },
+        "gue_mouse_3": {
+          "mean_score": 0.7301020408163266,
+          "n_layers": 7
+        },
+        "gue_mouse_4": {
+          "mean_score": 0.7362797532423286,
+          "n_layers": 7
+        },
+        "gue_prom_300_all": {
+          "mean_score": 0.9583224737641941,
+          "n_layers": 7
+        },
+        "gue_prom_300_notata": {
+          "mean_score": 0.985884186336727,
+          "n_layers": 7
+        },
+        "gue_prom_300_tata": {
+          "mean_score": 0.8424918960872939,
+          "n_layers": 7
+        },
+        "gue_prom_core_all": {
+          "mean_score": 0.8683144713438374,
+          "n_layers": 7
+        },
+        "gue_prom_core_notata": {
+          "mean_score": 0.8895418820909856,
+          "n_layers": 7
+        },
+        "gue_prom_core_tata": {
+          "mean_score": 0.8152138538092805,
+          "n_layers": 7
+        },
+        "gue_splice_reconstructed": {
+          "mean_score": 0.8097516227473035,
+          "n_layers": 7
+        },
+        "hvue_human_host_tropism": {
+          "mean_score": 0.9269820041825153,
+          "n_layers": 7
+        },
+        "hvue_human_transmissibility_coronaviridae": {
+          "mean_score": 0.9385319959654073,
+          "n_layers": 7
+        },
+        "hvue_human_transmissibility_orthomyxoviridae": {
+          "mean_score": 0.9739195165734987,
+          "n_layers": 7
+        },
+        "hvue_human_virus_pathogenicity_bvbrc_calici": {
+          "mean_score": 0.9998270066742893,
+          "n_layers": 7
+        },
+        "hvue_human_virus_pathogenicity_bvbrc_cov": {
+          "mean_score": 0.9615403122383009,
+          "n_layers": 7
+        },
+        "hvue_human_virus_pathogenicity_cini": {
+          "mean_score": 0.7632867925879651,
+          "n_layers": 7
+        }
+      }
+    }
+  },
+  "step3": {
+    "phase2_checkpoints": {
+      "exists": true,
+      "runs": [
+        {
+          "name": "gd_full",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_probe",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_random",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_localized",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_random",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        }
+      ],
+      "n_runs": 7
+    },
+    "phase2_tuned_checkpoints": {
+      "exists": true,
+      "runs": [
+        {
+          "name": "gd_localized",
+          "has_weights": true,
+          "has_eval_auroc": false,
+          "has_eval_ppl": false,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar10.0",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar2.0",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5",
+          "has_weights": true,
+          "has_eval_auroc": false,
+          "has_eval_ppl": false,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5.0",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5_lr2e-5",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5_lr5e-5",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5_lr5e-6",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5_s1000",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5_s2000",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_ar5_s500",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full_nonhuman",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full_sc100",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full_sc200",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full_sc50",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_localized_nonhuman",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_localized_s500",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_localized_sc100",
+          "has_weights": true,
+          "has_eval_auroc": true,
+          "has_eval_ppl": true,
+          "has_meta": true,
+          "has_log": true
+        }
+      ],
+      "n_runs": 18
+    }
+  },
+  "step5": {
+    "phase3_runs": {
+      "exists": true,
+      "runs": [
+        {
+          "name": "gd_full_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_full_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_localized_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_probe_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_probe_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_random_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "gd_random_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_full_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_localized_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_localized_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_random_lora",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "rmu_random_sft",
+          "has_auroc": true,
+          "has_meta": true,
+          "has_log": true
+        },
+        {
+          "name": "tuned",
+          "has_auroc": false,
+          "has_meta": false,
+          "has_log": false
+        }
+      ],
+      "n_runs": 15
+    },
+    "status": "attack scripts exist; LR-grid runner is phase3/run_attacks.sh"
+  }
+}

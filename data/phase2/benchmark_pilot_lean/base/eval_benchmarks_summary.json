@@ -1,0 +1,184 @@
+{
+  "groups": {
+    "gue_retain": {
+      "mean_score": 0.7689037721422975,
+      "n_task_layers": 231
+    },
+    "hvue_forget": {
+      "mean_score": 0.8831144034762852,
+      "n_task_layers": 49
+    }
+  },
+  "benchmarks": {
+    "gue": {
+      "mean_score": 0.7689037721422975,
+      "n_task_layers": 231
+    },
+    "hvue": {
+      "mean_score": 0.8831144034762852,
+      "n_task_layers": 49
+    }
+  },
+  "tasks": {
+    "gue_emp_h3": {
+      "mean_score": 0.9096662816069826,
+      "n_layers": 7
+    },
+    "gue_emp_h3k14ac": {
+      "mean_score": 0.7866727619047619,
+      "n_layers": 7
+    },
+    "gue_emp_h3k36me3": {
+      "mean_score": 0.8347166984126985,
+      "n_layers": 7
+    },
+    "gue_emp_h3k4me1": {
+      "mean_score": 0.7809419682539683,
+      "n_layers": 7
+    },
+    "gue_emp_h3k4me2": {
+      "mean_score": 0.6910097777777777,
+      "n_layers": 7
+    },
+    "gue_emp_h3k4me3": {
+      "mean_score": 0.7127017142857142,
+      "n_layers": 7
+    },
+    "gue_emp_h3k79me3": {
+      "mean_score": 0.8728838095238095,
+      "n_layers": 7
+    },
+    "gue_emp_h3k9ac": {
+      "mean_score": 0.8109716825396827,
+      "n_layers": 7
+    },
+    "gue_emp_h4": {
+      "mean_score": 0.9514427025833517,
+      "n_layers": 7
+    },
+    "gue_emp_h4ac": {
+      "mean_score": 0.6950326349206348,
+      "n_layers": 7
+    },
+    "gue_epi_gm12878": {
+      "mean_score": 0.5582190476190476,
+      "n_layers": 7
+    },
+    "gue_epi_hela_s3": {
+      "mean_score": 0.5865620317460316,
+      "n_layers": 7
+    },
+    "gue_epi_huvec": {
+      "mean_score": 0.6029344761904761,
+      "n_layers": 7
+    },
+    "gue_epi_imr90": {
+      "mean_score": 0.5461153015873016,
+      "n_layers": 7
+    },
+    "gue_epi_k562": {
+      "mean_score": 0.5659367619047619,
+      "n_layers": 7
+    },
+    "gue_epi_nhek": {
+      "mean_score": 0.5474709841269841,
+      "n_layers": 7
+    },
+    "gue_human_tf_0": {
+      "mean_score": 0.8526891428571429,
+      "n_layers": 7
+    },
+    "gue_human_tf_1": {
+      "mean_score": 0.8744062857142856,
+      "n_layers": 7
+    },
+    "gue_human_tf_2": {
+      "mean_score": 0.7997914285714286,
+      "n_layers": 7
+    },
+    "gue_human_tf_3": {
+      "mean_score": 0.6966554285714286,
+      "n_layers": 7
+    },
+    "gue_human_tf_4": {
+      "mean_score": 0.8324508571428569,
+      "n_layers": 7
+    },
+    "gue_mouse_0": {
+      "mean_score": 0.6559296274522611,
+      "n_layers": 7
+    },
+    "gue_mouse_1": {
+      "mean_score": 0.9195413333333333,
+      "n_layers": 7
+    },
+    "gue_mouse_2": {
+      "mean_score": 0.9255332710121527,
+      "n_layers": 7
+    },
+    "gue_mouse_3": {
+      "mean_score": 0.7301020408163266,
+      "n_layers": 7
+    },
+    "gue_mouse_4": {
+      "mean_score": 0.6605820952380953,
+      "n_layers": 7
+    },
+    "gue_prom_300_all": {
+      "mean_score": 0.9293886984126983,
+      "n_layers": 7
+    },
+    "gue_prom_300_notata": {
+      "mean_score": 0.9771601269841269,
+      "n_layers": 7
+    },
+    "gue_prom_300_tata": {
+      "mean_score": 0.8207840630659422,
+      "n_layers": 7
+    },
+    "gue_prom_core_all": {
+      "mean_score": 0.8421721904761906,
+      "n_layers": 7
+    },
+    "gue_prom_core_notata": {
+      "mean_score": 0.8575789206349206,
+      "n_layers": 7
+    },
+    "gue_prom_core_tata": {
+      "mean_score": 0.7972046317249434,
+      "n_layers": 7
+    },
+    "gue_splice_reconstructed": {
+      "mean_score": 0.7485757037037037,
+      "n_layers": 7
+    },
+    "hvue_human_host_tropism": {
+      "mean_score": 0.8884446984126982,
+      "n_layers": 7
+    },
+    "hvue_human_transmissibility_caliciviridae": {
+      "mean_score": 0.9967240634920636,
+      "n_layers": 7
+    },
+    "hvue_human_transmissibility_coronaviridae": {
+      "mean_score": 0.813703111111111,
+      "n_layers": 7
+    },
+    "hvue_human_transmissibility_orthomyxoviridae": {
+      "mean_score": 0.9339954285714285,
+      "n_layers": 7
+    },
+    "hvue_human_virus_pathogenicity_bvbrc_calici": {
+      "mean_score": 0.9967484444444443,
+      "n_layers": 7
+    },
+    "hvue_human_virus_pathogenicity_bvbrc_cov": {
+      "mean_score": 0.7888982857142858,
+      "n_layers": 7
+    },
+    "hvue_human_virus_pathogenicity_cini": {
+      "mean_score": 0.7632867925879651,
+      "n_layers": 7
+    }
+  }
+}

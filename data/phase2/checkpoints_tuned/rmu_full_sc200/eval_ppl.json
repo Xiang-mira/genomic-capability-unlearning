@@ -1,0 +1,8 @@
+{
+  "forget_val_perplexity": 4.774079034358984,
+  "forget_val_loss": 1.56320108294487,
+  "n_forget": 400,
+  "retain_val_perplexity": 4.677763306803508,
+  "retain_val_loss": 1.5428200697898864,
+  "n_retain": 400
+}
