@@ -100,6 +100,67 @@ class HiddenCapture:
         self.handle.remove()
 
 
+def compute_nonhuman_direction(
+    model,
+    forget_records: list,
+    retain_records: list,
+    tokenizer: "CharLevelTokenizer",
+    target_layer: int,
+    batch_size: int,
+    max_length: int,
+    device: str,
+    max_seqs: int = 500,
+    seed: int = 0,
+) -> torch.Tensor:
+    """Compute the non-human-tropic steering direction at target_layer.
+
+    direction = normalize(mean_retain_activation - mean_forget_activation)
+
+    This is more targeted than a random vector: it steers human-tropic
+    representations toward the subspace occupied by non-human-tropic sequences
+    rather than toward an arbitrary random direction.
+
+    Uses mean-pooled hidden states (same convention as probe extraction).
+    Runs under inference_mode; does not affect model gradients.
+    """
+    rng_local = random.Random(seed)
+
+    capture = HiddenCapture(model, target_layer)
+
+    def mean_pool_records(records: list) -> torch.Tensor:
+        subset = list(records)
+        if len(subset) > max_seqs:
+            rng_local.shuffle(subset)
+            subset = subset[:max_seqs]
+        accum = []
+        with torch.inference_mode():
+            for start in range(0, len(subset), batch_size):
+                batch = subset[start : start + batch_size]
+                ids, mask = tokenize_batch(
+                    [r.sequence for r in batch], tokenizer, max_length, device
+                )
+                _ = model(ids, padding_mask=mask)
+                hidden = capture.get().float()          # (B, T, D)
+                denom = mask.float().sum(dim=1, keepdim=True).clamp(min=1)
+                pooled = (hidden * mask.unsqueeze(-1).float()).sum(dim=1) / denom
+                accum.append(pooled.cpu())
+        return torch.cat(accum, dim=0).mean(dim=0)     # (D,)
+
+    print(f"[RMU] computing non-human direction: extracting forget activations "
+          f"(up to {max_seqs} seqs) ...")
+    mean_forget = mean_pool_records(forget_records)
+    print(f"[RMU] computing non-human direction: extracting retain activations "
+          f"(up to {max_seqs} seqs) ...")
+    mean_retain = mean_pool_records(retain_records)
+    capture.remove()
+
+    direction = (mean_retain - mean_forget).to(device)
+    norm = direction.norm().clamp(min=1e-8)
+    direction = direction / norm
+    print(f"[RMU] non-human direction computed: raw_norm={norm.item():.4f}")
+    return direction
+
+
 def save_block_deltas(model, layers: List[int], out_path: str) -> None:
     delta = {}
     sd = model.state_dict()
@@ -140,6 +201,23 @@ def main() -> None:
                         help="Override the output directory name (default: rmu_<condition>).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--grad-clip", type=float, default=1.0)
+    parser.add_argument(
+        "--target-direction",
+        choices=["random", "nonhuman"],
+        default="random",
+        help=(
+            "Steering direction for forget set. "
+            "'random': fixed random unit vector (original). "
+            "'nonhuman': mean(retain) - mean(forget) at target_layer, "
+            "steers human-tropic activations toward the non-human-tropic subspace."
+        ),
+    )
+    parser.add_argument(
+        "--direction-seqs",
+        type=int,
+        default=500,
+        help="Max sequences per class used to estimate the non-human direction (--target-direction=nonhuman).",
+    )
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -175,23 +253,41 @@ def main() -> None:
         print(f"[RMU] target_layer {args.target_layer} not in trainable set; "
               f"using layer {target_layer} with normalized MSE (activations unstable in layers 11+)")
 
+    forget = filter_train(read_manifest(args.forget_csv))
+    retain = filter_train(read_manifest(args.retain_csv))
+    print(f"[RMU] forget train={len(forget)}  retain train={len(retain)}")
+
     # Hooks at the target layer for both models
     train_hook = HiddenCapture(model, target_layer)
     ref_hook = HiddenCapture(ref_model, target_layer)
 
-    # Fixed random unit direction for the forget set
-    g = torch.Generator(device=args.device).manual_seed(args.seed + 999)
-    random_dir = torch.randn(hidden_dim, generator=g, device=args.device).float()
-    random_dir = random_dir / random_dir.norm().clamp(min=1e-8)
-    target_vec = (args.steer_coef * random_dir).to(torch.float32)  # (D,)
-    print(f"[RMU] random target dir norm={target_vec.norm().item():.2f}")
+    # Steering direction for the forget set
+    if args.target_direction == "nonhuman":
+        # Computed from ref_model (frozen base) so training model state is unaffected.
+        ref_model.eval()
+        raw_direction = compute_nonhuman_direction(
+            model=ref_model,
+            forget_records=forget,
+            retain_records=retain,
+            tokenizer=tokenizer,
+            target_layer=target_layer,
+            batch_size=args.batch_size,
+            max_length=args.max_length,
+            device=args.device,
+            max_seqs=args.direction_seqs,
+            seed=args.seed,
+        )
+        target_vec = (args.steer_coef * raw_direction).to(torch.float32)
+        print(f"[RMU] non-human target dir norm={target_vec.norm().item():.2f}")
+    else:
+        g = torch.Generator(device=args.device).manual_seed(args.seed + 999)
+        random_dir = torch.randn(hidden_dim, generator=g, device=args.device).float()
+        random_dir = random_dir / random_dir.norm().clamp(min=1e-8)
+        target_vec = (args.steer_coef * random_dir).to(torch.float32)  # (D,)
+        print(f"[RMU] random target dir norm={target_vec.norm().item():.2f}")
 
     trainable = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(trainable, lr=args.lr, weight_decay=0.0)
-
-    forget = filter_train(read_manifest(args.forget_csv))
-    retain = filter_train(read_manifest(args.retain_csv))
-    print(f"[RMU] forget train={len(forget)}  retain train={len(retain)}")
 
     forget_iter = iter([])
     retain_iter = iter([])
@@ -269,6 +365,8 @@ def main() -> None:
             "target_layer": target_layer,
             "normalize_hidden": normalize_hidden,
             "steer_coef": args.steer_coef,
+            "target_direction": args.target_direction,
+            "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
             "steps": args.steps, "lr": args.lr,
             "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
             "batch_size": args.batch_size, "max_length": args.max_length,

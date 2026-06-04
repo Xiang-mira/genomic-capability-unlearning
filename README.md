@@ -2,9 +2,29 @@
 
 This repository contains a three-phase pipeline for **capability localization and targeted machine unlearning** in the Evo-1-8k-base genomic foundation model (StripedHyena, 32 layers, ~7B parameters).
 
-The research question is whether host-tropism information (human-tropic vs. non-human-tropic viral sequences) can be (1) localized to specific layers via probing and causal analysis, (2) selectively removed via targeted unlearning while preserving general sequence modeling ability, and (3) tested for robustness against fine-tuning recovery attacks.
+The research question is whether human-virus-relevant genomic capabilities can be (1) localized to specific layers via probing and causal analysis, (2) selectively removed via targeted unlearning while preserving non-human viral biology and general genomics competence, and (3) tested for robustness against fine-tuning recovery attacks.
 
-All labels are based on taxonomy and host annotation only. No virulence, pathogenicity, or infectivity labels are used at any stage.
+Phase 1 uses taxonomy and host annotation only for localization. Phase 2 unlearning is evaluated primarily on external HVUE + GUE benchmarks rather than only on the training-data forget/retain perplexity proxy. A local audit of the current workspace is saved to `data/phase2/experiment_audit.json`; at present the requested vGUE retain tasks are not yet present locally, and the public HVUE Calici CSVs do not expose the taxonomy metadata needed for a literal family-held-out shortcut audit.
+
+---
+
+## Current Review Status
+
+This section summarizes what the current code and checked-in result files can answer, and what still needs an additional run.
+
+### What is already implemented
+
+- **Baseline and controls.** The Phase 2 scripts implement `full`, `localized`, `probe`, and `random` conditions. In `phase2/unlearn_gd.py` and `phase2/unlearn_rmu.py`, `localized` updates layers 3-9 from Phase 1 activation patching. `random` updates 7 layers sampled from layers 11-30, matching the number of localized layers but avoiding the causal region. With seed 42, the random control layers are 11, 13, 14, 18, 19, 22, and 27.
+- **Internal diagnostics.** `phase2/eval_unlearn.py` reports the legacy internal host-tropism probe AUROC and forget/retain validation perplexity. These results are aggregated in `data/phase2/results/task2_runs.csv` and `data/phase2/results/task2_best_checkpoints.csv`.
+- **External benchmark protocol.** `phase2/eval_benchmarks.py` evaluates base and unlearned models on frozen Evo representations with per-task linear probes. The intended primary comparison is HVUE human-virus forget performance versus GUE general-genomics retain performance.
+- **Selected external results.** External evaluations for selected candidates are saved under `data/phase2/benchmark_pilot_lean/` and `data/phase2/final_fast_eval/`. These are the current cross-checks against the internal diagnostics, but they do not yet cover every checkpoint in the sweep.
+- **Training losses.** Each unlearning run writes a `log.json` with training losses every `--log-every` steps. For example, tuned runs under `data/phase2/checkpoints_tuned/<run>/log.json` contain the optimization loss trace.
+
+### Current limitations
+
+- The internal probe AUROC and forget/retain PPL are **diagnostics**, not the final selective-unlearning claim. They are useful for debugging whether a method affects the host-tropism representation and whether the language-model objective is damaged, but final method selection should rely on external HVUE/GUE deltas.
+- The current training scripts save the final checkpoint for each run. They do **not** yet automatically save and evaluate intermediate checkpoints at fixed milestones such as 2k, 5k, 10k, or 25k steps. Therefore, the repository currently has final-checkpoint PPL/AUROC for multiple step settings, plus training-loss traces, but not a complete validation PPL/AUROC time series over training.
+- vGUE retain tasks are not yet present locally as task-ready `sequence,label,split` tables. The current retain-side external benchmark is GUE, with viral-retain integration left as a data-engineering follow-up.
 
 ---
 
@@ -25,9 +45,18 @@ All labels are based on taxonomy and host annotation only. No virulence, pathoge
 
 ![Phase 2 unlearning results](figures/phase2_results.png)
 
-**Figure:** (a) Probe AUROC by layer after unlearning. (b) Forget–retain PPL trade-off (log scale).
+**Figure:** (a) Probe AUROC by layer after unlearning. (b) Legacy forget/retain PPL diagnostic (log scale; no longer the main evaluation claim).
 
-| Method | Updated layers | AUROC L3–9 | Δ AUROC | Forget PPL | Retain PPL |
+Primary selective-unlearning evaluation now uses external benchmarks:
+
+| Evaluation axis | Benchmark tasks | Desired outcome |
+|:---|:---|:---|
+| Forget: human-virus-relevant capability | HVUE human host tropism; HVUE human-virus pathogenicity; HVUE transmissibility for Coronaviridae, Orthomyxoviridae, and Caliciviridae | Large post-unlearning drop relative to the base model |
+| Retain: general genomics | GUE promoter, splice-site, TF-binding, and chromatin-accessibility tasks | Minimal drop relative to the base model |
+
+The original host-tropism probe AUROC and forget/retain perplexity table is kept as an internal diagnostic for comparing unlearning methods before running the external benchmarks:
+
+| Method | Updated layers | Probe AUROC L3–9 | Δ AUROC | Forget PPL diagnostic | Retain PPL diagnostic |
 |:---|:---:|:---:|:---:|:---:|:---:|
 | Baseline | — | 0.844 | — | ~4.2 | ~4.2 |
 | GD full | all 32 | 0.524 | −0.320 | 31.2 | 37.9 |
@@ -44,9 +73,9 @@ All labels are based on taxonomy and host annotation only. No virulence, pathoge
 
 **Figure:** (a) Full method × attack matrix heatmap. (b) Tuned comparison: GD localized (α_retain=5.0) vs RMU full under SFT and LoRA attacks.
 
-Controlled comparison after hyperparameter tuning (both methods with retain PPL ≈ baseline):
+Controlled comparison after hyperparameter tuning (both methods with retain diagnostic PPL ≈ baseline):
 
-| Method | After unlearning | Retain PPL | After SFT | SFT Δ | After LoRA | LoRA Δ |
+| Method | After unlearning diagnostic AUROC | Retain diagnostic PPL | After SFT | SFT Δ | After LoRA | LoRA Δ |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
 | GD localized (α_retain=5.0) | 0.624 | 3.88 | 0.448 | −0.175 | 0.656 | +0.033 |
 | RMU full | 0.700 | 4.48 | 0.651 | −0.049 | 0.665 | −0.036 |
@@ -71,7 +100,8 @@ project1/
 │   ├── build_unlearn_splits.py     # Construct forget / retain / eval splits
 │   ├── unlearn_gd.py               # Gradient Difference unlearning (4 conditions)
 │   ├── unlearn_rmu.py              # RMU representation misdirection (3 conditions)
-│   ├── eval_unlearn.py             # Post-unlearning probe AUROC and PPL evaluation
+│   ├── eval_unlearn.py             # Internal post-unlearning probe AUROC and PPL diagnostics
+│   ├── eval_benchmarks.py          # External HVUE/GUE frozen-representation benchmark evaluation
 │   ├── plot_results.py             # Phase 2 results visualization
 │   └── run.sh                      # Phase 2 end-to-end script
 ├── phase3/
@@ -135,7 +165,8 @@ The PPL delta is flat across all layers (mean Δloss ≈ 0.048, std < 0.0001), i
 
 - **Forget set**: human-tropic viral sequences (label=1), train split, 3,800 sequences
 - **Retain set**: non-human-tropic viral sequences (label=0), train split, 3,814 sequences
-- **Evaluation**: val + test split, probe AUROC and perplexity
+- **Internal diagnostic**: val + test split, Phase 1 probe AUROC, and forget/retain perplexity
+- **Primary evaluation**: external HVUE + GUE benchmark manifest evaluated with frozen Evo representations and per-task linear probes
 
 ### Gradient Difference (GD)
 
@@ -162,15 +193,27 @@ A frozen reference model is maintained. At each step:
 
 Three conditions: `full`, `localized` (layers 3–9), `random`.
 
-### Key Findings
+### Benchmark Evaluation Protocol
 
-1. **Random condition validates causal layer analysis.** GD random and RMU random show AUROC ≈ 0.847 and PPL unchanged. Updating 7 non-causal layers has no effect.
+Selective unlearning is judged by benchmark deltas, not by perplexity alone. After applying each checkpoint, `phase2/eval_benchmarks.py` trains a linear classifier on frozen Evo representations for each external task and reports per-task/per-layer accuracy, macro-F1, AUROC where applicable, and grouped summary scores.
 
-2. **Probe salience ≠ intervention salience.** GD probe (layers 0–10) achieves the same AUROC reduction as GD localized (−0.320 vs −0.289) but causes 4× more retain damage (PPL 63.3 vs 15.7). Layers 0–2 are not effective intervention targets.
+The benchmark manifest must contain `benchmark,task,split,sequence,label` columns. Rows may optionally include `group`. The rebuilt benchmark manifest in this repository currently contains two explicit groups: `hvue_forget` and `gue_retain`. The intended task set is:
 
-3. **RMU full gives the best forget–retain balance.** AUROC −0.144 with retain PPL 4.48 (near baseline). GD localized gives stronger forgetting (−0.289) but higher retain damage (PPL 15.7).
+- **HVUE forget tasks**: human host tropism; human-virus pathogenicity; transmissibility for human-relevant viral families (`Coronaviridae`, `Orthomyxoviridae`, `Caliciviridae`). The checked-in manifest has now been rebuilt from the local raw files and includes the `train/val/test` splits for `hvue_human_transmissibility_caliciviridae`; see `data/phase2/experiment_audit.json` for the current coverage audit.
+- **GUE retain tasks**: promoter, splice-site, TF-binding, and chromatin-accessibility tasks, preserving general DNA modeling competence.
+- **Viral retain tasks**: `host_range_prediction`, `dna_vs_rna_virus`, and `hiv1_vs_hiv2` can be imported from task-ready local tables under `data/benchmarks/raw/viral_retain/<task>/<split>.csv|tsv|jsonl|json` and are evaluated as `group=viral_retain`. The adapter does not synthesize these labels from taxonomy-only datasets; missing task tables are reported by the audit.
 
-4. **GD localized with α_retain=5.0** reduces retain PPL to 3.88 (near baseline) while maintaining AUROC drop of −0.220, selected as the tuned GD representative for Phase 3.
+A successful method should reduce HVUE human-virus benchmark scores relative to the base model while keeping GUE scores near the base-model scores. Forget/retain PPL remains useful for debugging optimization damage, but it is no longer sufficient evidence of selective unlearning.
+
+### Diagnostic Findings
+
+1. **Random condition validates causal layer analysis.** GD random and RMU random show internal host-tropism probe AUROC ≈ 0.847 and PPL unchanged. Updating 7 non-causal layers has no effect on the current diagnostic probe.
+
+2. **Probe salience ≠ intervention salience.** GD probe (layers 0–10) achieves the same diagnostic AUROC reduction as GD localized (−0.320 vs −0.289) but causes 4× more PPL damage on the retain diagnostic (63.3 vs 15.7). Layers 0–2 are not effective intervention targets.
+
+3. **RMU full has the best internal diagnostic balance, pending HVUE/GUE confirmation.** It gives diagnostic AUROC −0.144 with retain PPL 4.48 (near baseline), while GD localized gives stronger diagnostic forgetting (−0.289) but higher PPL damage (15.7).
+
+4. **GD localized with α_retain=5.0** reduces retain diagnostic PPL to 3.88 while maintaining diagnostic AUROC drop of −0.220. It remains a useful tuned comparator, but final method selection should be based on HVUE/GUE forget-retain deltas.
 
 ---
 
@@ -191,7 +234,7 @@ Two attacks are applied to all unlearned checkpoints using 453 held-out human-tr
 
 2. **SFT does not recover unlearning — it further degrades the model.** All SFT deltas are negative. The GD random and RMU random controls (never unlearned, AUROC=0.847) drop to 0.651 and 0.681 after SFT, confirming that the current SFT setup is destructive rather than restorative.
 
-3. **Under controlled comparison, RMU full is more robust to SFT than GD localized.** With comparable retain PPL (3.88 vs 4.48), RMU full shows SFT Δ = −0.049 versus −0.175 for GD localized. RMU achieves forgetting through representation misdirection without disrupting the generation objective, making it more stable under subsequent fine-tuning.
+3. **Under the internal diagnostic comparison, RMU full is more robust to SFT than GD localized.** With comparable diagnostic retain PPL (3.88 vs 4.48), RMU full shows SFT Δ = −0.049 versus −0.175 for GD localized. This robustness claim should be rechecked after HVUE/GUE benchmark evaluation.
 
 4. **Current attack setup is underpowered.** 453 sequences and 200 steps are insufficient for a definitive robustness claim. Planned improvements: expand to 869 sequences (test + val), extend to 500 steps at lr=1e-4, and inject LoRA across all layers at rank 16.
 
@@ -212,14 +255,30 @@ bash phase1/run.sh all
 # Build splits
 bash phase2/run.sh splits
 
+# Audit local dataset / benchmark / checkpoint availability
+bash phase2/run.sh audit
+
 # Run all GD conditions (full, localized, probe, random)
 bash phase2/run.sh gd
 
 # Run all RMU conditions
 bash phase2/run.sh rmu
 
-# Evaluate all checkpoints
+# Evaluate all checkpoints with internal diagnostics
 bash phase2/run.sh eval
+
+# Rebuild benchmark manifest from raw HVUE/GUE directories
+# Set DOWNLOAD_GUE=1 if the raw GUE tree is not already present locally.
+bash phase2/run.sh prepare_benchmarks
+
+# Evaluate all checkpoints on external HVUE/GUE benchmarks
+BENCHMARK_MANIFEST=data/benchmarks/hvue_gue_manifest.csv bash phase2/run.sh benchmarks
+
+# Tuned hyperparameter sweep summary
+bash phase2/run_sweep.sh summary
+
+# Audit what a cloned Vir2vec repo can provide for future vGUE integration
+python phase2/prepare_vgue_from_vir2vec.py --vir2vec-root /tmp/Vir2vec --out data/benchmarks/vgue_from_vir2vec_audit.json
 ```
 
 Tuned GD localized (α_retain=5.0):
@@ -235,8 +294,11 @@ python phase2/unlearn_gd.py \
 ### Phase 3
 
 ```bash
-# SFT and LoRA attacks on all Phase 2 checkpoints
+# SFT and LoRA attacks on all Phase 2 checkpoints with the original fixed LR setting
 bash phase3/run.sh all
+
+# LR-grid recovery attack sweep (preferred for the current experiment plan)
+bash phase3/run_attacks.sh data/phase2/checkpoints_tuned
 ```
 
 ---
@@ -264,7 +326,7 @@ This repository contains code and aggregate metrics only. The following are excl
 - Large activation feature matrices
 - Recovery attack checkpoints
 
-All experiments use taxonomy and host annotation labels only. No virulence, pathogenicity, infectivity, or gain-of-function labels are used at any stage.
+Phase 1 localization uses taxonomy and host annotation labels. The upgraded external evaluation may include public HVUE pathogenicity and transmissibility labels only as benchmark readouts; they are not used to train the unlearning objective.
 
 ---
 

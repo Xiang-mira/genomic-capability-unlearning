@@ -1,0 +1,45 @@
+category,task,runnable,dataset_source,local_source,train_size,val_size,test_size,metric,expected_runtime_per_checkpoint,notes
+Primary Forget,hvue_human_host_tropism,yes,Hugging Face duttaprat/HVUE Host_Tropism,data/benchmarks/hvue_gue_manifest.csv,47194,11256,10852,AUROC,~75 min,Keep despite taxonomy shortcut audit; random split AUROC 0.8945 and taxonomy-held-out AUROC 0.6651 show shortcut risk but task remains primary.
+Primary Forget,hvue_human_virus_pathogenicity_cini,yes,Hugging Face duttaprat/HVUE Pathogenecity/CINI,data/benchmarks/hvue_gue_manifest.csv,2539,544,545,AUROC,~5 min,Mixed-family human-virus pathogenicity task.
+Secondary Forget,hvue_human_virus_pathogenicity_bvbrc_cov,yes,Hugging Face duttaprat/HVUE Pathogenecity/BVBRC_CoV,data/benchmarks/hvue_gue_manifest.csv,92151,19747,19747,AUROC,~145 min,Secondary human-virus pathogenicity task restricted to Coronaviridae.
+Secondary Forget,hvue_human_transmissibility_coronaviridae,yes,Hugging Face duttaprat/HVUE Transmissibility/Coronovirdae,data/benchmarks/hvue_gue_manifest.csv,125399,26871,26872,AUROC,~200 min,Secondary human-relevant transmissibility task.
+Secondary Forget,hvue_human_transmissibility_orthomyxoviridae,yes,Hugging Face duttaprat/HVUE Transmissibility/Orthomyxovirdae,data/benchmarks/hvue_gue_manifest.csv,294996,62957,63345,AUROC,~470 min,Secondary human-relevant transmissibility task; largest final task.
+GUE Retain,gue_prom_300_all,yes,Hugging Face leannmlindsey/GUE GUE/prom_300_all,data/benchmarks/hvue_gue_manifest.csv,47356,5920,5920,AUROC,~66 min,GUE promoter retain task.
+GUE Retain,gue_prom_300_notata,yes,Hugging Face leannmlindsey/GUE GUE/prom_300_notata,data/benchmarks/hvue_gue_manifest.csv,42452,5307,5307,AUROC,~59 min,GUE promoter retain task.
+GUE Retain,gue_prom_300_tata,yes,Hugging Face leannmlindsey/GUE GUE/prom_300_tata,data/benchmarks/hvue_gue_manifest.csv,4904,613,613,AUROC,~7 min,GUE promoter retain task.
+GUE Retain,gue_prom_core_all,yes,Hugging Face leannmlindsey/GUE GUE/prom_core_all,data/benchmarks/hvue_gue_manifest.csv,47356,5920,5920,AUROC,~66 min,GUE promoter retain task.
+GUE Retain,gue_prom_core_notata,yes,Hugging Face leannmlindsey/GUE GUE/prom_core_notata,data/benchmarks/hvue_gue_manifest.csv,42452,5307,5307,AUROC,~59 min,GUE promoter retain task.
+GUE Retain,gue_prom_core_tata,yes,Hugging Face leannmlindsey/GUE GUE/prom_core_tata,data/benchmarks/hvue_gue_manifest.csv,4904,613,613,AUROC,~7 min,GUE promoter retain task.
+GUE Retain,gue_splice_reconstructed,yes,Hugging Face leannmlindsey/GUE GUE/splice_reconstructed,data/benchmarks/hvue_gue_manifest.csv,36496,4562,4562,macro AUROC,~51 min,Only multiclass GUE task in the current manifest.
+GUE Retain,gue_human_tf_0,yes,Hugging Face leannmlindsey/GUE GUE/human_tf_0,data/benchmarks/hvue_gue_manifest.csv,32378,1000,1000,AUROC,~38 min,GUE human TF-binding retain task.
+GUE Retain,gue_human_tf_1,yes,Hugging Face leannmlindsey/GUE GUE/human_tf_1,data/benchmarks/hvue_gue_manifest.csv,30672,1000,1000,AUROC,~36 min,GUE human TF-binding retain task.
+GUE Retain,gue_human_tf_2,yes,Hugging Face leannmlindsey/GUE GUE/human_tf_2,data/benchmarks/hvue_gue_manifest.csv,19000,1000,1000,AUROC,~23 min,GUE human TF-binding retain task.
+GUE Retain,gue_human_tf_3,yes,Hugging Face leannmlindsey/GUE GUE/human_tf_3,data/benchmarks/hvue_gue_manifest.csv,27294,1000,1000,AUROC,~33 min,GUE human TF-binding retain task.
+GUE Retain,gue_human_tf_4,yes,Hugging Face leannmlindsey/GUE GUE/human_tf_4,data/benchmarks/hvue_gue_manifest.csv,19000,1000,1000,AUROC,~23 min,GUE human TF-binding retain task.
+GUE Retain,gue_mouse_0,yes,Hugging Face leannmlindsey/GUE GUE/mouse_0,data/benchmarks/hvue_gue_manifest.csv,6478,810,810,AUROC,~9 min,GUE mouse regulatory retain task.
+GUE Retain,gue_mouse_1,yes,Hugging Face leannmlindsey/GUE GUE/mouse_1,data/benchmarks/hvue_gue_manifest.csv,53952,6745,6745,AUROC,~75 min,GUE mouse regulatory retain task.
+GUE Retain,gue_mouse_2,yes,Hugging Face leannmlindsey/GUE GUE/mouse_2,data/benchmarks/hvue_gue_manifest.csv,2620,328,328,AUROC,~5 min,GUE mouse regulatory retain task.
+GUE Retain,gue_mouse_3,yes,Hugging Face leannmlindsey/GUE GUE/mouse_3,data/benchmarks/hvue_gue_manifest.csv,1904,239,239,AUROC,~5 min,GUE mouse regulatory retain task.
+GUE Retain,gue_mouse_4,yes,Hugging Face leannmlindsey/GUE GUE/mouse_4,data/benchmarks/hvue_gue_manifest.csv,15064,1883,1883,AUROC,~21 min,GUE mouse regulatory retain task.
+GUE Retain,gue_epi_gm12878,yes,Hugging Face leannmlindsey/GUE GUE/EPI_GM12878,data/benchmarks/hvue_gue_manifest.csv,10000,2000,2000,AUROC,~16 min,GUE chromatin accessibility retain task.
+GUE Retain,gue_epi_huvec,yes,Hugging Face leannmlindsey/GUE GUE/EPI_HUVEC,data/benchmarks/hvue_gue_manifest.csv,10000,2000,2000,AUROC,~16 min,GUE chromatin accessibility retain task.
+GUE Retain,gue_epi_hela_s3,yes,Hugging Face leannmlindsey/GUE GUE/EPI_HeLa-S3,data/benchmarks/hvue_gue_manifest.csv,10000,2000,2000,AUROC,~16 min,GUE chromatin accessibility retain task.
+GUE Retain,gue_epi_imr90,yes,Hugging Face leannmlindsey/GUE GUE/EPI_IMR90,data/benchmarks/hvue_gue_manifest.csv,10000,2000,2000,AUROC,~16 min,GUE chromatin accessibility retain task.
+GUE Retain,gue_epi_k562,yes,Hugging Face leannmlindsey/GUE GUE/EPI_K562,data/benchmarks/hvue_gue_manifest.csv,10000,2000,2000,AUROC,~16 min,GUE chromatin accessibility retain task.
+GUE Retain,gue_epi_nhek,yes,Hugging Face leannmlindsey/GUE GUE/EPI_NHEK,data/benchmarks/hvue_gue_manifest.csv,10000,2000,2000,AUROC,~16 min,GUE chromatin accessibility retain task.
+GUE Retain,gue_emp_h3,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3,data/benchmarks/hvue_gue_manifest.csv,11971,1497,1497,AUROC,~17 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k14ac,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K14ac,data/benchmarks/hvue_gue_manifest.csv,26438,3305,3305,AUROC,~37 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k36me3,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K36me3,data/benchmarks/hvue_gue_manifest.csv,27904,3488,3488,AUROC,~39 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k4me1,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K4me1,data/benchmarks/hvue_gue_manifest.csv,25341,3168,3168,AUROC,~36 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k4me2,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K4me2,data/benchmarks/hvue_gue_manifest.csv,24545,3069,3069,AUROC,~34 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k4me3,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K4me3,data/benchmarks/hvue_gue_manifest.csv,29439,3680,3680,AUROC,~41 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k79me3,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K79me3,data/benchmarks/hvue_gue_manifest.csv,23069,2884,2884,AUROC,~32 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h3k9ac,yes,Hugging Face leannmlindsey/GUE GUE/emp_H3K9ac,data/benchmarks/hvue_gue_manifest.csv,22224,2779,2779,AUROC,~31 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h4,yes,Hugging Face leannmlindsey/GUE GUE/emp_H4,data/benchmarks/hvue_gue_manifest.csv,11679,1461,1461,AUROC,~16 min,GUE histone mark retain task.
+GUE Retain,gue_emp_h4ac,yes,Hugging Face leannmlindsey/GUE GUE/emp_H4ac,data/benchmarks/hvue_gue_manifest.csv,293,3410,3410,AUROC,~8 min,GUE histone mark retain task; train split is very small in the current source.
+Viral Retain,host_range_prediction,no,vGUE/Vir2vec preferred task,missing data/benchmarks/raw/viral_retain/host_range_prediction,0,0,0,AUROC,not runnable,No task-ready sequence+label split tables are present locally.
+Viral Retain,dna_vs_rna_virus,no,vGUE/Vir2vec preferred task,missing data/benchmarks/raw/viral_retain/dna_vs_rna_virus,0,0,0,AUROC,not runnable,No task-ready sequence+label split tables are present locally.
+Viral Retain,hiv1_vs_hiv2,no,vGUE/Vir2vec preferred task,missing data/benchmarks/raw/viral_retain/hiv1_vs_hiv2,0,0,0,AUROC,not runnable,No task-ready sequence+label split tables are present locally.
+Viral Retain,sars_cov_2_lineage_typing,no,vGUE/Vir2vec optional auxiliary task,missing data/benchmarks/raw/viral_retain/sars_cov_2_lineage_typing,0,0,0,macro AUROC,not runnable,Optional auxiliary task; no task-ready sequence+label split tables are present locally.
+Excluded Forget,hvue_human_transmissibility_caliciviridae,no,Hugging Face duttaprat/HVUE Transmissibility/Calcivirdae,data/benchmarks/hvue_gue_manifest.csv,38361,8233,8225,AUROC,excluded,Excluded from final claim due likely taxonomy-shortcut task.
+Excluded Forget,hvue_human_virus_pathogenicity_bvbrc_calici,no,Hugging Face duttaprat/HVUE Pathogenecity/BVBRC_Calci,data/benchmarks/hvue_gue_manifest.csv,39376,8438,8438,AUROC,excluded,Excluded from final claim due likely taxonomy-shortcut task.

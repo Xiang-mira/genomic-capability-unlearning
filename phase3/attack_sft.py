@@ -32,11 +32,13 @@ def main():
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--out-dir", default="data/phase3")
+    parser.add_argument("--run-name", default=None,
+                        help="Override output directory name (default: <ckpt_parent>_sft).")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--lr", type=float, default=1e-5)
-    parser.add_argument("--steps", type=int, default=200)
+    parser.add_argument("--steps", type=int, default=2000)
     parser.add_argument("--log-every", type=int, default=20)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
@@ -46,19 +48,22 @@ def main():
     rng = random.Random(args.seed)
 
     run_name = os.path.basename(os.path.dirname(args.ckpt))
-    out_dir = os.path.join(args.out_dir, f"{run_name}_sft")
+    out_name = args.run_name if args.run_name else f"{run_name}_sft"
+    out_dir = os.path.join(args.out_dir, out_name)
     os.makedirs(out_dir, exist_ok=True)
-    print(f"[SFT] attacking {run_name}")
+    print(f"[SFT] attacking {run_name} → {out_dir}")
 
     model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     apply_checkpoint(model, args.ckpt)
     tokenizer = CharLevelTokenizer(512)
 
-    # Attack data: test split, label=1 (held-out viral sequences)
+    # Attack data: val label=1 for fine-tuning; test split (both labels) for eval.
+    # Keeping these disjoint ensures recovery AUROC reflects generalisation, not memorisation.
     all_records = read_manifest(args.manifest)
-    attack_records = [r for r in all_records if r.split == "test" and r.label == 1]
-    eval_records = [r for r in all_records if r.split in ("val", "test")]
-    print(f"[SFT] attack set: {len(attack_records)} sequences")
+    attack_records = [r for r in all_records if r.split == "val" and r.label == 1]
+    eval_records   = [r for r in all_records if r.split == "test"]
+    print(f"[SFT] attack-train: {len(attack_records)} sequences (val, label=1)")
+    print(f"[SFT] attack-eval:  {len(eval_records)} sequences (test, both labels)")
 
     # Eval before attack
     model.eval()
@@ -122,7 +127,10 @@ def main():
     with open(os.path.join(out_dir, "meta.json"), "w") as f:
         json.dump({"run": run_name, "attack": "sft", "steps": args.steps,
                    "lr": args.lr, "elapsed_sec": elapsed,
-                   "n_attack": len(attack_records)}, f, indent=2)
+                   "n_attack_train": len(attack_records),
+                   "n_attack_eval": len(eval_records),
+                   "attack_split": "val", "eval_split": "test",
+                   "lr_grid": True}, f, indent=2)
     with open(os.path.join(out_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)
     print(f"[SFT] saved to {out_dir} ({elapsed:.1f}s)")

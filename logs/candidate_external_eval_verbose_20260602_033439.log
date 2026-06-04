@@ -1,0 +1,116 @@
+[candidate-eval] log=logs/candidate_external_eval_verbose_20260602_033439.log
+[candidate-eval] progress_every=1000
+[candidate-eval] RUN gd_full_ar5
+[bench] runtime config: device=cuda:0 cpu_threads=16
+[bench] loaded manifest rows=938091 tasks=35 layers=[3, 4, 5, 6, 7, 8, 9] expected_task_layers=245
+[bench] applied 439 checkpoint tensors from data/phase2/checkpoints_tuned/gd_full_ar5/weights.safetensors
+[bench] task 1/35 extracting task=gue_emp_h3 n=14965 group=gue_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_emp_h3 done=1056/14965 batches=11 batch_size=96 seq_per_sec=20.6 eta_min=11.2
+[bench] extract task=gue_emp_h3 done=2016/14965 batches=21 batch_size=96 seq_per_sec=20.7 eta_min=10.4
+[bench] extract task=gue_emp_h3 done=3072/14965 batches=32 batch_size=96 seq_per_sec=20.7 eta_min=9.6
+[bench] extract task=gue_emp_h3 done=4032/14965 batches=42 batch_size=96 seq_per_sec=20.7 eta_min=8.8
+[bench] extract task=gue_emp_h3 done=5088/14965 batches=53 batch_size=96 seq_per_sec=20.6 eta_min=8.0
+[bench] extract task=gue_emp_h3 done=6048/14965 batches=63 batch_size=96 seq_per_sec=20.6 eta_min=7.2
+[bench] extract task=gue_emp_h3 done=7008/14965 batches=73 batch_size=96 seq_per_sec=20.6 eta_min=6.4
+[bench] extract task=gue_emp_h3 done=8064/14965 batches=84 batch_size=96 seq_per_sec=20.6 eta_min=5.6
+[bench] extract task=gue_emp_h3 done=9024/14965 batches=94 batch_size=96 seq_per_sec=20.6 eta_min=4.8
+[bench] extract task=gue_emp_h3 done=10080/14965 batches=105 batch_size=96 seq_per_sec=20.6 eta_min=3.9
+[bench] extract task=gue_emp_h3 done=11040/14965 batches=115 batch_size=96 seq_per_sec=20.6 eta_min=3.2
+[bench] extract task=gue_emp_h3 done=12000/14965 batches=125 batch_size=96 seq_per_sec=20.6 eta_min=2.4
+[bench] extract task=gue_emp_h3 done=13056/14965 batches=136 batch_size=96 seq_per_sec=20.6 eta_min=1.5
+[bench] extract task=gue_emp_h3 done=14016/14965 batches=146 batch_size=96 seq_per_sec=20.6 eta_min=0.8
+[bench] extract task=gue_emp_h3 done=14965/14965 batches=156 batch_size=96 seq_per_sec=20.6 eta_min=0.0
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.9084 acc=0.8350
+  layer  4: score=0.8916 acc=0.8156
+  layer  5: score=0.8780 acc=0.8063
+  layer  6: score=0.8653 acc=0.7842
+  layer  7: score=0.8631 acc=0.7889
+  layer  8: score=0.8623 acc=0.7882
+  layer  9: score=0.8627 acc=0.7836
+[bench] finished task=gue_emp_h3 wrote_rows=7 task_minutes=15.60 total_rows=7
+[bench] task 2/35 extracting task=gue_emp_h3k14ac n=33048 group=gue_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_emp_h3k14ac done=1056/33048 batches=11 batch_size=96 seq_per_sec=21.1 eta_min=25.3
+[bench] extract task=gue_emp_h3k14ac done=2016/33048 batches=21 batch_size=96 seq_per_sec=21.0 eta_min=24.7
+[bench] extract task=gue_emp_h3k14ac done=3072/33048 batches=32 batch_size=96 seq_per_sec=20.9 eta_min=23.9
+[bench] extract task=gue_emp_h3k14ac done=4032/33048 batches=42 batch_size=96 seq_per_sec=20.8 eta_min=23.3
+[bench] extract task=gue_emp_h3k14ac done=5088/33048 batches=53 batch_size=96 seq_per_sec=20.8 eta_min=22.4
+[bench] extract task=gue_emp_h3k14ac done=6048/33048 batches=63 batch_size=96 seq_per_sec=20.7 eta_min=21.7
+[bench] extract task=gue_emp_h3k14ac done=7008/33048 batches=73 batch_size=96 seq_per_sec=20.7 eta_min=21.0
+[bench] extract task=gue_emp_h3k14ac done=8064/33048 batches=84 batch_size=96 seq_per_sec=20.7 eta_min=20.1
+[bench] extract task=gue_emp_h3k14ac done=9024/33048 batches=94 batch_size=96 seq_per_sec=20.7 eta_min=19.3
+[bench] extract task=gue_emp_h3k14ac done=10080/33048 batches=105 batch_size=96 seq_per_sec=20.7 eta_min=18.5
+[bench] extract task=gue_emp_h3k14ac done=11040/33048 batches=115 batch_size=96 seq_per_sec=20.7 eta_min=17.7
+[bench] extract task=gue_emp_h3k14ac done=12000/33048 batches=125 batch_size=96 seq_per_sec=20.7 eta_min=17.0
+[bench] extract task=gue_emp_h3k14ac done=13056/33048 batches=136 batch_size=96 seq_per_sec=19.2 eta_min=17.4
+[bench] extract task=gue_emp_h3k14ac done=14016/33048 batches=146 batch_size=96 seq_per_sec=17.9 eta_min=17.7
+[bench] extract task=gue_emp_h3k14ac done=15072/33048 batches=157 batch_size=96 seq_per_sec=16.8 eta_min=17.8
+[bench] extract task=gue_emp_h3k14ac done=16032/33048 batches=167 batch_size=96 seq_per_sec=16.0 eta_min=17.7
+[bench] extract task=gue_emp_h3k14ac done=17088/33048 batches=178 batch_size=96 seq_per_sec=15.3 eta_min=17.4
+[bench] extract task=gue_emp_h3k14ac done=18048/33048 batches=188 batch_size=96 seq_per_sec=14.8 eta_min=16.9
+[bench] extract task=gue_emp_h3k14ac done=19008/33048 batches=198 batch_size=96 seq_per_sec=14.6 eta_min=16.1
+[bench] extract task=gue_emp_h3k14ac done=20064/33048 batches=209 batch_size=96 seq_per_sec=14.8 eta_min=14.6
+[bench] extract task=gue_emp_h3k14ac done=21024/33048 batches=219 batch_size=96 seq_per_sec=15.0 eta_min=13.4
+Terminated

@@ -1,0 +1,8 @@
+[candidate-eval] log=logs/candidate_external_eval_20260602_031859.log
+[candidate-eval] RUN gd_full_ar5
+[bench] runtime config: device=cuda:0 cpu_threads=16
+[bench] loaded manifest rows=938091 tasks=35 layers=[3, 4, 5, 6, 7, 8, 9] expected_task_layers=245
+[bench] applied 439 checkpoint tensors from data/phase2/checkpoints_tuned/gd_full_ar5/weights.safetensors
+[bench] task 1/35 extracting task=gue_emp_h3 n=14965 group=gue_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_emp_h3 done=14965/14965 batches=156 batch_size=96 seq_per_sec=20.6 eta_min=0.0
+Terminated

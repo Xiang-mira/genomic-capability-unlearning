@@ -7,3 +7,8 @@ __pycache__/
 *.pyc
 *.pyo
 .claude
+node_modules/
+
+# Local secrets/config
+.env
+.env.*

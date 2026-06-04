@@ -1,0 +1,87 @@
+[task2-resume] log=logs/task2_resume_rmu_random_20260601_181130.log
+[task2-resume] rerun corrupted rmu_random_sc50 via rmu_controls
+[sweep] selected 2 experiments from phase2/sweep_configs/task2_sweeps.json
+[sweep] resume=True progress=data/phase2/checkpoints_tuned/sweep_progress.json
+
+========================================================================
+[sweep] RUN rmu_full_sc50 (rmu_controls, rmu)
+========================================================================
+[sweep] skip existing train: rmu_full_sc50
+[sweep] skip existing internal eval: rmu_full_sc50
+
+========================================================================
+[sweep] RUN rmu_random_sc50 (rmu_controls, rmu)
+========================================================================
+[sweep] /home/teacher1/miniconda3/envs/UT-p1/bin/python phase2/unlearn_rmu.py --out-dir data/phase2/checkpoints_tuned --run-name rmu_random_sc50 --device cuda:0 --batch-size 2 --max-length 512 --condition random --steer-coef 50.0 --target-direction random --target-layer 6 --lr 1e-05 --steps 200
+[RMU] condition=random target_layer=6 c=50.0
+[RMU] trainable layers: [11, 13, 14, 18, 19, 22, 27]
+[RMU] trainable params: 1,411,207,168
+[RMU] target_layer 6 not in trainable set; using layer 27 with normalized MSE (activations unstable in layers 11+)
+[RMU] forget train=3800  retain train=3814
+[RMU] random target dir norm=50.00
+[RMU] done in 127.5s
+[RMU] saved to data/phase2/checkpoints_tuned/rmu_random_sc50
+[sweep] /home/teacher1/miniconda3/envs/UT-p1/bin/python phase2/eval_unlearn.py --ckpt data/phase2/checkpoints_tuned/rmu_random_sc50/weights.safetensors --device cuda:0 --batch-size 4 --max-length 512
+[eval] applied 98 weight tensors from data/phase2/checkpoints_tuned/rmu_random_sc50/weights.safetensors
+[eval] 1600 eval records (800 forget, 800 retain)
+  layer  0: val_auroc=0.7544  test_auroc=0.8768
+  layer  1: val_auroc=0.7464  test_auroc=0.8653
+  layer  2: val_auroc=0.7343  test_auroc=0.8621
+  layer  3: val_auroc=0.7436  test_auroc=0.8556
+  layer  4: val_auroc=0.7539  test_auroc=0.8548
+  layer  5: val_auroc=0.7539  test_auroc=0.8539
+  layer  6: val_auroc=0.7514  test_auroc=0.8547
+  layer  7: val_auroc=0.7619  test_auroc=0.8601
+  layer  8: val_auroc=0.7394  test_auroc=0.8048
+  layer  9: val_auroc=0.7443  test_auroc=0.8416
+  layer 10: val_auroc=0.7215  test_auroc=0.8194
+[eval] wrote AUROC to data/phase2/checkpoints_tuned/rmu_random_sc50/eval_auroc.csv
+[eval] forget_ppl=4.207  retain_ppl=4.264
+[eval] wrote perplexity to data/phase2/checkpoints_tuned/rmu_random_sc50/eval_ppl.json
+[task2-resume] regenerate result tables
+run                                method               cond         forget retain_pen    score      tax     hvue     gueΔ     rppl
+----------------------------------------------------------------------------------------------------------------------------------
+rmu_full_sc200                     rmu                  full          0.350      0.005    0.345                               4.678
+gd_full_ar5                        gradient_difference  full          0.322      0.001    0.321                               4.280
+rmu_full_sc100                     rmu                  full          0.286      0.004    0.282                               4.557
+gd_localized_ar5_s1000             gradient_difference  localized     0.256      0.000    0.256                               3.880
+gd_localized_ar5.0                 gradient_difference  localized     0.220      0.000    0.220                               3.875
+rmu_full_nonhuman                  rmu                  full          0.206      0.003    0.203                               4.517
+rmu_full_nonhuman_sc20             rmu                  full          0.206      0.003    0.203                               4.517
+gd_localized_af2_ar5               gradient_difference  localized     0.185      0.000    0.185                               3.838
+gd_localized_ar2.0                 gradient_difference  localized     0.175      0.000    0.175                               3.894
+gd_localized_ar5_s2000             gradient_difference  localized     0.183      0.008    0.175                               5.041
+gd_localized_ar5_lr2e-5            gradient_difference  localized     0.174      0.000    0.174                               3.809
+gd_localized                       gradient_difference  localized     0.289      0.115    0.174                              15.698
+gd_localized_af1_ar5               gradient_difference  localized     0.172      0.000    0.172                               3.809
+gd_localized_af1_ar2               gradient_difference  localized     0.160      0.000    0.160                               3.894
+gd_localized_af0.5_ar5             gradient_difference  localized     0.158      0.000    0.158                               3.804
+gd_localized_ar10.0                gradient_difference  localized     0.157      0.000    0.157                               3.803
+rmu_full_sc50                      rmu                  full          0.155      0.003    0.152                               4.510
+gd_localized_af1_ar10              gradient_difference  localized     0.145      0.000    0.145                               3.795
+rmu_full                           rmu                  full          0.144      0.003    0.141                               4.480
+gd_localized_ar5_s500              gradient_difference  localized     0.126      0.000    0.126                               3.766
+gd_localized_ar5_lr5e-6            gradient_difference  localized     0.123      0.000    0.123                               3.824
+rmu_localized_sc50_l4              rmu                  localized     0.103      0.001    0.102                               4.332
+rmu_localized_sc50_s500            rmu                  localized     0.086      0.002    0.084                               4.414
+rmu_localized_nonhuman             rmu                  localized     0.084      0.002    0.082                               4.400
+rmu_localized_nonhuman_sc20        rmu                  localized     0.084      0.002    0.082                               4.400
+rmu_localized_s500                 rmu                  localized     0.084      0.002    0.082                               4.436
+rmu_localized_sc100                rmu                  localized     0.084      0.002    0.081                               4.428
+rmu_localized_sc50                 rmu                  localized     0.082      0.002    0.080                               4.423
+rmu_localized                      rmu                  localized     0.079      0.002    0.076                               4.420
+rmu_localized_sc20                 rmu                  localized     0.079      0.002    0.076                               4.420
+rmu_localized_sc50_l8              rmu                  localized     0.053      0.001    0.053                               4.254
+gd_random_ar5                      gradient_difference  random       -0.002      0.000   -0.002                               3.978
+gd_random                          gradient_difference  random       -0.002      0.000   -0.003                               4.229
+rmu_random_sc50                    rmu                  random       -0.002      0.001   -0.003                               4.264
+rmu_random                         rmu                  random       -0.002      0.001   -0.003                               4.264
+gd_full                            gradient_difference  full          0.320      0.337   -0.017                              37.904
+gd_probe                           gradient_difference  probe         0.320      0.591   -0.271                              63.295
+gd_localized_ar5_lr5e-5            gradient_difference  localized     0.335 10261504.256 -10261503.921                            1026150429.771
+gd_localized                       gradient_difference  localized                0.000 -1000000000.000                                    
+gd_localized_ar5                   gradient_difference  localized                0.000 -1000000000.000                                    
+[aggregate] wrote data/phase2/results/task2_runs.csv
+[aggregate] wrote data/phase2/results/task2_best_checkpoints.csv
+[aggregate] wrote data/phase2/results/task2_summary.json
+[task2-resume] DONE

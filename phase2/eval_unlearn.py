@@ -1,13 +1,16 @@
 """
-Evaluate an unlearned checkpoint by:
+Evaluate internal diagnostics for an unlearned checkpoint by:
   1. Loading base Evo + applying weight deltas from the checkpoint
   2. Extracting mean-pooled activations per layer on the manifest (val+test)
-  3. Applying Phase 1 probes and reporting AUROC delta vs Phase 1 baseline
-  4. Reporting forget/retain perplexity (val split)
+  3. Applying Phase 1 host-tropism probes and reporting AUROC delta vs Phase 1 baseline
+  4. Reporting forget/retain perplexity diagnostics on the val split
+
+Primary selective-unlearning evaluation is implemented in phase2/eval_benchmarks.py
+for external HVUE/GUE benchmarks.
 
 Outputs:
-  data/phase2/checkpoints/<run>/eval_auroc.csv      per-layer AUROC after unlearning
-  data/phase2/checkpoints/<run>/eval_ppl.json       forget vs retain perplexity
+  data/phase2/checkpoints/<run>/eval_auroc.csv      diagnostic per-layer AUROC after unlearning
+  data/phase2/checkpoints/<run>/eval_ppl.json       diagnostic forget vs retain perplexity
 """
 import argparse
 import csv

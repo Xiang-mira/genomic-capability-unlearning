@@ -1,0 +1,160 @@
+[task2-resume] log=logs/task2_resume_sweep_20260601_181021.log
+[task2-resume] resume remaining sweep matrix
+[sweep] selected 22 experiments from phase2/sweep_configs/task2_sweeps.json
+[sweep] resume=True progress=data/phase2/checkpoints_tuned/sweep_progress.json
+
+========================================================================
+[sweep] RUN gd_localized_af1_ar2 (gd_alpha, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_af1_ar2
+[sweep] skip existing internal eval: gd_localized_af1_ar2
+
+========================================================================
+[sweep] RUN gd_localized_af1_ar5 (gd_alpha, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_af1_ar5
+[sweep] skip existing internal eval: gd_localized_af1_ar5
+
+========================================================================
+[sweep] RUN gd_localized_af1_ar10 (gd_alpha, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_af1_ar10
+[sweep] skip existing internal eval: gd_localized_af1_ar10
+
+========================================================================
+[sweep] RUN gd_localized_af0.5_ar5 (gd_alpha, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_af0.5_ar5
+[sweep] skip existing internal eval: gd_localized_af0.5_ar5
+
+========================================================================
+[sweep] RUN gd_localized_af2_ar5 (gd_alpha, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_af2_ar5
+[sweep] skip existing internal eval: gd_localized_af2_ar5
+
+========================================================================
+[sweep] RUN gd_localized_ar5_lr5e-6 (gd_lr, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_ar5_lr5e-6
+[sweep] skip existing internal eval: gd_localized_ar5_lr5e-6
+
+========================================================================
+[sweep] RUN gd_localized_ar5_lr2e-5 (gd_lr, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_ar5_lr2e-5
+[sweep] skip existing internal eval: gd_localized_ar5_lr2e-5
+
+========================================================================
+[sweep] RUN gd_localized_ar5_lr5e-5 (gd_lr, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_ar5_lr5e-5
+[sweep] skip existing internal eval: gd_localized_ar5_lr5e-5
+
+========================================================================
+[sweep] RUN gd_localized_ar5_s500 (gd_steps, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_ar5_s500
+[sweep] skip existing internal eval: gd_localized_ar5_s500
+
+========================================================================
+[sweep] RUN gd_localized_ar5_s1000 (gd_steps, gd)
+========================================================================
+[sweep] skip existing train: gd_localized_ar5_s1000
+[sweep] skip existing internal eval: gd_localized_ar5_s1000
+
+========================================================================
+[sweep] RUN gd_full_ar5 (gd_controls, gd)
+========================================================================
+[sweep] skip existing train: gd_full_ar5
+[sweep] skip existing internal eval: gd_full_ar5
+
+========================================================================
+[sweep] RUN gd_random_ar5 (gd_controls, gd)
+========================================================================
+[sweep] skip existing train: gd_random_ar5
+[sweep] skip existing internal eval: gd_random_ar5
+
+========================================================================
+[sweep] RUN rmu_localized_sc20 (rmu_steer, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_sc20
+[sweep] skip existing internal eval: rmu_localized_sc20
+
+========================================================================
+[sweep] RUN rmu_localized_sc50 (rmu_steer, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_sc50
+[sweep] skip existing internal eval: rmu_localized_sc50
+
+========================================================================
+[sweep] RUN rmu_localized_sc100 (rmu_steer, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_sc100
+[sweep] skip existing internal eval: rmu_localized_sc100
+
+========================================================================
+[sweep] RUN rmu_localized_nonhuman_sc20 (rmu_direction, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_nonhuman_sc20
+[sweep] skip existing internal eval: rmu_localized_nonhuman_sc20
+
+========================================================================
+[sweep] RUN rmu_full_nonhuman_sc20 (rmu_direction, rmu)
+========================================================================
+[sweep] skip existing train: rmu_full_nonhuman_sc20
+[sweep] skip existing internal eval: rmu_full_nonhuman_sc20
+
+========================================================================
+[sweep] RUN rmu_localized_sc50_l4 (rmu_layer, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_sc50_l4
+[sweep] skip existing internal eval: rmu_localized_sc50_l4
+
+========================================================================
+[sweep] RUN rmu_localized_sc50_l8 (rmu_layer, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_sc50_l8
+[sweep] skip existing internal eval: rmu_localized_sc50_l8
+
+========================================================================
+[sweep] RUN rmu_localized_sc50_s500 (rmu_steps, rmu)
+========================================================================
+[sweep] skip existing train: rmu_localized_sc50_s500
+[sweep] skip existing internal eval: rmu_localized_sc50_s500
+
+========================================================================
+[sweep] RUN rmu_full_sc50 (rmu_controls, rmu)
+========================================================================
+[sweep] skip existing train: rmu_full_sc50
+[sweep] skip existing internal eval: rmu_full_sc50
+
+========================================================================
+[sweep] RUN rmu_random_sc50 (rmu_controls, rmu)
+========================================================================
+[sweep] skip existing train: rmu_random_sc50
+[sweep] /home/teacher1/miniconda3/envs/UT-p1/bin/python phase2/eval_unlearn.py --ckpt data/phase2/checkpoints_tuned/rmu_random_sc50/weights.safetensors --device cuda:0 --batch-size 4 --max-length 512
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_unlearn.py", line 230, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/eval_unlearn.py", line 152, in main
+    apply_checkpoint(model, args.ckpt)
+  File "/home/teacher1/UT-project1/project1/phase2/eval_unlearn.py", line 39, in apply_checkpoint
+    delta = load_file(ckpt_path)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/safetensors/torch.py", line 336, in load_file
+    with safe_open(filename, framework="pt", device=device) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+safetensors_rust.SafetensorError: Error while deserializing header: incomplete metadata, file not fully covered
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_task2_sweeps.py", line 312, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/run_task2_sweeps.py", line 308, in main
+    train_and_eval(args, experiment, progress_path)
+  File "/home/teacher1/UT-project1/project1/phase2/run_task2_sweeps.py", line 171, in train_and_eval
+    run_command(eval_cmd, False)
+  File "/home/teacher1/UT-project1/project1/phase2/run_task2_sweeps.py", line 40, in run_command
+    subprocess.run(cmd, check=True)
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/teacher1/miniconda3/envs/UT-p1/bin/python', 'phase2/eval_unlearn.py', '--ckpt', 'data/phase2/checkpoints_tuned/rmu_random_sc50/weights.safetensors', '--device', 'cuda:0', '--batch-size', '4', '--max-length', '512']' returned non-zero exit status 1.

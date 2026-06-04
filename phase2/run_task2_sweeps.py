@@ -1,0 +1,315 @@
+"""
+Run declarative Phase 2 Task 2 GD/RMU sweeps.
+
+Each selected experiment runs:
+  train -> eval_unlearn -> optional taxonomy-held-out eval -> optional HVUE/GUE eval
+"""
+import argparse
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional
+
+
+METHOD_SCRIPT = {
+    "gd": "phase2/unlearn_gd.py",
+    "rmu": "phase2/unlearn_rmu.py",
+}
+
+
+def flag_name(key: str) -> str:
+    return "--" + key.replace("_", "-")
+
+
+def add_args(cmd: List[str], args: Dict[str, object]) -> None:
+    for key, value in args.items():
+        if isinstance(value, bool):
+            if value:
+                cmd.append(flag_name(key))
+            continue
+        cmd.extend([flag_name(key), str(value)])
+
+
+def run_command(cmd: List[str], dry_run: bool) -> None:
+    print("[sweep]", " ".join(shlex.quote(part) for part in cmd), flush=True)
+    if not dry_run:
+        subprocess.run(cmd, check=True)
+
+
+def write_progress(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with tmp_path.open("w") as f:
+        json.dump(payload, f, indent=2)
+    tmp_path.replace(path)
+
+
+def load_progress(path: Path) -> dict:
+    if not path.exists():
+        return {"runs": {}}
+    with path.open() as f:
+        return json.load(f)
+
+
+def update_run_status(progress_path: Path, run_name: str, **updates: object) -> None:
+    progress = load_progress(progress_path)
+    runs = progress.setdefault("runs", {})
+    run = runs.setdefault(run_name, {})
+    run.update(updates)
+    run["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    progress["updated_at"] = run["updated_at"]
+    write_progress(progress_path, progress)
+
+
+def internal_eval_complete(ckpt_dir: Path) -> bool:
+    return (ckpt_dir / "eval_auroc.csv").exists() and (ckpt_dir / "eval_ppl.json").exists()
+
+
+def taxonomy_eval_complete(args, run_name: str) -> bool:
+    return (Path(args.taxonomy_out_root) / run_name / "taxonomy_heldout_summary.json").exists()
+
+
+def benchmark_eval_complete(ckpt_dir: Path) -> bool:
+    return (ckpt_dir / "eval_benchmarks_summary.json").exists()
+
+
+def load_config(path: str) -> dict:
+    with open(path) as f:
+        return json.load(f)
+
+
+def selected_groups(config: dict, selectors: Iterable[str]) -> set[str]:
+    aliases = config.get("aliases", {})
+    groups = {experiment["group"] for experiment in config.get("experiments", [])}
+    selected: set[str] = set()
+    for selector in selectors:
+        if selector in aliases:
+            selected.update(aliases[selector])
+        elif selector in groups:
+            selected.add(selector)
+        else:
+            raise ValueError(
+                f"Unknown sweep selector {selector!r}. "
+                f"Known aliases={sorted(aliases)} groups={sorted(groups)}"
+            )
+    return selected
+
+
+def selected_experiments(config: dict, selectors: List[str]) -> List[dict]:
+    groups = selected_groups(config, selectors)
+    return [experiment for experiment in config.get("experiments", []) if experiment["group"] in groups]
+
+
+def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
+    method = experiment["method"]
+    if method not in METHOD_SCRIPT:
+        raise ValueError(f"Unsupported method {method!r} for run {experiment['name']}")
+
+    run_name = experiment["name"]
+    ckpt_dir = Path(args.out_dir) / run_name
+    ckpt_path = ckpt_dir / "weights.safetensors"
+    update_run_status(
+        progress_path,
+        run_name,
+        group=experiment.get("group"),
+        method=method,
+        checkpoint_dir=str(ckpt_dir),
+        status="started",
+    )
+
+    if args.resume and ckpt_path.exists():
+        print(f"[sweep] skip existing train: {run_name}")
+        update_run_status(progress_path, run_name, train="skipped_existing")
+    else:
+        train_cmd = [
+            sys.executable,
+            METHOD_SCRIPT[method],
+            "--out-dir",
+            args.out_dir,
+            "--run-name",
+            run_name,
+            "--device",
+            args.device,
+            "--batch-size",
+            str(args.batch_size),
+            "--max-length",
+            str(args.max_length),
+        ]
+        add_args(train_cmd, experiment.get("args", {}))
+        update_run_status(progress_path, run_name, train="running", status="training")
+        run_command(train_cmd, args.dry_run)
+        update_run_status(progress_path, run_name, train="complete")
+
+    if args.dry_run:
+        update_run_status(progress_path, run_name, status="dry_run")
+        return
+    if not ckpt_path.exists():
+        update_run_status(progress_path, run_name, status="failed", error=f"Missing checkpoint: {ckpt_path}")
+        raise FileNotFoundError(f"Expected checkpoint was not written: {ckpt_path}")
+
+    if args.resume and internal_eval_complete(ckpt_dir):
+        print(f"[sweep] skip existing internal eval: {run_name}")
+        update_run_status(progress_path, run_name, internal_eval="skipped_existing")
+    else:
+        eval_cmd = [
+            sys.executable,
+            "phase2/eval_unlearn.py",
+            "--ckpt",
+            str(ckpt_path),
+            "--device",
+            args.device,
+            "--batch-size",
+            str(args.eval_batch_size),
+            "--max-length",
+            str(args.max_length),
+        ]
+        update_run_status(progress_path, run_name, internal_eval="running", status="internal_eval")
+        run_command(eval_cmd, False)
+        update_run_status(progress_path, run_name, internal_eval="complete")
+
+    if args.run_taxonomy:
+        if args.resume and taxonomy_eval_complete(args, run_name):
+            print(f"[sweep] skip existing taxonomy eval: {run_name}")
+            update_run_status(progress_path, run_name, taxonomy_eval="skipped_existing")
+        else:
+            tax_out = Path(args.taxonomy_out_root) / run_name
+            tax_cmd = [
+                sys.executable,
+                "phase2/eval_taxonomy_heldout.py",
+                "--ckpt",
+                str(ckpt_path),
+                "--dataset",
+                args.taxonomy_dataset,
+                "--manifest",
+                args.taxonomy_manifest,
+                "--cini-input",
+                args.taxonomy_cini_input,
+                "--group-key",
+                args.taxonomy_group_key,
+                "--out-dir",
+                str(tax_out),
+                "--device",
+                args.device,
+                "--layers",
+                args.bench_layers,
+                "--batch-size",
+                str(args.bench_batch_size),
+                "--auto-batch-size",
+                str(args.bench_auto_batch_size),
+                "--cpu-threads",
+                str(args.bench_cpu_threads),
+                "--probe-jobs",
+                str(args.bench_probe_jobs),
+                "--progress-every",
+                str(args.bench_progress_every),
+                "--max-length",
+                str(args.max_length),
+            ]
+            update_run_status(progress_path, run_name, taxonomy_eval="running", status="taxonomy_eval")
+            run_command(tax_cmd, False)
+            update_run_status(progress_path, run_name, taxonomy_eval="complete")
+
+    if args.run_benchmarks:
+        if args.resume and benchmark_eval_complete(ckpt_dir):
+            print(f"[sweep] skip existing benchmark eval: {run_name}")
+            update_run_status(progress_path, run_name, benchmark_eval="skipped_existing")
+        else:
+            bench_cmd = [
+                sys.executable,
+                "phase2/eval_benchmarks.py",
+                "--ckpt",
+                str(ckpt_path),
+                "--benchmark-manifest",
+                args.benchmark_manifest,
+                "--resume",
+                "--device",
+                args.device,
+                "--layers",
+                args.bench_layers,
+                "--batch-size",
+                str(args.bench_batch_size),
+                "--auto-batch-size",
+                str(args.bench_auto_batch_size),
+                "--cpu-threads",
+                str(args.bench_cpu_threads),
+                "--probe-jobs",
+                str(args.bench_probe_jobs),
+                "--progress-every",
+                str(args.bench_progress_every),
+                "--max-length",
+                str(args.max_length),
+            ]
+            if args.bench_feature_cache_dir:
+                bench_cmd.extend(["--feature-cache-dir", args.bench_feature_cache_dir])
+            update_run_status(progress_path, run_name, benchmark_eval="running", status="benchmark_eval")
+            run_command(bench_cmd, False)
+            update_run_status(progress_path, run_name, benchmark_eval="complete")
+    update_run_status(progress_path, run_name, status="complete")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("selectors", nargs="*", default=["all"], help="Sweep aliases or groups from the config.")
+    parser.add_argument("--config", default="phase2/sweep_configs/task2_sweeps.json")
+    parser.add_argument("--out-dir", default=os.environ.get("TUNED_ROOT", "data/phase2/checkpoints_tuned"))
+    parser.add_argument("--device", default=os.environ.get("DEVICE", "cuda:0"))
+    parser.add_argument("--batch-size", type=int, default=int(os.environ.get("BATCH", "2")))
+    parser.add_argument("--eval-batch-size", type=int, default=int(os.environ.get("EVAL_BATCH", "4")))
+    parser.add_argument("--max-length", type=int, default=int(os.environ.get("MAX_LEN", "512")))
+    parser.add_argument(
+        "--resume",
+        action=argparse.BooleanOptionalAction,
+        default=os.environ.get("RESUME_SWEEP", "1") != "0",
+        help="Skip train/eval stages whose output artifacts already exist.",
+    )
+    parser.add_argument("--progress-path", default=None)
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--run-taxonomy", action="store_true", default=os.environ.get("RUN_TAXONOMY", "0") == "1")
+    parser.add_argument("--run-benchmarks", action="store_true", default=os.environ.get("RUN_BENCHMARKS", "0") == "1")
+    parser.add_argument("--taxonomy-dataset", default=os.environ.get("TAXONOMY_DATASET", "host_tropism"))
+    parser.add_argument("--taxonomy-group-key", default=os.environ.get("TAXONOMY_GROUP_KEY", "auto"))
+    parser.add_argument("--taxonomy-manifest", default=os.environ.get("TAXONOMY_MANIFEST", "data/host_tropism/manifest.csv"))
+    parser.add_argument("--taxonomy-cini-input", default=os.environ.get("TAXONOMY_CINI_INPUT", "data/benchmarks/hvue_gue_manifest.csv"))
+    parser.add_argument("--taxonomy-out-root", default=os.environ.get("TAXONOMY_OUT_ROOT", "data/phase2/taxonomy_heldout"))
+    parser.add_argument("--benchmark-manifest", default=os.environ.get("BENCHMARK_MANIFEST", "data/benchmarks/hvue_gue_manifest.csv"))
+    parser.add_argument("--bench-layers", default=os.environ.get("BENCH_LAYERS", "3-9"))
+    parser.add_argument("--bench-batch-size", type=int, default=int(os.environ.get("BENCH_BATCH", "0")))
+    parser.add_argument("--bench-auto-batch-size", type=int, default=int(os.environ.get("BENCH_AUTO_BATCH", "96")))
+    parser.add_argument("--bench-cpu-threads", type=int, default=int(os.environ.get("BENCH_CPU_THREADS", "16")))
+    parser.add_argument("--bench-probe-jobs", type=int, default=int(os.environ.get("BENCH_PROBE_JOBS", "7")))
+    parser.add_argument("--bench-progress-every", type=int, default=int(os.environ.get("BENCH_PROGRESS_EVERY", "25000")))
+    parser.add_argument("--bench-feature-cache-dir", default=os.environ.get("BENCH_FEATURE_CACHE_DIR", ""))
+    args = parser.parse_args()
+
+    config = load_config(args.config)
+    experiments = selected_experiments(config, args.selectors)
+    if not experiments:
+        raise RuntimeError(f"No experiments selected by {args.selectors}")
+    progress_path = Path(args.progress_path or Path(args.out_dir) / "sweep_progress.json")
+    print(f"[sweep] selected {len(experiments)} experiments from {args.config}")
+    print(f"[sweep] resume={args.resume} progress={progress_path}")
+    write_progress(
+        progress_path,
+        {
+            **load_progress(progress_path),
+            "config": args.config,
+            "selectors": args.selectors,
+            "selected_runs": [experiment["name"] for experiment in experiments],
+            "resume": args.resume,
+            "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        },
+    )
+    for experiment in experiments:
+        print("")
+        print("=" * 72)
+        print(f"[sweep] RUN {experiment['name']} ({experiment['group']}, {experiment['method']})")
+        print("=" * 72)
+        train_and_eval(args, experiment, progress_path)
+
+
+if __name__ == "__main__":
+    main()

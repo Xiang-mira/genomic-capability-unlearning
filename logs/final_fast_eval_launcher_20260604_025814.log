@@ -1,0 +1,591 @@
+logging to logs/final_fast_eval_launcher_20260604_025814.log
+=== final fast eval gd_full_ar5 2026-06-04T02:58:14+00:00 ===
+[bench] runtime config: device=cuda:0 cpu_threads=16
+[bench] loaded manifest rows=596635 tasks=23 layers=[3, 4, 5, 6, 7, 8, 9] expected_task_layers=161
+[bench] feature cache enabled dir=data/phase2/final_fast_eval/feature_cache ckpt_id=gd_full_ar5_96afd4b82c24c2c6
+[bench] applied 439 checkpoint tensors from data/phase2/checkpoints_tuned/gd_full_ar5/weights.safetensors
+[bench] resume enabled: loaded 161 existing task-layer rows
+[bench] skip task 1/23 task=gue_emp_h3: already complete
+[bench] skip task 2/23 task=gue_emp_h3k36me3: already complete
+[bench] skip task 3/23 task=gue_emp_h3k4me3: already complete
+[bench] skip task 4/23 task=gue_emp_h3k9ac: already complete
+[bench] skip task 5/23 task=gue_emp_h4: already complete
+[bench] skip task 6/23 task=gue_epi_gm12878: already complete
+[bench] skip task 7/23 task=gue_epi_huvec: already complete
+[bench] skip task 8/23 task=gue_epi_k562: already complete
+[bench] skip task 9/23 task=gue_human_tf_0: already complete
+[bench] skip task 10/23 task=gue_human_tf_2: already complete
+[bench] skip task 11/23 task=gue_human_tf_4: already complete
+[bench] skip task 12/23 task=gue_mouse_0: already complete
+[bench] skip task 13/23 task=gue_mouse_1: already complete
+[bench] skip task 14/23 task=gue_mouse_2: already complete
+[bench] skip task 15/23 task=gue_mouse_3: already complete
+[bench] skip task 16/23 task=gue_mouse_4: already complete
+[bench] skip task 17/23 task=gue_prom_300_all: already complete
+[bench] skip task 18/23 task=gue_prom_300_tata: already complete
+[bench] skip task 19/23 task=gue_prom_core_all: already complete
+[bench] skip task 20/23 task=gue_prom_core_tata: already complete
+[bench] skip task 21/23 task=gue_splice_reconstructed: already complete
+[bench] skip task 22/23 task=hvue_human_host_tropism: already complete
+[bench] skip task 23/23 task=hvue_human_virus_pathogenicity_cini: already complete
+[bench] wrote benchmark results to data/phase2/final_fast_eval/gd_full_ar5/eval_benchmarks.csv
+[bench] wrote benchmark summary to data/phase2/final_fast_eval/gd_full_ar5/eval_benchmarks_summary.json
+=== final fast eval rmu_full_sc200 2026-06-04T02:59:15+00:00 ===
+[bench] runtime config: device=cuda:0 cpu_threads=16
+[bench] loaded manifest rows=596635 tasks=23 layers=[3, 4, 5, 6, 7, 8, 9] expected_task_layers=161
+[bench] feature cache enabled dir=data/phase2/final_fast_eval/feature_cache ckpt_id=rmu_full_sc200_4cca0d7d84f457dc
+[bench] applied 439 checkpoint tensors from data/phase2/checkpoints_tuned/rmu_full_sc200/weights.safetensors
+[bench] resume enabled: loaded 49 existing task-layer rows
+[bench] skip task 1/23 task=gue_emp_h3: already complete
+[bench] skip task 2/23 task=gue_emp_h3k36me3: already complete
+[bench] skip task 3/23 task=gue_emp_h3k4me3: already complete
+[bench] skip task 4/23 task=gue_emp_h3k9ac: already complete
+[bench] skip task 5/23 task=gue_emp_h4: already complete
+[bench] skip task 6/23 task=gue_epi_gm12878: already complete
+[bench] skip task 7/23 task=gue_epi_huvec: already complete
+[bench] task 8/23 extracting task=gue_epi_k562 n=14000 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_epi_k562 done=14000/14000 batches=146 batch_size=96 seq_per_sec=20.3 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_epi_k562_2723f443371f7a758c61.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.6676 acc=0.6315
+  layer  4: score=0.6418 acc=0.6085
+  layer  5: score=0.6330 acc=0.5960
+  layer  6: score=0.6142 acc=0.5870
+  layer  7: score=0.6089 acc=0.5825
+  layer  8: score=0.5544 acc=0.5355
+  layer  9: score=0.5560 acc=0.5345
+[bench] finished task=gue_epi_k562 wrote_rows=7 task_minutes=14.43 total_rows=56
+[bench] task 9/23 extracting task=gue_human_tf_0 n=34378 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_human_tf_0 done=25056/34378 batches=261 batch_size=96 seq_per_sec=92.2 eta_min=1.7
+[bench] extract task=gue_human_tf_0 done=34378/34378 batches=359 batch_size=96 seq_per_sec=92.1 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_human_tf_0_fda7eccabb508be8b96c.npz compression=none
+  layer  3: score=0.9050 acc=0.8160
+  layer  4: score=0.8955 acc=0.8060
+  layer  5: score=0.8905 acc=0.8050
+  layer  6: score=0.8937 acc=0.8080
+  layer  7: score=0.8965 acc=0.7990
+  layer  8: score=0.8778 acc=0.7850
+  layer  9: score=0.8696 acc=0.7860
+[bench] finished task=gue_human_tf_0 wrote_rows=7 task_minutes=13.74 total_rows=63
+[bench] task 10/23 extracting task=gue_human_tf_2 n=21000 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_human_tf_2 done=21000/21000 batches=219 batch_size=96 seq_per_sec=93.0 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_human_tf_2_0504a6c30220fc52b653.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.8675 acc=0.7840
+  layer  4: score=0.8550 acc=0.7750
+  layer  5: score=0.8478 acc=0.7690
+  layer  6: score=0.8417 acc=0.7530
+  layer  7: score=0.8384 acc=0.7590
+  layer  8: score=0.8325 acc=0.7480
+  layer  9: score=0.8274 acc=0.7380
+[bench] finished task=gue_human_tf_2 wrote_rows=7 task_minutes=8.78 total_rows=70
+[bench] task 11/23 extracting task=gue_human_tf_4 n=21000 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_human_tf_4 done=21000/21000 batches=219 batch_size=96 seq_per_sec=93.0 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_human_tf_4_96beb532dc662181b1fb.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.9044 acc=0.8220
+  layer  4: score=0.8989 acc=0.8170
+  layer  5: score=0.8765 acc=0.7900
+  layer  6: score=0.8729 acc=0.7860
+  layer  7: score=0.8519 acc=0.7740
+  layer  8: score=0.8632 acc=0.7830
+  layer  9: score=0.8493 acc=0.7640
+[bench] finished task=gue_human_tf_4 wrote_rows=7 task_minutes=8.67 total_rows=77
+[bench] task 12/23 extracting task=gue_mouse_0 n=8098 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_mouse_0 done=8098/8098 batches=85 batch_size=96 seq_per_sec=94.0 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_mouse_0_e89a611d6bd6d9f1f9da.npz compression=none
+  layer  3: score=0.7878 acc=0.7111
+  layer  4: score=0.7571 acc=0.7000
+  layer  5: score=0.7511 acc=0.6975
+  layer  6: score=0.7045 acc=0.6494
+  layer  7: score=0.6706 acc=0.6111
+  layer  8: score=0.6563 acc=0.6136
+  layer  9: score=0.6438 acc=0.6111
+[bench] finished task=gue_mouse_0 wrote_rows=7 task_minutes=2.82 total_rows=84
+[bench] task 13/23 extracting task=gue_mouse_1 n=67442 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_mouse_1 done=25056/67442 batches=261 batch_size=96 seq_per_sec=92.5 eta_min=7.6
+[bench] extract task=gue_mouse_1 done=50016/67442 batches=521 batch_size=96 seq_per_sec=92.3 eta_min=3.1
+[bench] extract task=gue_mouse_1 done=67442/67442 batches=703 batch_size=96 seq_per_sec=92.2 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_mouse_1_38f88048d08ee71170fe.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+  layer  3: score=0.9587 acc=0.8824
+  layer  4: score=0.9568 acc=0.8796
+  layer  5: score=0.9546 acc=0.8809
+  layer  6: score=0.9507 acc=0.8703
+  layer  7: score=0.9446 acc=0.8589
+  layer  8: score=0.9393 acc=0.8586
+  layer  9: score=0.9362 acc=0.8572
+[bench] finished task=gue_mouse_1 wrote_rows=7 task_minutes=32.82 total_rows=91
+[bench] task 14/23 extracting task=gue_mouse_2 n=3276 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_mouse_2 done=3276/3276 batches=35 batch_size=96 seq_per_sec=95.0 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_mouse_2_9fce38e03fff67a4388f.npz compression=none
+  layer  3: score=0.9319 acc=0.8415
+  layer  4: score=0.9314 acc=0.8323
+  layer  5: score=0.9172 acc=0.8110
+  layer  6: score=0.9087 acc=0.8079
+  layer  7: score=0.9057 acc=0.7805
+  layer  8: score=0.9030 acc=0.7866
+  layer  9: score=0.9105 acc=0.8140
+[bench] finished task=gue_mouse_2 wrote_rows=7 task_minutes=0.82 total_rows=98
+[bench] task 15/23 extracting task=gue_mouse_3 n=2382 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_mouse_3 done=2382/2382 batches=25 batch_size=96 seq_per_sec=94.3 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_mouse_3_85c49c4db30ba5f87a41.npz compression=none
+  layer  3: score=0.8017 acc=0.7238
+  layer  4: score=0.7774 acc=0.7197
+  layer  5: score=0.7309 acc=0.6862
+  layer  6: score=0.6825 acc=0.6025
+  layer  7: score=0.7134 acc=0.6527
+  layer  8: score=0.7160 acc=0.6904
+  layer  9: score=0.6819 acc=0.6025
+[bench] finished task=gue_mouse_3 wrote_rows=7 task_minutes=0.60 total_rows=105
+[bench] task 16/23 extracting task=gue_mouse_4 n=18830 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_mouse_4 done=18830/18830 batches=197 batch_size=96 seq_per_sec=92.3 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_mouse_4_912c3d0c0bb3b9df0828.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.7782 acc=0.7074
+  layer  4: score=0.7687 acc=0.7026
+  layer  5: score=0.7631 acc=0.6984
+  layer  6: score=0.7407 acc=0.6835
+  layer  7: score=0.7364 acc=0.6787
+  layer  8: score=0.7150 acc=0.6585
+  layer  9: score=0.7082 acc=0.6442
+[bench] finished task=gue_mouse_4 wrote_rows=7 task_minutes=7.38 total_rows=112
+[bench] task 17/23 extracting task=gue_prom_300_all n=59196 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_prom_300_all done=25056/59196 batches=261 batch_size=96 seq_per_sec=33.9 eta_min=16.8
+[bench] extract task=gue_prom_300_all done=50016/59196 batches=521 batch_size=96 seq_per_sec=33.9 eta_min=4.5
+[bench] extract task=gue_prom_300_all done=59196/59196 batches=617 batch_size=96 seq_per_sec=33.9 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_prom_300_all_1132eaa98839ae3645ea.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.9677 acc=0.9096
+  layer  4: score=0.9653 acc=0.9069
+  layer  5: score=0.9628 acc=0.8990
+  layer  6: score=0.9593 acc=0.8931
+  layer  7: score=0.9565 acc=0.8922
+  layer  8: score=0.9513 acc=0.8838
+  layer  9: score=0.9467 acc=0.8818
+[bench] finished task=gue_prom_300_all wrote_rows=7 task_minutes=41.77 total_rows=119
+[bench] task 18/23 extracting task=gue_prom_300_tata n=6130 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_prom_300_tata done=6130/6130 batches=64 batch_size=96 seq_per_sec=34.3 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_prom_300_tata_be9b92e72cadf4619766.npz compression=none
+  layer  3: score=0.8536 acc=0.7798
+  layer  4: score=0.8424 acc=0.7912
+  layer  5: score=0.8416 acc=0.7700
+  layer  6: score=0.8280 acc=0.7651
+  layer  7: score=0.8069 acc=0.7439
+  layer  8: score=0.8080 acc=0.7406
+  layer  9: score=0.8104 acc=0.7390
+[bench] finished task=gue_prom_300_tata wrote_rows=7 task_minutes=3.97 total_rows=126
+[bench] task 19/23 extracting task=gue_prom_core_all n=59196 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_prom_core_all done=25056/59196 batches=261 batch_size=96 seq_per_sec=144.8 eta_min=3.9
+[bench] extract task=gue_prom_core_all done=50016/59196 batches=521 batch_size=96 seq_per_sec=144.3 eta_min=1.1
+[bench] extract task=gue_prom_core_all done=59196/59196 batches=617 batch_size=96 seq_per_sec=144.3 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_prom_core_all_da6681be614a04b44bac.npz compression=none
+  layer  3: score=0.8850 acc=0.8029
+  layer  4: score=0.8822 acc=0.8002
+  layer  5: score=0.8829 acc=0.8037
+  layer  6: score=0.8797 acc=0.7944
+  layer  7: score=0.8769 acc=0.7917
+  layer  8: score=0.8739 acc=0.7922
+  layer  9: score=0.8741 acc=0.7941
+[bench] finished task=gue_prom_core_all wrote_rows=7 task_minutes=19.32 total_rows=133
+[bench] task 20/23 extracting task=gue_prom_core_tata n=6130 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_prom_core_tata done=6130/6130 batches=64 batch_size=96 seq_per_sec=148.4 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_prom_core_tata_119b0065dba7283bac96.npz compression=none
+  layer  3: score=0.8668 acc=0.7879
+  layer  4: score=0.8762 acc=0.8010
+  layer  5: score=0.8812 acc=0.8091
+  layer  6: score=0.8804 acc=0.8108
+  layer  7: score=0.8647 acc=0.7896
+  layer  8: score=0.8711 acc=0.7847
+  layer  9: score=0.8596 acc=0.7602
+[bench] finished task=gue_prom_core_tata wrote_rows=7 task_minutes=1.33 total_rows=140
+[bench] task 21/23 extracting task=gue_splice_reconstructed n=45620 group=gue_core_retain layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=gue_splice_reconstructed done=25056/45620 batches=261 batch_size=96 seq_per_sec=24.8 eta_min=13.8
+[bench] extract task=gue_splice_reconstructed done=45620/45620 batches=476 batch_size=96 seq_per_sec=24.8 eta_min=0.0
+[bench] wrote feature cache data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/gue_splice_reconstructed_0f2945fa5069ed228f2d.npz compression=none
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.8397 acc=0.6705
+  layer  4: score=0.8506 acc=0.6839
+  layer  5: score=0.8575 acc=0.6883
+  layer  6: score=0.8533 acc=0.6793
+  layer  7: score=0.8522 acc=0.6743
+  layer  8: score=0.8386 acc=0.6521
+  layer  9: score=0.8335 acc=0.6453
+[bench] finished task=gue_splice_reconstructed wrote_rows=7 task_minutes=51.07 total_rows=147
+[bench] task 22/23 extracting task=hvue_human_host_tropism n=69302 group=primary_forget layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=hvue_human_host_tropism done=25056/69302 batches=261 batch_size=96 seq_per_sec=20.3 eta_min=36.4
+[bench] extract task=hvue_human_host_tropism done=50016/69302 batches=521 batch_size=96 seq_per_sec=20.3 eta_min=15.8
+[bench] extract task=hvue_human_host_tropism done=69302/69302 batches=722 batch_size=96 seq_per_sec=20.3 eta_min=0.0
+Traceback (most recent call last):
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 786, in _savez
+    format.write_array(fid, val,
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/numpy/lib/_format_impl.py", line 777, in write_array
+    fp.write(chunk.tobytes('C'))
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/zipfile.py", line 1196, in write
+    self._fileobj.write(data)
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 336, in save_feature_cache
+    np.savez(f, **payload)
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 673, in savez
+    _savez(file, args, kwds, False, allow_pickle=allow_pickle)
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/numpy/lib/_npyio_impl.py", line 790, in _savez
+    zipf.close()
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/zipfile.py", line 1926, in close
+    self._write_end_record()
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/zipfile.py", line 2024, in _write_end_record
+    self.fp.flush()
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 927, in main
+    features_by_layer = get_features_for_task(
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 404, in get_features_for_task
+    save_feature_cache(cache_path, features, compression=feature_cache_compression)
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 334, in save_feature_cache
+    with open(tmp_path, "wb") as f:
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 1028, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 1012, in main
+    report_progress(
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 851, in report_progress
+    write_progress(progress_path, payload)
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 251, in 

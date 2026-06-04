@@ -1,0 +1,150 @@
+logging to logs/final_fast_eval_launcher_20260604_073836.log
+=== final fast eval gd_full_ar5 2026-06-04T07:38:36+00:00 ===
+[bench] runtime config: device=cuda:0 cpu_threads=16
+[bench] loaded manifest rows=596635 tasks=23 layers=[3, 4, 5, 6, 7, 8, 9] expected_task_layers=161
+[bench] feature cache enabled dir=data/phase2/final_fast_eval/feature_cache ckpt_id=gd_full_ar5_96afd4b82c24c2c6
+[bench] applied 439 checkpoint tensors from data/phase2/checkpoints_tuned/gd_full_ar5/weights.safetensors
+[bench] resume enabled: loaded 161 existing task-layer rows
+[bench] skip task 1/23 task=gue_emp_h3: already complete
+[bench] skip task 2/23 task=gue_emp_h3k36me3: already complete
+[bench] skip task 3/23 task=gue_emp_h3k4me3: already complete
+[bench] skip task 4/23 task=gue_emp_h3k9ac: already complete
+[bench] skip task 5/23 task=gue_emp_h4: already complete
+[bench] skip task 6/23 task=gue_epi_gm12878: already complete
+[bench] skip task 7/23 task=gue_epi_huvec: already complete
+[bench] skip task 8/23 task=gue_epi_k562: already complete
+[bench] skip task 9/23 task=gue_human_tf_0: already complete
+[bench] skip task 10/23 task=gue_human_tf_2: already complete
+[bench] skip task 11/23 task=gue_human_tf_4: already complete
+[bench] skip task 12/23 task=gue_mouse_0: already complete
+[bench] skip task 13/23 task=gue_mouse_1: already complete
+[bench] skip task 14/23 task=gue_mouse_2: already complete
+[bench] skip task 15/23 task=gue_mouse_3: already complete
+[bench] skip task 16/23 task=gue_mouse_4: already complete
+[bench] skip task 17/23 task=gue_prom_300_all: already complete
+[bench] skip task 18/23 task=gue_prom_300_tata: already complete
+[bench] skip task 19/23 task=gue_prom_core_all: already complete
+[bench] skip task 20/23 task=gue_prom_core_tata: already complete
+[bench] skip task 21/23 task=gue_splice_reconstructed: already complete
+[bench] skip task 22/23 task=hvue_human_host_tropism: already complete
+[bench] skip task 23/23 task=hvue_human_virus_pathogenicity_cini: already complete
+[bench] wrote benchmark results to data/phase2/final_fast_eval/gd_full_ar5/eval_benchmarks.csv
+[bench] wrote benchmark summary to data/phase2/final_fast_eval/gd_full_ar5/eval_benchmarks_summary.json
+=== final fast eval rmu_full_sc200 2026-06-04T07:39:38+00:00 ===
+[bench] runtime config: device=cuda:0 cpu_threads=16
+[bench] loaded manifest rows=596635 tasks=23 layers=[3, 4, 5, 6, 7, 8, 9] expected_task_layers=161
+[bench] feature cache enabled dir=data/phase2/final_fast_eval/feature_cache ckpt_id=rmu_full_sc200_4cca0d7d84f457dc
+[bench] applied 439 checkpoint tensors from data/phase2/checkpoints_tuned/rmu_full_sc200/weights.safetensors
+[bench] resume enabled: loaded 147 existing task-layer rows
+[bench] skip task 1/23 task=gue_emp_h3: already complete
+[bench] skip task 2/23 task=gue_emp_h3k36me3: already complete
+[bench] skip task 3/23 task=gue_emp_h3k4me3: already complete
+[bench] skip task 4/23 task=gue_emp_h3k9ac: already complete
+[bench] skip task 5/23 task=gue_emp_h4: already complete
+[bench] skip task 6/23 task=gue_epi_gm12878: already complete
+[bench] skip task 7/23 task=gue_epi_huvec: already complete
+[bench] skip task 8/23 task=gue_epi_k562: already complete
+[bench] skip task 9/23 task=gue_human_tf_0: already complete
+[bench] skip task 10/23 task=gue_human_tf_2: already complete
+[bench] skip task 11/23 task=gue_human_tf_4: already complete
+[bench] skip task 12/23 task=gue_mouse_0: already complete
+[bench] skip task 13/23 task=gue_mouse_1: already complete
+[bench] skip task 14/23 task=gue_mouse_2: already complete
+[bench] skip task 15/23 task=gue_mouse_3: already complete
+[bench] skip task 16/23 task=gue_mouse_4: already complete
+[bench] skip task 17/23 task=gue_prom_300_all: already complete
+[bench] skip task 18/23 task=gue_prom_300_tata: already complete
+[bench] skip task 19/23 task=gue_prom_core_all: already complete
+[bench] skip task 20/23 task=gue_prom_core_tata: already complete
+[bench] skip task 21/23 task=gue_splice_reconstructed: already complete
+[bench] task 22/23 extracting task=hvue_human_host_tropism n=69302 group=primary_forget layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=hvue_human_host_tropism done=25056/69302 batches=261 batch_size=96 seq_per_sec=20.2 eta_min=36.5
+[bench] extract task=hvue_human_host_tropism done=50016/69302 batches=521 batch_size=96 seq_per_sec=20.2 eta_min=15.9
+[bench] extract task=hvue_human_host_tropism done=69302/69302 batches=722 batch_size=96 seq_per_sec=20.2 eta_min=0.0
+[bench] feature cache write disabled task=hvue_human_host_tropism path=data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/hvue_human_host_tropism_b627394a7f2f31524891.npz
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 1000 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=1000).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+  layer  3: score=0.9255 acc=0.8480
+  layer  4: score=0.9179 acc=0.8434
+  layer  5: score=0.9149 acc=0.8387
+  layer  6: score=0.9093 acc=0.8334
+  layer  7: score=0.9090 acc=0.8329
+  layer  8: score=0.8963 acc=0.8191
+  layer  9: score=0.8922 acc=0.8132
+[bench] finished task=hvue_human_host_tropism wrote_rows=7 task_minutes=73.24 total_rows=154
+[bench] task 23/23 extracting task=hvue_human_virus_pathogenicity_cini n=3628 group=primary_forget layers=[3, 4, 5, 6, 7, 8, 9]
+[bench] extract task=hvue_human_virus_pathogenicity_cini done=3628/3628 batches=38 batch_size=96 seq_per_sec=20.5 eta_min=0.0
+[bench] feature cache write disabled task=hvue_human_virus_pathogenicity_cini path=data/phase2/final_fast_eval/feature_cache/rmu_full_sc200_4cca0d7d84f457dc/hvue_human_virus_pathogenicity_cini_9447ded3d6cff1947011.npz
+  layer  3: score=0.7827 acc=0.7376
+  layer  4: score=0.7660 acc=0.7266
+  layer  5: score=0.7518 acc=0.7303
+  layer  6: score=0.7548 acc=0.7119
+  layer  7: score=0.7502 acc=0.7064
+  layer  8: score=0.7460 acc=0.7083
+  layer  9: score=0.7463 acc=0.7009
+[bench] finished task=hvue_human_virus_pathogenicity_cini wrote_rows=7 task_minutes=3.38 total_rows=161
+[bench] wrote benchmark results to data/phase2/final_fast_eval/rmu_full_sc200/eval_benchmarks.csv
+[bench] wrote benchmark summary to data/phase2/final_fast_eval/rmu_full_sc200/eval_benchmarks_summary.json
+=== final fast eval complete 2026-06-04T08:57:23+00:00 ===
+

@@ -1,9 +1,9 @@
 """
-Phase 2 unlearning results visualization.
+Phase 2 internal diagnostic visualization.
 
 Produces a 2-panel figure:
-  Left:  AUROC by layer for all 6 runs vs Phase 1 baseline
-  Right: forget_ppl vs retain_ppl scatter (trade-off plot)
+  Left:  host-tropism probe AUROC by layer for all runs vs Phase 1 baseline
+  Right: forget_ppl vs retain_ppl diagnostic scatter
 """
 import json
 import os
@@ -39,7 +39,7 @@ def load_run(run_name):
 
 def main():
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-    fig.suptitle("Phase 2 Unlearning Results — Evo-1-8k-base\nHost Tropism: Human-tropic vs Non-human-tropic",
+    fig.suptitle("Phase 2 Internal Diagnostics — Evo-1-8k-base\nHost Tropism: Human-tropic vs Non-human-tropic",
                  fontsize=12)
 
     # ── Panel 1: AUROC by layer ───────────────────────────────────────────────
@@ -85,7 +85,7 @@ def main():
 
     ax.set_xlabel("Forget perplexity ↑ (more forgetting)", fontsize=10)
     ax.set_ylabel("Retain perplexity ↓ (less collateral damage)", fontsize=10)
-    ax.set_title("(b) Forget–Retain trade-off\n(ideal: top-right)", fontsize=10, loc="left")
+    ax.set_title("(b) PPL diagnostics\n(not a benchmark trade-off)", fontsize=10, loc="left")
     ax.legend(fontsize=7.5, loc="upper left")
     ax.set_xscale("log")
     ax.grid(True, alpha=0.25)
