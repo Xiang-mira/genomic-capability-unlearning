@@ -1,0 +1,24 @@
+nohup: ignoring input
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=49190 tasks=1 scope=task
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=host_tropism_hiyata rows=49190
+[bench-lora] task=host_tropism_hiyata step=500 train_loss=0.0046 val_loss=0.4383 auroc=0.937301571159413
+[bench-lora] task=host_tropism_hiyata step=1000 train_loss=0.0010 val_loss=0.5011 auroc=0.9548113212344136
+[bench-lora] task=host_tropism_hiyata step=1500 train_loss=0.0000 val_loss=0.5658 auroc=0.9583139068475233
+[bench-lora] task=host_tropism_hiyata step=2000 train_loss=0.0009 val_loss=0.5291 auroc=0.9542613333009995
+[bench-lora] task=host_tropism_hiyata step=2500 train_loss=0.0005 val_loss=0.5104 auroc=0.9645529378909172
+[bench-lora] task=host_tropism_hiyata step=3000 train_loss=0.0004 val_loss=0.5204 auroc=0.9611078983528034
+[bench-lora] task=host_tropism_hiyata step=3500 train_loss=0.0010 val_loss=0.4940 auroc=0.9663387730101183
+[bench-lora] task=host_tropism_hiyata step=4000 train_loss=0.0010 val_loss=0.4154 auroc=0.9676237568189898
+[bench-lora] task=host_tropism_hiyata step=4500 train_loss=0.0038 val_loss=0.3207 auroc=0.9756758559159712
+[bench-lora] task=host_tropism_hiyata step=5000 train_loss=0.0006 val_loss=0.3269 auroc=0.9763248993701517
+[bench-lora] task=host_tropism_hiyata step=5500 train_loss=0.0000 val_loss=0.3754 auroc=0.9778960978969722
+[bench-lora] task=host_tropism_hiyata step=6000 train_loss=0.0000 val_loss=0.3436 auroc=0.9807806376867827
+[bench-lora] task=host_tropism_hiyata step=6500 train_loss=1.6318 val_loss=0.2941 auroc=0.980324278244122
+[bench-lora] task=host_tropism_hiyata step=7000 train_loss=0.0000 val_loss=0.3202 auroc=0.9800461307329483
+[bench-lora] task=host_tropism_hiyata step=7500 train_loss=0.0000 val_loss=0.3748 auroc=0.977713387886556
+[bench-lora] early stop task=host_tropism_hiyata step=7500
+[bench-lora] finished task=host_tropism_hiyata best_step=6000 test_auroc=0.9447334220740442 test_f1=0.900475491977506 test_acc=0.9034153507161219
+[bench-lora] wrote benchmark results to data/phase2/hiyata_lora/base/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/hiyata_lora/base/eval_benchmarks_summary.json

@@ -1,12 +1,17 @@
 """
-Taxonomy-held-out probe evaluation for Phase 2.
+Controlled-split probe evaluation for Phase 2 host-tropism validation.
 
-This script keeps benchmark engineering narrow: Host Tropism is evaluated from
-the existing local manifest with taxonomy columns, while CINI is evaluated only
-when the provided local input already contains usable taxonomy/group metadata.
+The scientific goal is to test whether host-tropism is decodable from model
+representations after removing specific shortcuts, not just to produce another
+benchmark table. Each split mode records the confound it is intended to control.
+
+Host Tropism is evaluated from the local manifest with taxonomy-ish columns.
+CINI is evaluated only when the provided local input already contains usable
+taxonomy/group metadata.
 """
 import argparse
 import csv
+import hashlib
 import json
 import os
 import random
@@ -23,7 +28,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from evo.tokenizer import CharLevelTokenizer
 from phase1.utils import load_local_checkpoint
-from phase2.eval_benchmarks import (
+from phase2.eval_benchmarks_probe_legacy import (
     apply_checkpoint,
     append_rows,
     extract_features_for_layers,
@@ -35,7 +40,16 @@ from phase2.eval_benchmarks import (
 )
 
 
-TAXONOMY_COLUMNS = ["family", "genus", "species", "virus_tax_id", "accession", "id"]
+TAXONOMY_COLUMNS = [
+    "family",
+    "genus",
+    "species",
+    "virus_tax_id",
+    "virus_name",
+    "source",
+    "accession",
+    "id",
+]
 CINI_TASK = "hvue_human_virus_pathogenicity_cini"
 
 
@@ -271,6 +285,134 @@ def apply_random_splits(
                 record.split = "train"
 
 
+def stable_hash_int(text: str) -> int:
+    digest = hashlib.blake2b(text.encode("utf-8"), digest_size=8).digest()
+    return int.from_bytes(digest, "big", signed=False)
+
+
+def sequence_signature(seq: str, kmer: int, stride: int, num_hashes: int) -> Tuple[int, ...]:
+    if len(seq) <= kmer:
+        return (stable_hash_int(seq),)
+    hashes = {
+        stable_hash_int(seq[idx : idx + kmer])
+        for idx in range(0, len(seq) - kmer + 1, max(1, stride))
+        if "N" not in seq[idx : idx + kmer]
+    }
+    if not hashes:
+        hashes = {stable_hash_int(seq[idx : idx + kmer]) for idx in range(0, len(seq) - kmer + 1, max(1, stride))}
+    return tuple(sorted(hashes)[: max(1, num_hashes)])
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n))
+
+    def find(self, x: int) -> int:
+        while self.parent[x] != x:
+            self.parent[x] = self.parent[self.parent[x]]
+            x = self.parent[x]
+        return x
+
+    def union(self, a: int, b: int) -> None:
+        ra = self.find(a)
+        rb = self.find(b)
+        if ra != rb:
+            self.parent[rb] = ra
+
+
+def assign_homology_clusters(
+    records: List[TaxonomyRecord],
+    kmer: int,
+    stride: int,
+    num_hashes: int,
+    band_size: int,
+) -> str:
+    """Assign approximate sequence clusters using MinHash-style LSH buckets."""
+    uf = UnionFind(len(records))
+    buckets: Dict[Tuple[int, Tuple[int, ...]], int] = {}
+    for idx, record in enumerate(records):
+        sig = sequence_signature(record.sequence, kmer, stride, num_hashes)
+        if len(sig) < band_size:
+            bands = [(0, sig)]
+        else:
+            bands = [
+                (band_idx, sig[start : start + band_size])
+                for band_idx, start in enumerate(range(0, len(sig), band_size))
+                if len(sig[start : start + band_size]) == band_size
+            ]
+        for bucket in bands:
+            if bucket in buckets:
+                uf.union(idx, buckets[bucket])
+            else:
+                buckets[bucket] = idx
+    for idx, record in enumerate(records):
+        record.group_value = f"seq_cluster_{uf.find(idx)}"
+    return "sequence_cluster"
+
+
+def apply_within_group_splits(
+    records: List[TaxonomyRecord],
+    val_frac: float,
+    test_frac: float,
+    seed: int,
+    min_per_label: int,
+) -> List[TaxonomyRecord]:
+    """Keep mixed-label groups and split each group-label bucket internally."""
+    by_group_label: Dict[str, Dict[str, List[TaxonomyRecord]]] = defaultdict(lambda: defaultdict(list))
+    for record in records:
+        by_group_label[record.group_value][record.label].append(record)
+
+    kept: List[TaxonomyRecord] = []
+    rng = random.Random(seed)
+    for _group, label_buckets in by_group_label.items():
+        if len(label_buckets) < 2:
+            continue
+        if any(len(bucket) < min_per_label for bucket in label_buckets.values()):
+            continue
+        for bucket in label_buckets.values():
+            bucket = list(bucket)
+            rng.shuffle(bucket)
+            n_total = len(bucket)
+            n_test = max(1, int(round(n_total * test_frac)))
+            n_val = max(1, int(round(n_total * val_frac)))
+            for idx, record in enumerate(bucket):
+                if idx < n_test:
+                    record.split = "test"
+                elif idx < n_test + n_val:
+                    record.split = "val"
+                else:
+                    record.split = "train"
+                kept.append(record)
+    return kept
+
+
+def split_scientific_context(split_mode: str, group_key: str) -> Dict[str, str]:
+    if split_mode == "random":
+        return {
+            "scientific_claim": "baseline host-tropism decodability from model representations",
+            "confound_removed": "none; this split measures learnability before shortcut controls",
+        }
+    if split_mode == "taxonomy":
+        return {
+            "scientific_claim": "host-tropism decodability under held-out taxonomy groups",
+            "confound_removed": (
+                f"train/test overlap at the selected taxonomy key ({group_key}); "
+                "this is family-held-out only when the selected key is a true family lineage"
+            ),
+        }
+    if split_mode == "homology":
+        return {
+            "scientific_claim": "host-tropism decodability under held-out approximate sequence clusters",
+            "confound_removed": "near-duplicate or high-similarity sequence leakage approximated by k-mer MinHash clusters",
+        }
+    if split_mode == "within_group":
+        return {
+            "scientific_claim": "host-tropism decodability among mixed-label viruses within the selected taxonomy group",
+            "confound_removed": f"between-{group_key} label shortcut; evaluation is restricted to groups containing both labels",
+        }
+    return {"scientific_claim": "", "confound_removed": ""}
+
+
 def validate_records(records: List[TaxonomyRecord], min_per_split_class: int) -> List[str]:
     issues = []
     for split in ("train", "val", "test"):
@@ -325,6 +467,7 @@ def write_split_summary(
         "group_key": group_key,
         "split_mode": split_mode,
         "seed": seed,
+        **split_scientific_context(split_mode, group_key),
         "n_records": len(records),
         "n_groups": len(groups),
         "split_label_counts": count_by_split_label(records),
@@ -343,6 +486,38 @@ def write_split_summary(
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(payload, f, indent=2)
+
+
+def write_controlled_manifest(path: str, records: List[TaxonomyRecord], group: str) -> None:
+    fieldnames = [
+        "benchmark",
+        "task",
+        "group",
+        "split",
+        "sequence",
+        "label",
+        "group_value",
+        "id",
+        "original_split",
+    ]
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in records:
+            writer.writerow(
+                {
+                    "benchmark": record.benchmark,
+                    "task": record.task,
+                    "group": group,
+                    "split": record.split,
+                    "sequence": record.sequence,
+                    "label": record.label,
+                    "group_value": record.group_value,
+                    "id": record.record_id,
+                    "original_split": record.original_split,
+                }
+            )
 
 
 def metric_from_row(row: dict) -> Optional[float]:
@@ -376,6 +551,7 @@ def evaluate_records(args, records: List[TaxonomyRecord], group_key: str, valida
     results_path = os.path.join(out_dir, "taxonomy_heldout.csv")
     summary_path = os.path.join(out_dir, "taxonomy_heldout_summary.json")
     split_path = os.path.join(out_dir, "taxonomy_heldout_splits.json")
+    controlled_manifest_path = os.path.join(out_dir, "controlled_split_manifest.csv")
     if os.path.exists(results_path):
         os.remove(results_path)
 
@@ -388,6 +564,11 @@ def evaluate_records(args, records: List[TaxonomyRecord], group_key: str, valida
         args.split_mode,
         args.seed,
         validation_issues,
+    )
+    write_controlled_manifest(
+        controlled_manifest_path,
+        task_records,
+        group=f"host_tropism_{args.split_mode}",
     )
 
     tune_runtime(args.device, args.cpu_threads)
@@ -443,7 +624,7 @@ def evaluate_records(args, records: List[TaxonomyRecord], group_key: str, valida
             row = {
                 "benchmark": task_group_records[0].benchmark,
                 "task": task,
-                "group": "taxonomy_heldout",
+                "group": f"host_tropism_{args.split_mode}",
                 "layer": layer,
                 **result,
             }
@@ -460,6 +641,7 @@ def evaluate_records(args, records: List[TaxonomyRecord], group_key: str, valida
                 "dataset": args.dataset,
                 "group_key": group_key,
                 "split_mode": args.split_mode,
+                **split_scientific_context(args.split_mode, group_key),
                 "validation_issues": validation_issues,
                 "elapsed_sec": time.time() - started,
             },
@@ -476,12 +658,14 @@ def evaluate_records(args, records: List[TaxonomyRecord], group_key: str, valida
             "dataset": args.dataset,
             "group_key": group_key,
             "split_mode": args.split_mode,
+            **split_scientific_context(args.split_mode, group_key),
             "validation_issues": validation_issues,
             "elapsed_sec": time.time() - started,
         },
     )
     print(f"[tax] wrote taxonomy-held-out results to {results_path}")
     print(f"[tax] wrote taxonomy-held-out summary to {summary_path}")
+    print(f"[tax] wrote controlled split manifest to {controlled_manifest_path}")
 
 
 def main() -> None:
@@ -492,9 +676,13 @@ def main() -> None:
     parser.add_argument("--group-key", default="auto")
     parser.add_argument(
         "--split-mode",
-        choices=["taxonomy", "random"],
+        choices=["taxonomy", "random", "homology", "within_group"],
         default="taxonomy",
-        help="taxonomy holds out whole taxonomy groups; random stratifies rows by label.",
+        help=(
+            "random stratifies rows by label; taxonomy holds out whole selected groups; "
+            "homology holds out approximate sequence clusters; within_group keeps mixed-label "
+            "groups and splits inside each group."
+        ),
     )
     parser.add_argument("--ckpt", default=None)
     parser.add_argument("--out-dir", default=None)
@@ -519,6 +707,16 @@ def main() -> None:
         default=0,
         help="Optional smoke-test cap on total val+test groups; 0 keeps all groups.",
     )
+    parser.add_argument("--homology-kmer", type=int, default=15)
+    parser.add_argument("--homology-stride", type=int, default=5)
+    parser.add_argument("--homology-num-hashes", type=int, default=64)
+    parser.add_argument("--homology-band-size", type=int, default=4)
+    parser.add_argument(
+        "--within-group-min-per-label",
+        type=int,
+        default=3,
+        help="Minimum examples per label required to keep a group for within_group evaluation.",
+    )
     args = parser.parse_args()
 
     out_dir = args.out_dir or (
@@ -537,7 +735,14 @@ def main() -> None:
         write_skip(out_dir, args.dataset, "No usable records after filtering.")
         return
 
-    if args.split_mode == "taxonomy":
+    if args.split_mode == "homology":
+        group_key = assign_homology_clusters(
+            records=records,
+            kmer=args.homology_kmer,
+            stride=args.homology_stride,
+            num_hashes=args.homology_num_hashes,
+            band_size=args.homology_band_size,
+        )
         assignment = choose_group_splits(
             records=records,
             val_frac=args.val_frac,
@@ -546,6 +751,30 @@ def main() -> None:
             max_eval_groups=args.max_eval_groups,
         )
         apply_group_splits(records, assignment)
+    elif args.split_mode == "taxonomy":
+        assignment = choose_group_splits(
+            records=records,
+            val_frac=args.val_frac,
+            test_frac=args.test_frac,
+            seed=args.seed,
+            max_eval_groups=args.max_eval_groups,
+        )
+        apply_group_splits(records, assignment)
+    elif args.split_mode == "within_group":
+        records = apply_within_group_splits(
+            records=records,
+            val_frac=args.val_frac,
+            test_frac=args.test_frac,
+            seed=args.seed,
+            min_per_label=args.within_group_min_per_label,
+        )
+        if not records:
+            write_skip(
+                out_dir,
+                args.dataset,
+                f"No mixed-label groups with at least {args.within_group_min_per_label} rows per label.",
+            )
+            return
     else:
         apply_random_splits(records, args.val_frac, args.test_frac, args.seed)
     validation_issues = validate_records(records, args.min_per_split_class)

@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LoRA-Based Downstream Evaluation and Unlearning Pilot</title>
+  <style>
+    :root {
+      --ink: #17212b;
+      --muted: #5c6670;
+      --line: #d8dee6;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --blue: #2f6f9f;
+      --red: #d65a31;
+      --green: #3a8d7c;
+      --gold: #b98318;
+      --soft-blue: #e8f1f8;
+      --soft-red: #faebe6;
+      --soft-green: #e8f4f1;
+      --soft-gold: #fbf3df;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #17324a 0%, #2f6f9f 100%);
+      color: white;
+      padding: 42px 56px 34px;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.12;
+      font-weight: 760;
+      letter-spacing: 0;
+      max-width: 1080px;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 980px;
+      color: rgba(255,255,255,0.86);
+      font-size: 17px;
+    }
+
+    main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 28px 28px 56px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 26px;
+      margin: 18px 0;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 23px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 18px 0 10px;
+      font-size: 16px;
+      color: #2c3947;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .card.blue { background: var(--soft-blue); border-color: #c8dbea; }
+    .card.red { background: var(--soft-red); border-color: #efcfc4; }
+    .card.green { background: var(--soft-green); border-color: #c5e0d9; }
+    .card.gold { background: var(--soft-gold); border-color: #ead7a8; }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 720;
+    }
+
+    .big {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 780;
+      color: var(--ink);
+      margin: 3px 0 6px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 12px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+      min-height: 94px;
+      position: relative;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #394653;
+      background: #f3f6f9;
+      font-weight: 720;
+    }
+
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 720;
+      white-space: nowrap;
+    }
+
+    .tag.gd { background: var(--soft-red); color: #9d351f; }
+    .tag.rmu { background: var(--soft-green); color: #21695b; }
+    .tag.base { background: var(--soft-blue); color: #265a82; }
+    .tag.todo { background: #eef1f5; color: #48515a; }
+
+    figure {
+      margin: 16px 0 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    figcaption {
+      padding: 10px 13px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .note {
+      border-left: 4px solid var(--blue);
+      padding: 10px 14px;
+      background: var(--soft-blue);
+      color: #2d4558;
+      border-radius: 0 8px 8px 0;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    .warn {
+      border-left-color: var(--gold);
+      background: var(--soft-gold);
+      color: #66511d;
+    }
+
+    ul {
+      margin: 8px 0 0 19px;
+      padding: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    li { margin: 5px 0; }
+
+    code {
+      background: #eef2f6;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @media (max-width: 900px) {
+      header { padding: 32px 24px; }
+      main { padding: 18px; }
+      .grid.two, .grid.three, .grid.four, .flow { grid-template-columns: 1fr; }
+      section { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>LoRA-Based Downstream Evaluation and Unlearning Pilot</h1>
+    <p>Updated evaluation path for Evo host-tropism unlearning: move from linear probes to a unified LoRA adaptation protocol, then test whether target capability can recover.</p>
+  </header>
+
+  <main>
+    <section id="overview">
+      <h2>1. This Week's Focus</h2>
+      <p>The key issue from the last discussion was that HVUE Host Tropism looked weak under a linear probe and was lower than a simple k-mer profiler. This week I treated that as an evaluation problem first: maybe the signal is present in Evo, but not easy to read with a linear classifier.</p>
+      <div class="grid three">
+        <div class="card blue">
+          <span class="eyebrow">Work 1</span>
+          <strong>Switch main evaluation to LoRA</strong>
+          <p>Use the same lightweight adaptation protocol for Base, unlearned, and later recovered models.</p>
+        </div>
+        <div class="card green">
+          <span class="eyebrow">Work 2</span>
+          <strong>Check Evo vs k-mer</strong>
+          <p>Run Hiyata Host Tropism with k-mer logistic regression and Base Evo + LoRA.</p>
+        </div>
+        <div class="card red">
+          <span class="eyebrow">Work 3</span>
+          <strong>Run unlearning pilot</strong>
+          <p>Train 12 probe-free GD/RMU checkpoints and evaluate LoRA recovery on HVUE/GUE pilot tasks.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="protocol">
+      <h2>2. Unified LoRA Downstream Protocol</h2>
+      <p>The new evaluator freezes Evo and only trains LoRA adapters plus a task head. This tests whether a lightweight downstream user can still recover the target ability.</p>
+      <div class="flow">
+        <div class="step"><strong>Load model</strong><span>Base Evo or Evo with an unlearned checkpoint applied.</span></div>
+        <div class="step"><strong>Freeze backbone</strong><span>Original Evo parameters do not update.</span></div>
+        <div class="step"><strong>Inject LoRA</strong><span>Adapters are added to linear modules across all 32 blocks.</span></div>
+        <div class="step"><strong>Train task head</strong><span>Mean-pool final normalized hidden states, train LoRA + classifier.</span></div>
+        <div class="step"><strong>Report test metrics</strong><span>Choose best by validation, then report AUROC, AUPRC, F1, accuracy.</span></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Value</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>LoRA rank / alpha / dropout</td><td>8 / 16 / 0</td><td>Fixed across all runs for fair comparison.</td></tr>
+          <tr><td>Learning rate / max length / seed</td><td>1e-4 / 512 / 42</td><td>Same adaptation setup for Base and unlearned models.</td></tr>
+          <tr><td>Validation rule</td><td>Evaluate every 100 steps, patience 3</td><td>Test metrics come from the best validation checkpoint.</td></tr>
+          <tr><td>Trainable parameters</td><td>~17.8M of ~6.47B</td><td>Lightweight adaptation, not full finetuning.</td></tr>
+        </tbody>
+      </table>
+      <div class="note">The old linear probe is kept as a diagnostic, but the primary claim now uses downstream LoRA performance.</div>
+    </section>
+
+    <section id="hiyata">
+      <h2>3. Sanity Check: Does LoRA Bring Out More Signal Than k-mer?</h2>
+      <p>I first tested Base Evo on Hiyata Host Tropism before evaluating unlearning. The k-mer baseline uses binary 1-to-4-mer composition features with logistic regression. Base Evo + LoRA uses the frozen-backbone LoRA protocol above.</p>
+      <figure>
+        <img src="01_hiyata_kmer_vs_lora.png" alt="Hiyata Host Tropism k-mer baseline versus Base Evo plus LoRA" />
+        <figcaption>Base Evo + LoRA is higher than k-mer on AUROC, F1, and accuracy using the same split.</figcaption>
+      </figure>
+      <div class="grid three">
+        <div class="card">
+          <span class="eyebrow">k-mer baseline</span>
+          <span class="big">0.9292</span>
+          <span class="small">AUROC, with F1 0.8326 and accuracy 0.8362</span>
+        </div>
+        <div class="card blue">
+          <span class="eyebrow">Base Evo + LoRA</span>
+          <span class="big">0.9447</span>
+          <span class="small">AUROC, with F1 0.9005 and accuracy 0.9034</span>
+        </div>
+        <div class="card green">
+          <span class="eyebrow">Interpretation</span>
+          <strong>LoRA accesses extra signal</strong>
+          <p>Host Tropism is not fully explained by simple k-mer composition in this check.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="grid">
+      <h2>4. Probe-Free Unlearning Grid</h2>
+      <p>After confirming the LoRA protocol is useful, I trained a new full-model candidate grid instead of selecting checkpoints from the old probe/PPL results.</p>
+      <div class="grid two">
+        <div class="card red">
+          <span class="tag gd">GD</span>
+          <h3>Gradient Difference</h3>
+          <p>Each step samples one forget batch and one retain batch. The loss pushes language modeling worse on human-tropic forget sequences and preserves retain sequences.</p>
+          <p><strong>Grid:</strong> retain weight 1, 3, 5 × 200 or 500 steps.</p>
+        </div>
+        <div class="card green">
+          <span class="tag rmu">RMU</span>
+          <h3>Representation Misdirection</h3>
+          <p>A frozen reference model is kept. Forget representations at layer 6 are pushed toward a fixed random direction, while retain representations stay close to the reference.</p>
+          <p><strong>Grid:</strong> steer coefficient 25, 50, 100, 200 with 200 or 500 steps.</p>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Number of checkpoints</th>
+            <th>Main sweep variable</th>
+            <th>Selection metric after training</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>GD full-model</td><td class="num">6</td><td>Retain weight and steps</td><td>LoRA recovery on HVUE/GUE pilot</td></tr>
+          <tr><td>RMU full-model</td><td class="num">6</td><td>Steer coefficient and steps</td><td>LoRA recovery on HVUE/GUE pilot</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="pilot">
+      <h2>5. LoRA Recovery Pilot</h2>
+      <p>For each checkpoint, I froze the unlearned backbone, injected the same LoRA adapters, trained on the downstream train split, selected by validation, and reported test metrics.</p>
+      <div class="grid two">
+        <div class="card red">
+          <span class="eyebrow">Forget task</span>
+          <strong>HVUE human host tropism</strong>
+          <p>Tests whether the human-virus-relevant target capability drops after unlearning.</p>
+        </div>
+        <div class="card blue">
+          <span class="eyebrow">Retain task</span>
+          <strong>GUE human TF 0</strong>
+          <p>Used as a quick general-genomics retain sanity check in this pilot.</p>
+        </div>
+      </div>
+      <figure>
+        <img src="02_top_candidates_forget_retain_auroc.png" alt="Top candidate AUROC comparison" />
+        <figcaption>Base Evo sets the reference. The strongest GD has the largest HVUE drop; conservative GD and RMU preserve retain better.</figcaption>
+      </figure>
+      <table>
+        <thead>
+          <tr>
+            <th>Run</th>
+            <th>Role</th>
+            <th class="num">HVUE AUROC</th>
+            <th class="num">HVUE AUPRC</th>
+            <th class="num">HVUE F1</th>
+            <th class="num">GUE AUROC</th>
+            <th class="num">GUE AUPRC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag base">Base Evo</span></td>
+            <td>Reference</td>
+            <td class="num">0.8684</td>
+            <td class="num">0.8428</td>
+            <td class="num">0.7915</td>
+            <td class="num">0.5807</td>
+            <td class="num">0.5912</td>
+          </tr>
+          <tr>
+            <td><span class="tag gd">GD ar3 s500</span></td>
+            <td>Strongest forgetting</td>
+            <td class="num">0.3546</td>
+            <td class="num">0.4003</td>
+            <td class="num">0.3333</td>
+            <td class="num">0.5083</td>
+            <td class="num">0.5215</td>
+          </tr>
+          <tr>
+            <td><span class="tag gd">GD ar5 s500</span></td>
+            <td>More retain-preserving GD</td>
+            <td class="num">0.5356</td>
+            <td class="num">0.5719</td>
+            <td class="num">0.3333</td>
+            <td class="num">0.6351</td>
+            <td class="num">0.6208</td>
+          </tr>
+          <tr>
+            <td><span class="tag rmu">RMU sc200 s200</span></td>
+            <td>Best RMU</td>
+            <td class="num">0.5652</td>
+            <td class="num">0.5867</td>
+            <td class="num">0.3333</td>
+            <td class="num">0.6079</td>
+            <td class="num">0.6115</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="tradeoff">
+      <h2>6. Candidate Selection: Forgetting vs Retain</h2>
+      <p>The pilot ranking uses HVUE forget drop and GUE retain delta. Higher forget drop is better; higher retain delta is also better.</p>
+      <figure>
+        <img src="03_checkpoint_tradeoff_scatter.png" alt="Forgetting versus retain tradeoff scatter plot" />
+        <figcaption>Upper-right is the best tradeoff. Strong GD forgets most; conservative GD and RMU are more balanced.</figcaption>
+      </figure>
+      <div class="grid three">
+        <div class="card red">
+          <span class="eyebrow">Strongest forgetting</span>
+          <strong>GD ar3 s500</strong>
+          <p>HVUE drop 0.5138, but GUE retain delta -0.0724.</p>
+        </div>
+        <div class="card gold">
+          <span class="eyebrow">Cleaner GD tradeoff</span>
+          <strong>GD ar5 s500</strong>
+          <p>HVUE drop 0.3329 with GUE retain delta +0.0544.</p>
+        </div>
+        <div class="card green">
+          <span class="eyebrow">Best RMU</span>
+          <strong>RMU sc200 s200</strong>
+          <p>HVUE drop 0.3032 with GUE retain delta +0.0273.</p>
+        </div>
+      </div>
+      <figure>
+        <img src="04_all_checkpoints_forget_drop_rank.png" alt="All 12 checkpoints ranked by forget drop" />
+        <figcaption>All 12 checkpoints ranked by HVUE Host Tropism AUROC drop, with GUE retain delta annotated.</figcaption>
+      </figure>
+    </section>
+
+    <section id="status">
+      <h2>7. Current Status and Next Steps</h2>
+      <div class="grid two">
+        <div class="card green">
+          <h3>Completed</h3>
+          <ul>
+            <li>Implemented the primary LoRA downstream evaluation path.</li>
+            <li>Confirmed Base Evo + LoRA beats k-mer on Hiyata Host Tropism.</li>
+            <li>Trained and evaluated 12 full-model GD/RMU candidates with LoRA recovery pilot.</li>
+            <li>Selected three candidates for full benchmark: strongest GD, conservative GD, and best RMU.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Planned Extensions</h3>
+          <ul>
+            <li>Full HVUE forget task evaluation.</li>
+            <li>Full GUE retain task evaluation.</li>
+            <li>Multi-seed stability checks.</li>
+            <li>vGUE / ViroBench / non-human viral retain task integration.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Planned Full Benchmark</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Axis</th>
+            <th>Planned coverage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Models</td><td>Base Evo, strongest GD, conservative GD, best RMU</td></tr>
+          <tr><td>HVUE forget tasks</td><td>Host tropism, human-virus pathogenicity, coronavirus / orthomyxovirus / calicivirus transmissibility</td></tr>
+          <tr><td>GUE retain tasks</td><td>Promoter, splice, TF binding, chromatin accessibility</td></tr>
+          <tr><td>Robustness</td><td>Multiple seeds and task-level comparisons against Base and k-mer baselines</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    Generated from local experiment outputs in <code>outputs/lora_meeting_visuals</code>.
+  </footer>
+</body>
+</html>

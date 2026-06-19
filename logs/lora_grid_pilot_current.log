@@ -1,0 +1,389 @@
+[pilot] using existing pilot manifest data/benchmarks/hvue_gue_pilot_manifest.csv
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/base --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/2 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/2 task=hvue_human_host_tropism: already complete
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/base/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/base/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4316 val_loss=0.8978 auroc=0.5829937888198757
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0044 val_loss=2.3395 auroc=0.5830517598343686
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=1.9171 val_loss=1.0273 auroc=0.5931552795031055
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.1357 val_loss=1.1294 auroc=0.6226107660455487
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=1.3635 val_loss=0.7791 auroc=0.6420331262939959
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=1.3080 val_loss=0.7761 auroc=0.6232546583850932
+[bench-lora] task=gue_human_tf_0 step=700 train_loss=1.1176 val_loss=0.7310 auroc=0.6443022774327122
+[bench-lora] task=gue_human_tf_0 step=800 train_loss=0.5139 val_loss=0.8090 auroc=0.6369109730848861
+[bench-lora] task=gue_human_tf_0 step=900 train_loss=0.1771 val_loss=1.0436 auroc=0.6267743271221532
+[bench-lora] task=gue_human_tf_0 step=1000 train_loss=0.6989 val_loss=0.7071 auroc=0.6348364389233954
+[bench-lora] early stop task=gue_human_tf_0 step=1000
+[bench-lora] finished task=gue_human_tf_0 best_step=700 test_auroc=0.661468 test_f1=0.542138929413085 test_acc=0.592
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.2825 val_loss=0.8644 auroc=0.544476
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4515 val_loss=0.7139 auroc=0.561308
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.8095 val_loss=1.8653 auroc=0.53169
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.7707 val_loss=0.6968 auroc=0.5384880000000001
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.1240 val_loss=1.0980 auroc=0.5884879999999999
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0174 val_loss=1.8858 auroc=0.614638
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=3.0319 val_loss=1.6306 auroc=0.5711280000000001
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.7623 val_loss=0.8579 auroc=0.6643319999999999
+[bench-lora] task=hvue_human_host_tropism step=900 train_loss=3.2133 val_loss=0.9336 auroc=0.6000719999999999
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.5413 val_loss=1.3414 auroc=0.650182
+[bench-lora] task=hvue_human_host_tropism step=1100 train_loss=0.0025 val_loss=1.1630 auroc=0.6714959999999999
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.1067 val_loss=1.6579 auroc=0.680492
+[bench-lora] task=hvue_human_host_tropism step=1300 train_loss=0.0002 val_loss=1.4558 auroc=0.6773119999999999
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0389 val_loss=1.3405 auroc=0.6793159999999999
+[bench-lora] task=hvue_human_host_tropism step=1500 train_loss=0.0642 val_loss=1.4953 auroc=0.691476
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.4949 val_loss=1.1252 auroc=0.7239760000000001
+[bench-lora] task=hvue_human_host_tropism step=1700 train_loss=6.8831 val_loss=1.7054 auroc=0.66944
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0169 val_loss=1.4763 auroc=0.6915559999999998
+[bench-lora] task=hvue_human_host_tropism step=1900 train_loss=3.2266 val_loss=1.5060 auroc=0.69523
+[bench-lora] early stop task=hvue_human_host_tropism step=1900
+[bench-lora] finished task=hvue_human_host_tropism best_step=1600 test_auroc=0.7316242222222222 test_f1=0.6692459107146413 test_acc=0.6696666666666666
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s500/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4700 val_loss=0.9081 auroc=0.5307246376811594
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0112 val_loss=2.2289 auroc=0.5293084886128365
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.4334 val_loss=1.2803 auroc=0.5257329192546584
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0812 val_loss=1.3653 auroc=0.5155010351966873
+[bench-lora] early stop task=gue_human_tf_0 step=400
+[bench-lora] finished task=gue_human_tf_0 best_step=100 test_auroc=0.52254 test_f1=0.3324432576769025 test_acc=0.498
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3075 val_loss=0.8407 auroc=0.486372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4984 val_loss=0.7129 auroc=0.517532
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.8101 val_loss=1.9150 auroc=0.464128
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.7658 val_loss=0.6951 auroc=0.50654
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.1290 val_loss=1.1081 auroc=0.522688
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0173 val_loss=2.0413 auroc=0.5235719999999999
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=3.5165 val_loss=1.7124 auroc=0.5443
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=2.2038 val_loss=1.1861 auroc=0.528212
+[bench-lora] task=hvue_human_host_tropism step=900 train_loss=1.2196 val_loss=0.7790 auroc=0.55265
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=1.3047 val_loss=0.8025 auroc=0.6138520000000001
+[bench-lora] task=hvue_human_host_tropism step=1100 train_loss=1.2072 val_loss=0.7728 auroc=0.578538
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.4995 val_loss=0.7334 auroc=0.564188
+[bench-lora] task=hvue_human_host_tropism step=1300 train_loss=0.6461 val_loss=0.6945 auroc=0.538952
+[bench-lora] early stop task=hvue_human_host_tropism step=1300
+[bench-lora] finished task=hvue_human_host_tropism best_step=1000 test_auroc=0.672802 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4461 val_loss=0.9036 auroc=0.482016563146998
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0126 val_loss=2.2506 auroc=0.4781035196687371
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.4146 val_loss=1.2703 auroc=0.5074202898550725
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0761 val_loss=1.3970 auroc=0.5403478260869565
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=1.2661 val_loss=0.8002 auroc=0.5207743271221532
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=1.2786 val_loss=0.8235 auroc=0.5485610766045549
+[bench-lora] task=gue_human_tf_0 step=700 train_loss=0.5229 val_loss=0.7075 auroc=0.56324016563147
+[bench-lora] task=gue_human_tf_0 step=800 train_loss=0.0407 val_loss=1.7080 auroc=0.543416149068323
+[bench-lora] task=gue_human_tf_0 step=900 train_loss=1.2155 val_loss=0.7822 auroc=0.529888198757764
+[bench-lora] task=gue_human_tf_0 step=1000 train_loss=0.2289 val_loss=0.9393 auroc=0.5242525879917184
+[bench-lora] early stop task=gue_human_tf_0 step=1000
+[bench-lora] finished task=gue_human_tf_0 best_step=700 test_auroc=0.548878 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3155 val_loss=0.8345 auroc=0.52037
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5059 val_loss=0.7102 auroc=0.522366
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.6227 val_loss=1.8456 auroc=0.44528
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.1746 val_loss=1.0424 auroc=0.49067
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.0454 val_loss=1.6029 auroc=0.49249600000000004
+[bench-lora] early stop task=hvue_human_host_tropism step=500
+[bench-lora] finished task=hvue_human_host_tropism best_step=200 test_auroc=0.5599593333333334 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s500/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4496 val_loss=0.8990 auroc=0.5261946169772256
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0129 val_loss=2.2396 auroc=0.5463747412008282
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.4249 val_loss=1.2665 auroc=0.5138633540372671
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0752 val_loss=1.3950 auroc=0.5104596273291926
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=0.2181 val_loss=0.8089 auroc=0.49542028985507247
+[bench-lora] early stop task=gue_human_tf_0 step=500
+[bench-lora] finished task=gue_human_tf_0 best_step=200 test_auroc=0.508274 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3193 val_loss=0.8247 auroc=0.5601959999999999
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5143 val_loss=0.7067 auroc=0.532802
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.6615 val_loss=1.9319 auroc=0.483062
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.7307 val_loss=0.6936 auroc=0.487128
+[bench-lora] early stop task=hvue_human_host_tropism step=400
+[bench-lora] finished task=hvue_human_host_tropism best_step=100 test_auroc=0.3546311111111111 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4335 val_loss=0.8936 auroc=0.49384057971014494
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0132 val_loss=2.2275 auroc=0.5862774327122153
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=1.9969 val_loss=1.1410 auroc=0.5219254658385093
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.2043 val_loss=0.8721 auroc=0.49856314699792964
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=0.5727 val_loss=0.7105 auroc=0.5006583850931677
+[bench-lora] early stop task=gue_human_tf_0 step=500
+[bench-lora] finished task=gue_human_tf_0 best_step=200 test_auroc=0.626714 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3265 val_loss=0.8211 auroc=0.5693280000000001
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5147 val_loss=0.7088 auroc=0.5640640000000001
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.6577 val_loss=1.8638 auroc=0.5328539999999999
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.2646 val_loss=0.8066 auroc=0.59706
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.0573 val_loss=1.3979 auroc=0.611808
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.4591 val_loss=1.9677 auroc=0.621518
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=0.0045 val_loss=1.0979 auroc=0.71152
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0068 val_loss=0.9829 auroc=0.7347239999999999
+[bench-lora] task=hvue_human_host_tropism step=900 train_loss=4.1475 val_loss=1.1658 auroc=0.6996039999999999
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.6109 val_loss=1.2355 auroc=0.763886
+[bench-lora] task=hvue_human_host_tropism step=1100 train_loss=0.0175 val_loss=1.2121 auroc=0.7805300000000001
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0022 val_loss=1.4051 auroc=0.782284
+[bench-lora] task=hvue_human_host_tropism step=1300 train_loss=0.0002 val_loss=1.1732 auroc=0.800496
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.1269 val_loss=1.0012 auroc=0.804128
+[bench-lora] task=hvue_human_host_tropism step=1500 train_loss=4.2617 val_loss=1.1405 auroc=0.78906
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0035 val_loss=1.2772 auroc=0.7911440000000001
+[bench-lora] task=hvue_human_host_tropism step=1700 train_loss=7.9505 val_loss=1.3748 auroc=0.818326
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0400 val_loss=1.1508 auroc=0.815756
+[bench-lora] task=hvue_human_host_tropism step=1900 train_loss=0.4684 val_loss=0.9563 auroc=0.811888
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0014 val_loss=1.1610 auroc=0.81507
+[bench-lora] early stop task=hvue_human_host_tropism step=2000
+[bench-lora] finished task=hvue_human_host_tropism best_step=1700 test_auroc=0.8451066666666667 test_f1=0.7312919728092091 test_acc=0.738
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s500/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4415 val_loss=0.8990 auroc=0.5329316770186335
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0126 val_loss=2.2516 auroc=0.4951821946169772
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.4276 val_loss=1.2705 auroc=0.5516915113871635
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0752 val_loss=1.3931 auroc=0.5485300207039338
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=1.2467 val_loss=0.7956 auroc=0.5571138716356108
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=1.2983 val_loss=0.8154 auroc=0.5482505175983436
+[bench-lora] task=gue_human_tf_0 step=700 train_loss=0.5429 val_loss=0.7042 auroc=0.5404037267080746
+[bench-lora] task=gue_human_tf_0 step=800 train_loss=0.0426 val_loss=1.6904 auroc=0.5705610766045549
+[bench-lora] task=gue_human_tf_0 step=900 train_loss=1.1907 val_loss=0.7813 auroc=0.5094761904761904
+[bench-lora] task=gue_human_tf_0 step=1000 train_loss=0.2302 val_loss=0.9280 auroc=0.5020103519668737
+[bench-lora] task=gue_human_tf_0 step=1100 train_loss=0.2505 val_loss=0.8392 auroc=0.5137701863354036
+[bench-lora] early stop task=gue_human_tf_0 step=1100
+[bench-lora] finished task=gue_human_tf_0 best_step=800 test_auroc=0.635076 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3257 val_loss=0.8233 auroc=0.6102719999999999
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5311 val_loss=0.7036 auroc=0.49932999999999994
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.0827 val_loss=1.5600 auroc=0.44226
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.6473 val_loss=0.6944 auroc=0.515844
+[bench-lora] early stop task=hvue_human_host_tropism step=400
+[bench-lora] finished task=hvue_human_host_tropism best_step=100 test_auroc=0.5355646666666667 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4280 val_loss=0.8901 auroc=0.4670848861283644
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0129 val_loss=2.2415 auroc=0.5926542443064182
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.3998 val_loss=1.2629 auroc=0.5583209109730849
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0771 val_loss=1.3899 auroc=0.5438695652173914
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=1.4203 val_loss=0.8415 auroc=0.5213623188405796
+[bench-lora] early stop task=gue_human_tf_0 step=500
+[bench-lora] finished task=gue_human_tf_0 best_step=200 test_auroc=0.584428 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3391 val_loss=0.7796 auroc=0.734508
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=1.0879 val_loss=2.1600 auroc=0.714192
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=5.0937 val_loss=1.4002 auroc=0.73076
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=5.7406 val_loss=1.4997 auroc=0.746072
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.0658 val_loss=1.3138 auroc=0.67567
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0582 val_loss=1.4660 auroc=0.743638
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=0.5884 val_loss=0.9580 auroc=0.661712
+[bench-lora] early stop task=hvue_human_host_tropism step=700
+[bench-lora] finished task=hvue_human_host_tropism best_step=400 test_auroc=0.7310397777777777 test_f1=0.6642419771911827 test_acc=0.675
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s500/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.5776 val_loss=0.9555 auroc=0.4262463768115942
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0132 val_loss=2.2358 auroc=0.47451966873706003
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.3571 val_loss=1.2392 auroc=0.5476997929606625
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0800 val_loss=1.3724 auroc=0.5101614906832298
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=1.1520 val_loss=0.7677 auroc=0.5457453416149068
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=1.1879 val_loss=0.7865 auroc=0.5260662525879917
+[bench-lora] early stop task=gue_human_tf_0 step=600
+[bench-lora] finished task=gue_human_tf_0 best_step=300 test_auroc=0.5081120000000001 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.1735 val_loss=1.0272 auroc=0.6796120000000001
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5774 val_loss=1.4297 auroc=0.73939
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=2.3230 val_loss=1.5633 auroc=0.70328
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=4.3765 val_loss=0.9434 auroc=0.7492399999999999
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.7654 val_loss=0.7022 auroc=0.36299
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0376 val_loss=1.5877 auroc=0.7595000000000001
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=0.0908 val_loss=0.8263 auroc=0.79726
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0009 val_loss=1.5127 auroc=0.7090299999999999
+[bench-lora] task=hvue_human_host_tropism step=900 train_loss=5.8502 val_loss=1.3995 auroc=0.7576399999999999
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.4141 val_loss=1.7193 auroc=0.713364
+[bench-lora] early stop task=hvue_human_host_tropism step=1000
+[bench-lora] finished task=hvue_human_host_tropism best_step=700 test_auroc=0.7717613333333334 test_f1=0.6926556618469327 test_acc=0.7076666666666667
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc200_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc200_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc200_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4600 val_loss=0.9060 auroc=0.4783312629399586
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0132 val_loss=2.2344 auroc=0.4902691511387164
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.3980 val_loss=1.2508 auroc=0.5755113871635611
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0621 val_loss=1.5591 auroc=0.5027080745341614
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=0.0454 val_loss=1.5900 auroc=0.49721739130434783
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=0.2007 val_loss=0.9335 auroc=0.5427184265010352
+[bench-lora] early stop task=gue_human_tf_0 step=600
+[bench-lora] finished task=gue_human_tf_0 best_step=300 test_auroc=0.6079180000000001 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.2773 val_loss=0.8877 auroc=0.714664
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=6.0650 val_loss=2.5433 auroc=0.557582
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=3.2587 val_loss=1.8744 auroc=0.695136
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.1470 val_loss=0.9595 auroc=0.7061820000000001
+[bench-lora] early stop task=hvue_human_host_tropism step=400
+[bench-lora] finished task=hvue_human_host_tropism best_step=100 test_auroc=0.5652288888888889 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc200_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc200_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc25_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc25_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc25_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4406 val_loss=0.8959 auroc=0.4621842650103519
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0130 val_loss=2.2390 auroc=0.5147867494824017
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.5788 val_loss=1.3422 auroc=0.5333643892339545
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0614 val_loss=1.4952 auroc=0.5590062111801242
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=0.8413 val_loss=0.7094 auroc=0.5247619047619048
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=0.8626 val_loss=0.7126 auroc=0.5346045548654244
+[bench-lora] task=gue_human_tf_0 step=700 train_loss=0.6786 val_loss=0.8782 auroc=0.4934782608695652
+[bench-lora] early stop task=gue_human_tf_0 step=700
+[bench-lora] finished task=gue_human_tf_0 best_step=400 test_auroc=0.6235919999999999 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3350 val_loss=0.8051 auroc=0.715336
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=4.1251 val_loss=1.9050 auroc=0.6954259999999999
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=4.7181 val_loss=2.1373 auroc=0.7454000000000001
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.2216 val_loss=0.9015 auroc=0.7268880000000001
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.0659 val_loss=1.0951 auroc=0.728304
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0195 val_loss=0.9983 auroc=0.760556
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=0.6547 val_loss=0.7370 auroc=0.7717440000000001
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0009 val_loss=1.3339 auroc=0.7625320000000001
+[bench-lora] task=hvue_human_host_tropism step=900 train_loss=0.9567 val_loss=0.6410 auroc=0.735692
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=9.4469 val_loss=1.6957 auroc=0.7783500000000001
+[bench-lora] task=hvue_human_host_tropism step=1100 train_loss=0.0037 val_loss=0.9304 auroc=0.8163440000000001
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0118 val_loss=1.0334 auroc=0.80594
+[bench-lora] task=hvue_human_host_tropism step=1300 train_loss=0.0042 val_loss=0.9778 auroc=0.797864
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0006 val_loss=1.1570 auroc=0.8192399999999999
+[bench-lora] task=hvue_human_host_tropism step=1500 train_loss=4.5769 val_loss=1.1865 auroc=0.8070039999999999
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0010 val_loss=1.1751 auroc=0.827826
+[bench-lora] task=hvue_human_host_tropism step=1700 train_loss=4.9474 val_loss=1.2934 auroc=0.8154540000000001
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0023 val_loss=0.8037 auroc=0.8517000000000001
+[bench-lora] task=hvue_human_host_tropism step=1900 train_loss=0.4755 val_loss=1.1034 auroc=0.8379
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0135 val_loss=1.1468 auroc=0.80238
+[bench-lora] task=hvue_human_host_tropism step=2100 train_loss=0.0112 val_loss=1.1823 auroc=0.802324
+[bench-lora] early stop task=hvue_human_host_tropism step=2100
+[bench-lora] finished task=hvue_human_host_tropism best_step=1800 test_auroc=0.8273344444444445 test_f1=0.7469284188034189 test_acc=0.7473333333333333
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc25_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc25_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s200/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4364 val_loss=0.8949 auroc=0.42840993788819876
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0129 val_loss=2.2430 auroc=0.5971118012422361
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.4985 val_loss=1.3039 auroc=0.5798674948240166
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0731 val_loss=1.4163 auroc=0.652472049689441
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=0.0790 val_loss=1.3236 auroc=0.599879917184265
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=2.2150 val_loss=1.2078 auroc=0.6801594202898551
+[bench-lora] task=gue_human_tf_0 step=700 train_loss=0.4767 val_loss=0.7055 auroc=0.6774824016563148
+[bench-lora] task=gue_human_tf_0 step=800 train_loss=0.0075 val_loss=2.8314 auroc=0.6964513457556935
+[bench-lora] task=gue_human_tf_0 step=900 train_loss=0.3872 val_loss=0.6049 auroc=0.7735900621118013
+[bench-lora] task=gue_human_tf_0 step=1000 train_loss=0.9725 val_loss=0.7007 auroc=0.5262939958592132
+[bench-lora] task=gue_human_tf_0 step=1100 train_loss=0.9433 val_loss=1.0848 auroc=0.7408612836438924
+[bench-lora] task=gue_human_tf_0 step=1200 train_loss=0.3471 val_loss=0.7847 auroc=0.6924265010351967
+[bench-lora] early stop task=gue_human_tf_0 step=1200
+[bench-lora] finished task=gue_human_tf_0 best_step=900 test_auroc=0.810276 test_f1=0.6593231887349534 test_acc=0.682
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.3346 val_loss=0.8088 auroc=0.744096
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=6.3807 val_loss=1.5949 auroc=0.720512
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=4.8344 val_loss=2.2982 auroc=0.7183740000000001
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.2414 val_loss=1.1087 auroc=0.644172
+[bench-lora] early stop task=hvue_human_host_tropism step=400
+[bench-lora] finished task=hvue_human_host_tropism best_step=100 test_auroc=0.6110353333333334 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=13983 tasks=2 scope=task
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s500/weights.safetensors
+[bench-lora] task 1/2 task=gue_human_tf_0 rows=5983
+[bench-lora] task=gue_human_tf_0 step=100 train_loss=1.4318 val_loss=0.8921 auroc=0.4475031055900622
+[bench-lora] task=gue_human_tf_0 step=200 train_loss=0.0132 val_loss=2.2395 auroc=0.4847660455486542
+[bench-lora] task=gue_human_tf_0 step=300 train_loss=2.4351 val_loss=1.2779 auroc=0.6156314699792962
+[bench-lora] task=gue_human_tf_0 step=400 train_loss=0.0745 val_loss=1.4038 auroc=0.6236708074534162
+[bench-lora] task=gue_human_tf_0 step=500 train_loss=1.3088 val_loss=0.8148 auroc=0.6337142857142858
+[bench-lora] task=gue_human_tf_0 step=600 train_loss=1.3488 val_loss=0.8380 auroc=0.7014906832298137
+[bench-lora] task=gue_human_tf_0 step=700 train_loss=0.9210 val_loss=0.7176 auroc=0.6645548654244307
+[bench-lora] task=gue_human_tf_0 step=800 train_loss=0.0048 val_loss=2.9218 auroc=0.5432091097308488
+[bench-lora] task=gue_human_tf_0 step=900 train_loss=0.0741 val_loss=1.3374 auroc=0.3649710144927536
+[bench-lora] early stop task=gue_human_tf_0 step=900
+[bench-lora] finished task=gue_human_tf_0 best_step=600 test_auroc=0.761404 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 2/2 task=hvue_human_host_tropism rows=8000
+[bench-lora] task=hvue_human_host_tropism step=100 train_loss=0.2921 val_loss=0.8451 auroc=0.543242
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5119 val_loss=0.6957 auroc=0.7304
+[bench-lora] task=hvue_human_host_tropism step=300 train_loss=5.4135 val_loss=2.1479 auroc=0.721902
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.6556 val_loss=0.6903 auroc=0.780342
+[bench-lora] task=hvue_human_host_tropism step=500 train_loss=0.7810 val_loss=0.5780 auroc=0.7742040000000001
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0015 val_loss=1.0923 auroc=0.7618199999999999
+[bench-lora] task=hvue_human_host_tropism step=700 train_loss=0.0107 val_loss=1.0728 auroc=0.817152
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0048 val_loss=1.0014 auroc=0.8113360000000001
+[bench-lora] task=hvue_human_host_tropism step=900 train_loss=0.4243 val_loss=0.9582 auroc=0.818052
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=8.1371 val_loss=1.5815 auroc=0.8250200000000001
+[bench-lora] task=hvue_human_host_tropism step=1100 train_loss=0.0006 val_loss=1.0212 auroc=0.826976
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0068 val_loss=1.3775 auroc=0.828468
+[bench-lora] task=hvue_human_host_tropism step=1300 train_loss=0.0023 val_loss=1.0464 auroc=0.832094
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0003 val_loss=1.2271 auroc=0.8412219999999999
+[bench-lora] task=hvue_human_host_tropism step=1500 train_loss=6.8975 val_loss=1.1101 auroc=0.8263480000000001
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0006 val_loss=1.1324 auroc=0.825864
+[bench-lora] task=hvue_human_host_tropism step=1700 train_loss=2.8179 val_loss=1.2021 auroc=0.829202
+[bench-lora] early stop task=hvue_human_host_tropism step=1700
+[bench-lora] finished task=hvue_human_host_tropism best_step=1400 test_auroc=0.8706315555555556 test_f1=0.731762537241585 test_acc=0.7446666666666667
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python phase2/rank_benchmark_pilot.py --pilot-root data/phase2/benchmark_pilot_lora --out-csv data/phase2/benchmark_pilot_lora/pilot_rankings.csv --out-json data/phase2/benchmark_pilot_lora/pilot_rankings.json --top-k 12 --n-bootstrap 2000 --seed 42 --print-table
+run                             primary  secondary  gue_delta  viral_delta      score   p_n   s_n   g_n   v_n
+--------------------------------------------------------------------------------------------------------------
+lora_gd_full_ar3_s500          0.513798             -0.072394                0.441404     1     0     1     0
+lora_gd_full_ar5_s500          0.332865              0.054408                0.332865     1     0     1     0
+lora_rmu_full_sc200_s200       0.303201               0.02725                0.303201     1     0     1     0
+lora_gd_full_ar3_s200           0.30847              -0.03179                 0.27668     1     0     1     0
+lora_rmu_full_sc50_s200        0.257394              0.229608                0.257394     1     0     1     0
+lora_gd_full_ar1_s500          0.195628             -0.058128                  0.1375     1     0     1     0
+lora_rmu_full_sc100_s200        0.13739               0.00376                 0.13739     1     0     1     0
+lora_gd_full_ar1_s200          0.136805                0.0808                0.136805     1     0     1     0
+lora_rmu_full_sc25_s200       0.0410951              0.042924               0.0410951     1     0     1     0
+lora_rmu_full_sc100_s500      0.0966682             -0.072556               0.0241122     1     0     1     0
+lora_gd_full_ar5_s200         0.0233229              0.046046               0.0233229     1     0     1     0
+lora_rmu_full_sc50_s500       -0.002202              0.180736               -0.002202     1     0     1     0
+[rank] wrote data/phase2/benchmark_pilot_lora/pilot_rankings.csv
+[rank] wrote data/phase2/benchmark_pilot_lora/pilot_rankings.json

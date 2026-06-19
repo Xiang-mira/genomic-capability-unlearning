@@ -31,7 +31,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from phase1.utils import load_local_checkpoint, read_manifest
 from evo.tokenizer import CharLevelTokenizer
-from phase2.utils import language_model_loss, tokenize_batch
+from phase2.utils import get_localized_layers, language_model_loss, tokenize_batch
 
 
 def apply_checkpoint(model, ckpt_path: str) -> None:
@@ -122,8 +122,8 @@ def measure_perplexity(model, records, tokenizer, batch_size, max_length, device
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", required=True, help="Path to weights.safetensors")
-    parser.add_argument("--manifest", default="data/host_tropism/manifest.csv")
-    parser.add_argument("--probe-dir", default="data/host_tropism/probes")
+    parser.add_argument("--manifest", default="data/family_targets/coronaviridae/manifest.csv")
+    parser.add_argument("--probe-dir", default="data/family_targets/coronaviridae/probes")
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--device", default="cuda:0")
@@ -134,6 +134,10 @@ def main() -> None:
     parser.add_argument("--max-eval", type=int, default=400,
                         help="Cap eval samples per (split,label) to keep runs short.")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--localized-layers-path",
+        default="data/family_targets/coronaviridae/localized_layers.json",
+    )
     args = parser.parse_args()
 
     # Parse layers
@@ -201,6 +205,22 @@ def main() -> None:
         print(f"  layer {layer_idx:>2}: "
               f"val_auroc={row.get('val_auroc', 0):.4f}  test_auroc={row.get('test_auroc', 0):.4f}")
 
+    localized_layers = [layer for layer in get_localized_layers(args.localized_layers_path) if layer in layers]
+    localized_summary = {}
+    if localized_layers:
+        val_scores = [row["val_auroc"] for row in rows if row["layer"] in localized_layers and "val_auroc" in row]
+        test_scores = [row["test_auroc"] for row in rows if row["layer"] in localized_layers and "test_auroc" in row]
+        localized_summary = {
+            "localized_layers": localized_layers,
+            "localized_val_mean_auroc": float(np.mean(val_scores)) if val_scores else None,
+            "localized_test_mean_auroc": float(np.mean(test_scores)) if test_scores else None,
+        }
+        print(
+            "[eval] localized mean AUROC "
+            f"val={localized_summary['localized_val_mean_auroc']:.4f} "
+            f"test={localized_summary['localized_test_mean_auroc']:.4f}"
+        )
+
     out_dir = os.path.dirname(args.ckpt)
     auroc_path = os.path.join(out_dir, "eval_auroc.csv")
     with open(auroc_path, "w", newline="") as f:
@@ -218,10 +238,12 @@ def main() -> None:
     rppl, rloss = measure_perplexity(model, retain_val, tokenizer, args.batch_size, args.max_length, args.device)
     ppl_path = os.path.join(out_dir, "eval_ppl.json")
     with open(ppl_path, "w") as f:
-        json.dump({
+        payload = {
             "forget_val_perplexity": fppl, "forget_val_loss": floss, "n_forget": len(forget_val),
             "retain_val_perplexity": rppl, "retain_val_loss": rloss, "n_retain": len(retain_val),
-        }, f, indent=2)
+        }
+        payload.update(localized_summary)
+        json.dump(payload, f, indent=2)
     print(f"[eval] forget_ppl={fppl:.3f}  retain_ppl={rppl:.3f}")
     print(f"[eval] wrote perplexity to {ppl_path}")
 

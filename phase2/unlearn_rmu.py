@@ -7,10 +7,10 @@ Idea (Li et al., ICML 2024):
   - Retain set: keep hidden activations close to those of a *frozen* reference
     copy of the model.
 
-We use a single target hook layer (default: layer 6, the strongest causal layer
-from activation patching). Trainable parameters depend on the condition:
+We use a single target hook layer (default: the strongest causal layer from the
+localized_layers.json selection). Trainable parameters depend on the condition:
   full       : all blocks
-  localized  : layers 3..9
+  localized  : layers loaded from localized_layers.json
   random     : 7 random layers from 11..30
 """
 import argparse
@@ -31,9 +31,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from phase1.utils import load_local_checkpoint, read_manifest
 from evo.tokenizer import CharLevelTokenizer
 from phase2.utils import (
-    LOCALIZED_LAYERS,
     count_trainable,
     freeze_all,
+    get_localized_layers,
+    get_primary_target_layer,
     iterate_batches,
     select_random_layers,
     set_block_grad,
@@ -41,21 +42,34 @@ from phase2.utils import (
 )
 
 
+def parse_save_steps(spec: str) -> set[int]:
+    if not spec.strip():
+        return set()
+    steps = set()
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        steps.add(int(part))
+    return steps
+
+
 def filter_train(records):
     return [r for r in records if r.split == "train"]
 
 
-def configure_trainable_blocks(model, condition: str, seed: int) -> List[int]:
+def configure_trainable_blocks(model, condition: str, seed: int, localized_layers_path: str) -> List[int]:
+    localized_layers = get_localized_layers(localized_layers_path)
     freeze_all(model)
     if condition == "full":
         layers = list(range(len(model.blocks)))
         for p in model.parameters():
             p.requires_grad_(True)
     elif condition == "localized":
-        layers = LOCALIZED_LAYERS
+        layers = localized_layers
         set_block_grad(model, layers, True)
     elif condition == "random":
-        layers = select_random_layers(seed, n=len(LOCALIZED_LAYERS))
+        layers = select_random_layers(seed, n=len(localized_layers))
         set_block_grad(model, layers, True)
     else:
         raise ValueError(f"Unknown condition {condition}")
@@ -80,6 +94,13 @@ def masked_mse(a: torch.Tensor, b: torch.Tensor, mask: torch.Tensor,
     diff = diff * mask.float()
     denom = mask.float().sum(dim=1).clamp(min=1)
     return (diff.sum(dim=1) / denom).mean()
+
+
+def masked_cosine(a: torch.Tensor, b: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    cos = F.cosine_similarity(a.float(), b.float(), dim=-1)
+    cos = cos * mask.float()
+    denom = mask.float().sum(dim=1).clamp(min=1)
+    return (cos.sum(dim=1) / denom).mean()
 
 
 class HiddenCapture:
@@ -179,28 +200,37 @@ def save_block_deltas(model, layers: List[int], out_path: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--forget-csv", default="data/phase2/splits/forget.csv")
-    parser.add_argument("--retain-csv", default="data/phase2/splits/retain.csv")
+    parser.add_argument("--forget-csv", default="data/phase2/coronaviridae_splits/forget.csv")
+    parser.add_argument("--retain-csv", default="data/phase2/coronaviridae_splits/retain.csv")
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--out-dir", default="data/phase2/checkpoints")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--condition", choices=["full", "localized", "random"], required=True)
-    parser.add_argument("--target-layer", type=int, default=6,
+    parser.add_argument("--target-layer", type=int, default=None,
                         help="Hook layer for representation steering (strongest causal layer).")
-    parser.add_argument("--steer-coef", type=float, default=20.0,
+    parser.add_argument("--steer-coef", type=float, default=50.0,
                         help="Magnitude of random target direction for forget set.")
     parser.add_argument("--alpha-retain", type=float, default=1.0)
     parser.add_argument("--alpha-forget", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--lr", type=float, default=1e-5)
-    parser.add_argument("--steps", type=int, default=200)
+    parser.add_argument("--steps", type=int, default=1000)
     parser.add_argument("--log-every", type=int, default=10)
+    parser.add_argument(
+        "--save-steps",
+        default="100,200,500,1000",
+        help="Comma-separated training steps to save as intermediate checkpoints, e.g. 100,200,500,1000.",
+    )
     parser.add_argument("--run-name", type=str, default=None,
                         help="Override the output directory name (default: rmu_<condition>).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--grad-clip", type=float, default=1.0)
+    parser.add_argument(
+        "--localized-layers-path",
+        default="data/family_targets/coronaviridae/localized_layers.json",
+    )
     parser.add_argument(
         "--target-direction",
         choices=["random", "nonhuman"],
@@ -223,7 +253,18 @@ def main() -> None:
     torch.manual_seed(args.seed)
     rng = random.Random(args.seed)
 
-    print(f"[RMU] condition={args.condition} target_layer={args.target_layer} c={args.steer_coef}")
+    requested_target_layer = (
+        args.target_layer
+        if args.target_layer is not None
+        else get_primary_target_layer(args.localized_layers_path)
+    )
+    print(f"[RMU] condition={args.condition} target_layer={requested_target_layer} c={args.steer_coef}")
+    save_steps = {step for step in parse_save_steps(args.save_steps) if 1 <= step <= args.steps}
+    run_name = args.run_name if args.run_name else f"rmu_{args.condition}"
+    run_dir = os.path.join(args.out_dir, run_name)
+    os.makedirs(run_dir, exist_ok=True)
+    if save_steps:
+        print(f"[RMU] intermediate save steps: {sorted(save_steps)}")
 
     # Load training model
     model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
@@ -237,7 +278,7 @@ def main() -> None:
     for p in ref_model.parameters():
         p.requires_grad_(False)
 
-    layers = configure_trainable_blocks(model, args.condition, args.seed)
+    layers = configure_trainable_blocks(model, args.condition, args.seed, args.localized_layers_path)
     print(f"[RMU] trainable layers: {layers}")
     print(f"[RMU] trainable params: {count_trainable(model):,}")
 
@@ -245,12 +286,12 @@ def main() -> None:
     # For localized/full, target_layer=6 is fine (layers 3-9 or all are upstream).
     # For random (layers 11-30), we use the last trainable layer as hook and normalize
     # hidden states to prevent the ~1e15 activation explosion in layers 11+.
-    target_layer = args.target_layer
+    target_layer = requested_target_layer
     normalize_hidden = False
     if target_layer not in layers and max(layers) > target_layer:
         target_layer = max(layers)
         normalize_hidden = True
-        print(f"[RMU] target_layer {args.target_layer} not in trainable set; "
+        print(f"[RMU] target_layer {requested_target_layer} not in trainable set; "
               f"using layer {target_layer} with normalized MSE (activations unstable in layers 11+)")
 
     forget = filter_train(read_manifest(args.forget_csv))
@@ -317,10 +358,15 @@ def main() -> None:
         # Forget batch: push hidden at target_layer toward random direction
         fbatch = next_forget()
         f_ids, f_mask = tokenize_batch([r.sequence for r in fbatch], tokenizer, args.max_length, args.device)
+        with torch.no_grad():
+            _ = ref_model(f_ids, padding_mask=f_mask)
+            f_hidden_ref = ref_hook.get().detach()
         _ = model(f_ids, padding_mask=f_mask)
         f_hidden = train_hook.get()  # (B, T, D) with grad
         target = target_vec.view(1, 1, -1).expand_as(f_hidden)
         L_forget = masked_mse(f_hidden, target, f_mask, normalize=normalize_hidden)
+        L_forget_original = masked_mse(f_hidden.detach(), f_hidden_ref, f_mask, normalize=normalize_hidden)
+        forget_original_cosine = masked_cosine(f_hidden.detach(), f_hidden_ref, f_mask)
 
         # Retain batch: keep hidden at target_layer close to reference model
         rbatch = next_retain()
@@ -332,30 +378,61 @@ def main() -> None:
         r_hidden = train_hook.get()
         L_retain = masked_mse(r_hidden, r_hidden_ref, r_mask, normalize=normalize_hidden)
 
-        loss = args.alpha_forget * L_forget + args.alpha_retain * L_retain
+        weighted_forget = args.alpha_forget * L_forget
+        weighted_retain = args.alpha_retain * L_retain
+        loss = weighted_forget + weighted_retain
         loss.backward()
         if args.grad_clip > 0:
             torch.nn.utils.clip_grad_norm_(trainable, args.grad_clip)
         optimizer.step()
 
+        current_step = step + 1
         if (step + 1) % args.log_every == 0 or step == 0:
             row = {
-                "step": step + 1,
+                "step": current_step,
                 "L_forget_mse": L_forget.item(),
                 "L_retain_mse": L_retain.item(),
+                "forget_to_target_mse": L_forget.item(),
+                "forget_to_original_mse": L_forget_original.item(),
+                "retain_rep_mse": L_retain.item(),
+                "forget_original_modified_cosine": forget_original_cosine.item(),
+                "weighted_forget_term": weighted_forget.item(),
+                "weighted_retain_term": weighted_retain.item(),
                 "loss": loss.item(),
+                "target_norm": target_vec.norm().item(),
+                "target_variance": target_vec.float().var(unbiased=False).item(),
             }
             log_rows.append(row)
             pbar.set_postfix(Lf=f"{row['L_forget_mse']:.2f}", Lr=f"{row['L_retain_mse']:.2f}")
+        if current_step in save_steps:
+            step_dir = os.path.join(run_dir, f"step_{current_step:06d}")
+            save_block_deltas(model, layers=layers, out_path=os.path.join(step_dir, "weights.safetensors"))
+            with open(os.path.join(step_dir, "meta.json"), "w") as f:
+                json.dump({
+                    "method": "rmu",
+                    "condition": args.condition,
+                    "layers": layers,
+                    "checkpoint_step": current_step,
+                    "target_layer": target_layer,
+                    "normalize_hidden": normalize_hidden,
+                    "steer_coef": args.steer_coef,
+                    "target_direction": args.target_direction,
+                    "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
+                    "steps": args.steps, "lr": args.lr,
+                    "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
+                    "batch_size": args.batch_size, "max_length": args.max_length,
+                    "forget_csv": args.forget_csv,
+                    "retain_csv": args.retain_csv,
+                    "seed": args.seed,
+                    "localized_layers_path": args.localized_layers_path,
+                    "parent_run": run_name,
+                }, f, indent=2)
 
     elapsed = time.time() - t0
     train_hook.remove()
     ref_hook.remove()
     print(f"[RMU] done in {elapsed:.1f}s")
 
-    run_name = args.run_name if args.run_name else f"rmu_{args.condition}"
-    run_dir = os.path.join(args.out_dir, run_name)
-    os.makedirs(run_dir, exist_ok=True)
     save_block_deltas(model, layers=layers, out_path=os.path.join(run_dir, "weights.safetensors"))
     with open(os.path.join(run_dir, "meta.json"), "w") as f:
         json.dump({
@@ -370,7 +447,11 @@ def main() -> None:
             "steps": args.steps, "lr": args.lr,
             "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
             "batch_size": args.batch_size, "max_length": args.max_length,
+            "forget_csv": args.forget_csv,
+            "retain_csv": args.retain_csv,
             "seed": args.seed, "elapsed_sec": elapsed,
+            "save_steps": sorted(save_steps),
+            "localized_layers_path": args.localized_layers_path,
         }, f, indent=2)
     with open(os.path.join(run_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)

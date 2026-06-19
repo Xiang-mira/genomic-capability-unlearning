@@ -3,11 +3,8 @@ import concurrent.futures
 import os
 import random
 import re
-<<<<<<< HEAD
-=======
 import shutil
 import subprocess
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
 import sys
 import urllib.request
 from typing import List, Tuple
@@ -27,34 +24,34 @@ def list_fna_files(base_url: str) -> List[str]:
     return sorted(files)
 
 
-<<<<<<< HEAD
 def list_local_fna_files(base_dir: str) -> List[str]:
     if not os.path.isdir(base_dir):
         return []
-    files = [f for f in os.listdir(base_dir) if f.endswith("genomic.fna.gz")]
-    return sorted(files)
-=======
+    return sorted(f for f in os.listdir(base_dir) if f.endswith("genomic.fna.gz"))
+
+
 def download_file_aria2c(url: str, out_path: str, connections: int) -> None:
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     if os.path.exists(out_path):
         return
-    cmd = [
-        "aria2c",
-        "-c",
-        "-x",
-        str(connections),
-        "-s",
-        str(connections),
-        "-k",
-        "1M",
-        "--dir",
-        os.path.dirname(out_path),
-        "--out",
-        os.path.basename(out_path),
-        url,
-    ]
-    subprocess.run(cmd, check=True)
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
+    subprocess.run(
+        [
+            "aria2c",
+            "-c",
+            "-x",
+            str(connections),
+            "-s",
+            str(connections),
+            "-k",
+            "1M",
+            "--dir",
+            os.path.dirname(out_path),
+            "--out",
+            os.path.basename(out_path),
+            url,
+        ],
+        check=True,
+    )
 
 
 def download_file(url: str, out_path: str) -> None:
@@ -90,16 +87,16 @@ def download_file(url: str, out_path: str) -> None:
     os.replace(tmp_path, out_path)
 
 
-<<<<<<< HEAD
-def download_all(pairs: List[Tuple[str, str]], workers: int) -> None:
-=======
-def download_all(pairs: List[Tuple[str, str]], workers: int, use_aria2c: bool, aria2c_connections: int) -> None:
+def download_all(
+    pairs: List[Tuple[str, str]],
+    workers: int,
+    use_aria2c: bool,
+    aria2c_connections: int,
+) -> None:
     if use_aria2c and shutil.which("aria2c"):
         for url, out_path in pairs:
             download_file_aria2c(url, out_path, aria2c_connections)
         return
-
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
     if workers <= 1:
         for url, out_path in pairs:
             download_file(url, out_path)
@@ -133,10 +130,9 @@ def collect_sequences(
             seq = sample_window(seq, max_length, rng)
             if len(seq) < min_length:
                 continue
-            record_id = f"{source}-{label}-{record_index}"
             records.append(
                 ManifestRecord(
-                    record_id=record_id,
+                    record_id=f"{source}-{label}-{record_index}",
                     label=label,
                     split="",
                     sequence=seq,
@@ -167,75 +163,43 @@ def assign_splits(records: List[ManifestRecord], rng: random.Random, train_frac:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download RefSeq data and build a viral vs non-viral manifest.")
     parser.add_argument("--out-dir", default="data/phase1", help="Output directory for raw data and manifest.")
-    parser.add_argument("--target-per-class", type=int, default=10000, help="Number of sequences per class.")
-    parser.add_argument("--min-length", type=int, default=200, help="Minimum sequence length after cleaning.")
-    parser.add_argument("--max-length", type=int, default=2048, help="Maximum sequence length (windowed).")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
-    parser.add_argument("--viral-max-files", type=int, default=4, help="Max viral files to download.")
-    parser.add_argument("--nonviral-max-files", type=int, default=4, help="Max non-viral files to download.")
-<<<<<<< HEAD
-    parser.add_argument("--nonviral-group", default="bacteria", choices=["bacteria", "archaea", "fungi", "plant", "protozoa"], help="RefSeq group for non-viral.")
-=======
+    parser.add_argument("--target-per-class", type=int, default=10000)
+    parser.add_argument("--min-length", type=int, default=200)
+    parser.add_argument("--max-length", type=int, default=2048)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--viral-max-files", type=int, default=4)
+    parser.add_argument("--nonviral-max-files", type=int, default=4)
     parser.add_argument(
         "--nonviral-group",
         default="bacteria",
         choices=["bacteria", "archaea", "fungi", "plant", "protozoa", "plasmid"],
-        help="RefSeq group for non-viral.",
     )
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
     parser.add_argument("--train-frac", type=float, default=0.8)
     parser.add_argument("--val-frac", type=float, default=0.1)
-    parser.add_argument(
-        "--require-full-length",
-        action="store_true",
-        help="Only keep sequences with length >= max-length before windowing.",
-    )
-    parser.add_argument("--download-workers", type=int, default=4, help="Parallel download workers.")
-<<<<<<< HEAD
-    parser.add_argument(
-        "--download-only",
-        action="store_true",
-        help="Only download raw RefSeq files, do not build the manifest.",
-    )
-    parser.add_argument(
-        "--manifest-only",
-        action="store_true",
-        help="Only build the manifest from existing raw files, do not download.",
-    )
+    parser.add_argument("--require-full-length", action="store_true")
+    parser.add_argument("--download-workers", type=int, default=4)
+    parser.add_argument("--download-only", action="store_true")
+    parser.add_argument("--manifest-only", action="store_true")
+    parser.add_argument("--use-aria2c", action="store_true")
+    parser.add_argument("--aria2c-connections", type=int, default=8)
     args = parser.parse_args()
 
     if args.download_only and args.manifest_only:
         raise ValueError("--download-only and --manifest-only cannot be used together.")
 
-=======
-    parser.add_argument("--use-aria2c", action="store_true", help="Use aria2c for multi-connection downloads.")
-    parser.add_argument("--aria2c-connections", type=int, default=8, help="Connections per file for aria2c.")
-    args = parser.parse_args()
-
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
     rng = random.Random(args.seed)
-    out_dir = args.out_dir
-    raw_dir = os.path.join(out_dir, "raw")
+    raw_dir = os.path.join(args.out_dir, "raw")
     os.makedirs(raw_dir, exist_ok=True)
 
     viral_url = "https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/"
-<<<<<<< HEAD
     nonviral_url = f"https://ftp.ncbi.nlm.nih.gov/refseq/release/{args.nonviral_group}/"
 
     if args.manifest_only:
         viral_files = list_local_fna_files(os.path.join(raw_dir, "viral"))[: args.viral_max_files]
-        nonviral_files = list_local_fna_files(
-            os.path.join(raw_dir, args.nonviral_group)
-        )[: args.nonviral_max_files]
+        nonviral_files = list_local_fna_files(os.path.join(raw_dir, args.nonviral_group))[: args.nonviral_max_files]
     else:
         viral_files = list_fna_files(viral_url)[: args.viral_max_files]
         nonviral_files = list_fna_files(nonviral_url)[: args.nonviral_max_files]
-=======
-    nonviral_url = f"http://ftp.cbi.pku.edu.cn/pub/databases/RefSeq/latest_release/{args.nonviral_group}/"
-
-    viral_files = list_fna_files(viral_url)[: args.viral_max_files]
-    nonviral_files = list_fna_files(nonviral_url)[: args.nonviral_max_files]
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
 
     if not viral_files:
         raise RuntimeError(f"No viral genomic.fna.gz files found at {viral_url}")
@@ -245,27 +209,20 @@ def main() -> None:
     download_pairs: List[Tuple[str, str]] = []
     viral_paths = []
     for fname in viral_files:
-        url = viral_url + fname
         out_path = os.path.join(raw_dir, "viral", fname)
-        download_pairs.append((url, out_path))
         viral_paths.append(out_path)
+        download_pairs.append((viral_url + fname, out_path))
 
     nonviral_paths = []
     for fname in nonviral_files:
-        url = nonviral_url + fname
         out_path = os.path.join(raw_dir, args.nonviral_group, fname)
-        download_pairs.append((url, out_path))
         nonviral_paths.append(out_path)
+        download_pairs.append((nonviral_url + fname, out_path))
 
-<<<<<<< HEAD
     if not args.manifest_only:
-        download_all(download_pairs, args.download_workers)
-
+        download_all(download_pairs, args.download_workers, args.use_aria2c, args.aria2c_connections)
     if args.download_only:
         return
-=======
-    download_all(download_pairs, args.download_workers, args.use_aria2c, args.aria2c_connections)
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
 
     viral_records = collect_sequences(
         viral_paths,
@@ -294,14 +251,10 @@ def main() -> None:
     all_records = viral_records + nonviral_records
     assign_splits(all_records, rng, args.train_frac, args.val_frac)
 
-    manifest_path = os.path.join(out_dir, "manifest.csv")
+    manifest_path = os.path.join(args.out_dir, "manifest.csv")
     write_manifest(manifest_path, all_records)
     print(f"Wrote manifest to {manifest_path} with {len(all_records)} records.")
 
 
 if __name__ == "__main__":
     main()
-<<<<<<< HEAD
-=======
-
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87

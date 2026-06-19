@@ -1,0 +1,100 @@
+{
+  "description": "Probe-free Phase 2 candidate grid for LoRA-based downstream selection. This grid trains full-model GD/RMU checkpoints on the original host-tropism human-vs-non-human forget/retain split, with pre-registered hyperparameters; checkpoint selection should be done later with supervised LoRA validation tradeoffs, not internal probe AUROC.",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv"
+  },
+  "experiments": [
+    {
+      "group": "gd_full",
+      "name": "lora_gd_full_ar1_s200",
+      "method": "gd",
+      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "gd_full",
+      "name": "lora_gd_full_ar3_s200",
+      "method": "gd",
+      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 3.0, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "gd_full",
+      "name": "lora_gd_full_ar5_s200",
+      "method": "gd",
+      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "gd_full",
+      "name": "lora_gd_full_ar1_s500",
+      "method": "gd",
+      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 1e-5, "steps": 500}
+    },
+    {
+      "group": "gd_full",
+      "name": "lora_gd_full_ar3_s500",
+      "method": "gd",
+      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 3.0, "lr": 1e-5, "steps": 500}
+    },
+    {
+      "group": "gd_full",
+      "name": "lora_gd_full_ar5_s500",
+      "method": "gd",
+      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}
+    },
+    {
+      "group": "rmu_full",
+      "name": "lora_rmu_full_sc25_s200",
+      "method": "rmu",
+      "args": {"condition": "full", "steer_coef": 25.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_full",
+      "name": "lora_rmu_full_sc50_s200",
+      "method": "rmu",
+      "args": {"condition": "full", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_full",
+      "name": "lora_rmu_full_sc100_s200",
+      "method": "rmu",
+      "args": {"condition": "full", "steer_coef": 100.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_full",
+      "name": "lora_rmu_full_sc200_s200",
+      "method": "rmu",
+      "args": {"condition": "full", "steer_coef": 200.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_full",
+      "name": "lora_rmu_full_sc50_s500",
+      "method": "rmu",
+      "args": {"condition": "full", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 500}
+    },
+    {
+      "group": "rmu_full",
+      "name": "lora_rmu_full_sc100_s500",
+      "method": "rmu",
+      "args": {"condition": "full", "steer_coef": 100.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 500}
+    },
+    {
+      "group": "controls",
+      "name": "lora_gd_random_ar3_s500",
+      "method": "gd",
+      "args": {"condition": "random", "alpha_forget": 1.0, "alpha_retain": 3.0, "lr": 1e-5, "steps": 500}
+    },
+    {
+      "group": "controls",
+      "name": "lora_rmu_random_sc50_s500",
+      "method": "rmu",
+      "args": {"condition": "random", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 500}
+    }
+  ],
+  "aliases": {
+    "gd": ["gd_full"],
+    "rmu": ["rmu_full"],
+    "controls": ["controls"],
+    "selection": ["gd_full", "rmu_full"],
+    "all": ["gd_full", "rmu_full", "controls"]
+  }
+}

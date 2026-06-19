@@ -5,16 +5,11 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
-=======
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, roc_auc_score
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
 
 if __package__ is None and __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -27,28 +22,25 @@ def gc_1gram_features(seq: str) -> np.ndarray:
     length = max(len(seq), 1)
     counts = {"A": 0, "C": 0, "G": 0, "T": 0, "N": 0}
     for ch in seq:
-        if ch in counts:
-            counts[ch] += 1
-        else:
-            counts["N"] += 1
+        counts[ch if ch in counts else "N"] += 1
     gc = (counts["G"] + counts["C"]) / length
-    freqs = np.array([
-        counts["A"] / length,
-        counts["C"] / length,
-        counts["G"] / length,
-        counts["T"] / length,
-        counts["N"] / length,
-    ], dtype=np.float32)
+    freqs = np.array(
+        [
+            counts["A"] / length,
+            counts["C"] / length,
+            counts["G"] / length,
+            counts["T"] / length,
+            counts["N"] / length,
+        ],
+        dtype=np.float32,
+    )
     return np.concatenate([[gc], freqs], axis=0)
 
 
-<<<<<<< HEAD
 def length_feature(seq: str) -> np.ndarray:
     return np.array([len(seq)], dtype=np.float32)
 
 
-=======
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
 def gc_only_features(seq: str) -> np.ndarray:
     seq = seq.upper()
     length = max(len(seq), 1)
@@ -57,7 +49,7 @@ def gc_only_features(seq: str) -> np.ndarray:
 
 
 def train_baseline(
-    features: np.ndarray,
+    features,
     labels: np.ndarray,
     splits: np.ndarray,
     c_grid: List[float],
@@ -76,10 +68,7 @@ def train_baseline(
             C=c,
             solver="lbfgs",
             max_iter=max_iter,
-<<<<<<< HEAD
             class_weight="balanced",
-=======
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
             n_jobs=None,
         )
         clf.fit(features[train_mask], labels[train_mask])
@@ -100,20 +89,15 @@ def train_baseline(
 
 
 def main() -> None:
-<<<<<<< HEAD
-    parser = argparse.ArgumentParser(description="Simple sequence baselines for viral vs non-viral.")
-=======
-    parser = argparse.ArgumentParser(description="GC + 1-gram baseline for viral vs non-viral.")
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
-    parser.add_argument("--manifest", default="data/phase1/manifest.csv")
-    parser.add_argument("--out-dir", default="data/phase1/baselines")
+    parser = argparse.ArgumentParser(description="Simple sequence baselines for family-target probes.")
+    parser.add_argument("--manifest", default="data/family_targets/coronaviridae/manifest.csv")
+    parser.add_argument("--out-dir", default="data/family_targets/coronaviridae/baselines")
     parser.add_argument("--c-grid", default="0.1,1,10")
     parser.add_argument("--max-iter", type=int, default=2000)
-<<<<<<< HEAD
     parser.add_argument(
         "--feature",
         choices=["gc", "gc_1gram", "length", "gc_1gram_length", "kmer"],
-        default="gc_1gram",
+        default="gc_1gram_length",
     )
     parser.add_argument("--kmer-max", type=int, default=4)
     parser.add_argument(
@@ -125,31 +109,31 @@ def main() -> None:
 
     records = read_manifest(args.manifest)
     sequences = [r.sequence for r in records]
-    if args.feature == "gc":
-        features = np.stack([gc_only_features(seq) for seq in sequences], axis=0)
-    else:
-        if args.feature == "gc_1gram":
-            features = np.stack([gc_1gram_features(seq) for seq in sequences], axis=0)
-        elif args.feature == "length":
-            features = np.stack([length_feature(seq) for seq in sequences], axis=0)
-        elif args.feature == "gc_1gram_length":
-            features = np.stack(
-                [
-                    np.concatenate([gc_1gram_features(seq), length_feature(seq)], axis=0)
-                    for seq in sequences
-                ],
-                axis=0,
-            )
-        else:
-            vectorizer = CountVectorizer(
-                analyzer="char",
-                ngram_range=(1, args.kmer_max),
-                lowercase=False,
-                binary=args.kmer_binary,
-            )
-            features = vectorizer.fit_transform(sequences)
     labels = np.array([r.label for r in records], dtype=np.int64)
     splits = np.array([r.split for r in records])
+
+    if args.feature == "gc":
+        features = np.stack([gc_only_features(seq) for seq in sequences], axis=0)
+    elif args.feature == "gc_1gram":
+        features = np.stack([gc_1gram_features(seq) for seq in sequences], axis=0)
+    elif args.feature == "length":
+        features = np.stack([length_feature(seq) for seq in sequences], axis=0)
+    elif args.feature == "gc_1gram_length":
+        features = np.stack(
+            [
+                np.concatenate([gc_1gram_features(seq), length_feature(seq)], axis=0)
+                for seq in sequences
+            ],
+            axis=0,
+        )
+    else:
+        vectorizer = CountVectorizer(
+            analyzer="char",
+            ngram_range=(1, args.kmer_max),
+            lowercase=False,
+            binary=args.kmer_binary,
+        )
+        features = vectorizer.fit_transform(sequences)
 
     if not sparse.issparse(features):
         train_mask = splits == "train"
@@ -161,24 +145,10 @@ def main() -> None:
             scaled[mask] = scaler.transform(features[mask])
         features = scaled
 
-=======
-    parser.add_argument("--feature", choices=["gc", "gc_1gram"], default="gc_1gram")
-    args = parser.parse_args()
-
-    records = read_manifest(args.manifest)
-    if args.feature == "gc":
-        features = np.stack([gc_only_features(r.sequence) for r in records], axis=0)
-    else:
-        features = np.stack([gc_1gram_features(r.sequence) for r in records], axis=0)
-    labels = np.array([r.label for r in records], dtype=np.int64)
-    splits = np.array([r.split for r in records])
-
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
     c_grid = [float(x) for x in args.c_grid.split(",")]
     metrics, meta = train_baseline(features, labels, splits, c_grid, args.max_iter)
 
     os.makedirs(args.out_dir, exist_ok=True)
-<<<<<<< HEAD
     if args.feature == "kmer":
         suffix = f"kmer_1-{args.kmer_max}"
         if args.kmer_binary:
@@ -186,9 +156,6 @@ def main() -> None:
         out_name = f"{suffix}_metrics.csv"
     else:
         out_name = f"{args.feature}_metrics.csv"
-=======
-    out_name = "gc_metrics.csv" if args.feature == "gc" else "gc_1gram_metrics.csv"
->>>>>>> a41d6a7edeb16aead36fb9da8b2cd4b77a380a87
     out_path = os.path.join(args.out_dir, out_name)
     row = {"C": meta["C"], **metrics}
     pd.DataFrame([row]).to_csv(out_path, index=False)

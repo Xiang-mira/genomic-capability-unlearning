@@ -2,7 +2,7 @@
 Phase 3 — LoRA Recovery Attack.
 
 Manually implements LoRA adapters (no peft/transformers dependency) on the
-Linear modules inside blocks 3-9 of an unlearned Evo checkpoint.
+Linear modules inside the localized layers selected from activation patching.
 Fine-tunes on held-out viral sequences (test split, label=1).
 Evaluates probe AUROC before and after attack.
 """
@@ -22,11 +22,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from phase1.utils import load_local_checkpoint, read_manifest
 from evo.tokenizer import CharLevelTokenizer
-from phase2.utils import language_model_loss, tokenize_batch
+from phase2.utils import get_localized_layers, language_model_loss, tokenize_batch
 from phase3.utils import apply_checkpoint, eval_auroc_all_layers, write_results
 
 EVAL_LAYERS = list(range(0, 11))
-LORA_TARGET_LAYERS = [3, 4, 5, 6, 7, 8, 9]
 
 
 class LoRALinear(nn.Module):
@@ -82,8 +81,8 @@ def inject_lora(model, target_layers: List[int], rank: int, alpha: int) -> List[
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", required=True)
-    parser.add_argument("--manifest", default="data/host_tropism/manifest.csv")
-    parser.add_argument("--probe-dir", default="data/host_tropism/probes")
+    parser.add_argument("--manifest", default="data/family_targets/coronaviridae/manifest.csv")
+    parser.add_argument("--probe-dir", default="data/family_targets/coronaviridae/probes")
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--out-dir", default="data/phase3")
@@ -99,6 +98,10 @@ def main():
     parser.add_argument("--log-every", type=int, default=20)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--localized-layers-path",
+        default="data/family_targets/coronaviridae/localized_layers.json",
+    )
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -126,8 +129,8 @@ def main():
                                          EVAL_LAYERS, args.batch_size, args.max_length, args.device)
     print("[LoRA] AUROC before: " + "  ".join(f"L{l}={v:.3f}" for l, v in auroc_before.items()))
 
-    # Inject LoRA adapters
-    adapter_params = inject_lora(model, LORA_TARGET_LAYERS, args.lora_rank, args.lora_alpha)
+    lora_target_layers = get_localized_layers(args.localized_layers_path)
+    adapter_params = inject_lora(model, lora_target_layers, args.lora_rank, args.lora_alpha)
     n_adapter = sum(p.numel() for p in adapter_params)
     n_total = sum(p.numel() for p in model.parameters())
     print(f"[LoRA] adapter params: {n_adapter:,} / {n_total:,} ({100*n_adapter/n_total:.2f}%)")
@@ -183,13 +186,14 @@ def main():
     with open(os.path.join(out_dir, "meta.json"), "w") as f:
         json.dump({"run": run_name, "attack": "lora", "steps": args.steps,
                    "lr": args.lr, "lora_rank": args.lora_rank,
-                   "lora_target_layers": LORA_TARGET_LAYERS,
+                   "lora_target_layers": lora_target_layers,
                    "n_adapter_params": n_adapter,
                    "elapsed_sec": elapsed,
                    "n_attack_train": len(attack_records),
                    "n_attack_eval": len(eval_records),
-                   "attack_split": "val", "eval_split": "test",
-                   "lr_grid": True}, f, indent=2)
+                    "attack_split": "val", "eval_split": "test",
+                   "lr_grid": True,
+                   "localized_layers_path": args.localized_layers_path}, f, indent=2)
     with open(os.path.join(out_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)
     print(f"[LoRA] saved to {out_dir} ({elapsed:.1f}s)")

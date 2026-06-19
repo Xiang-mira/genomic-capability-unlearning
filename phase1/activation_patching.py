@@ -43,6 +43,10 @@ def select_records(
     return candidates[:n]
 
 
+def count_records(records: List[ManifestRecord], split: str, label: int) -> int:
+    return sum(1 for record in records if record.split == split and record.label == label)
+
+
 def make_pairs(
     records: List[ManifestRecord],
     split: str,
@@ -51,8 +55,23 @@ def make_pairs(
     n_pairs: int,
     seed: int,
 ) -> List[Tuple[ManifestRecord, ManifestRecord]]:
-    sources = select_records(records, split, source_label, n_pairs, seed)
-    targets = select_records(records, split, target_label, n_pairs, seed + 1)
+    source_count = count_records(records, split, source_label)
+    target_count = count_records(records, split, target_label)
+    actual_pairs = min(n_pairs, source_count, target_count)
+    if actual_pairs <= 0:
+        raise ValueError(
+            f"Need at least 1 pair for split={split} source_label={source_label} "
+            f"target_label={target_label}, found source={source_count} target={target_count}."
+        )
+    if actual_pairs < n_pairs:
+        print(
+            f"Requested {n_pairs} pairs for split={split} source_label={source_label} "
+            f"target_label={target_label}, but only {actual_pairs} pairs are available; "
+            "using all available pairs.",
+            file=sys.stderr,
+        )
+    sources = select_records(records, split, source_label, actual_pairs, seed)
+    targets = select_records(records, split, target_label, actual_pairs, seed + 1)
     return list(zip(sources, targets))
 
 
@@ -349,13 +368,13 @@ def parse_layers(value: str, num_layers: int) -> List[int]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Layer-wise activation patching for human vs non-human viral host tropism."
+        description="Layer-wise activation patching for target-family vs matched retain viral sequences."
     )
-    parser.add_argument("--manifest", default="data/host_tropism/manifest.csv")
-    parser.add_argument("--probe-dir", default="data/host_tropism/probes")
+    parser.add_argument("--manifest", default="data/family_targets/coronaviridae/manifest.csv")
+    parser.add_argument("--probe-dir", default="data/family_targets/coronaviridae/probes")
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
-    parser.add_argument("--out-dir", default="data/host_tropism/activation_patching")
+    parser.add_argument("--out-dir", default="data/family_targets/coronaviridae/activation_patching")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--split", default="test")
     parser.add_argument("--n-pairs", type=int, default=64)
@@ -365,7 +384,7 @@ def main() -> None:
     parser.add_argument("--layers", default="all", help="Comma list/ranges, e.g. all or 0-10,14,21.")
     parser.add_argument(
         "--directions",
-        choices=["both", "nonhuman_to_human", "human_to_nonhuman"],
+        choices=["both", "retain_to_target", "target_to_retain", "nonhuman_to_human", "human_to_nonhuman"],
         default="both",
     )
     args = parser.parse_args()
@@ -383,19 +402,15 @@ def main() -> None:
     summary_path = os.path.join(args.out_dir, "patching_layer_summary.csv")
     rows = []
     with ActivationPatcher(model, num_layers) as patcher:
-        if args.directions in {"both", "nonhuman_to_human"}:
+        if args.directions in {"both", "retain_to_target", "nonhuman_to_human"}:
             pairs = make_pairs(records, args.split, source_label=0, target_label=1, n_pairs=args.n_pairs, seed=args.seed)
             rows.extend(
-                evaluate_direction(
-                    model, patcher, pairs, tokenizer, probes, layers, args, "nonhuman_to_human"
-                )
+                evaluate_direction(model, patcher, pairs, tokenizer, probes, layers, args, "retain_to_target")
             )
-        if args.directions in {"both", "human_to_nonhuman"}:
+        if args.directions in {"both", "target_to_retain", "human_to_nonhuman"}:
             pairs = make_pairs(records, args.split, source_label=1, target_label=0, n_pairs=args.n_pairs, seed=args.seed + 1000)
             rows.extend(
-                evaluate_direction(
-                    model, patcher, pairs, tokenizer, probes, layers, args, "human_to_nonhuman"
-                )
+                evaluate_direction(model, patcher, pairs, tokenizer, probes, layers, args, "target_to_retain")
             )
 
     fieldnames = [

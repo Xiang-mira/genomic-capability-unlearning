@@ -14,11 +14,17 @@ import json
 from pathlib import Path
 
 EXPECTED_TASKS = [
-    "host_range_prediction",
+    "virus_vs_nonvirus",
     "dna_vs_rna_virus",
+    "host_range_prediction",
     "hiv1_vs_hiv2",
     "sars_cov_2_lineage_typing",
+    "influenza_subtype_typing",
     "hiv1_tropism",
+]
+
+DEFAULT_RETAIN_TASKS = [
+    task for task in EXPECTED_TASKS if task != "hiv1_tropism"
 ]
 
 
@@ -59,6 +65,13 @@ def main() -> None:
         'readme_present': (root / 'README.md').exists(),
         'accession_split_files': split_files,
         'expected_vgue_tasks': EXPECTED_TASKS,
+        'default_viral_retain_tasks': DEFAULT_RETAIN_TASKS,
+        'excluded_default_retain_tasks': {
+            'hiv1_tropism': (
+                'Excluded from the default retain score because it overlaps conceptually '
+                'with the host-tropism forget objective.'
+            ),
+        },
         'task_ready_files_in_repo': task_ready_files,
         'supports_direct_vgue_integration_now': False,
         'reason': (

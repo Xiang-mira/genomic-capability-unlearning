@@ -1,17 +1,18 @@
 """
-Rank pilot benchmark results with paired task/layer deltas against the base run.
+Rank pilot benchmark results with paired task-level deltas against the base run.
 """
 import argparse
 import csv
 import json
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional
 
 import numpy as np
 
 
 RESULT_FIELDS = [
     "run",
+    "method",
     "checkpoint_dir",
     "primary_forget_score",
     "secondary_forget_score",
@@ -43,16 +44,24 @@ PRIMARY_FORGET_TASKS = {
 }
 
 
+def infer_method(run_name: str) -> str:
+    if "_gd_" in run_name or run_name.startswith("gd_") or run_name.startswith("lora_gd_"):
+        return "gd"
+    if "_rmu_" in run_name or run_name.startswith("rmu_") or run_name.startswith("lora_rmu_"):
+        return "rmu"
+    return "other"
+
+
 def metric_from_row(row: dict) -> Optional[float]:
-    for key in ("auroc", "macro_auroc", "accuracy"):
+    for key in ("auroc", "f1", "accuracy", "pearson", "r2"):
         value = row.get(key)
         if value not in (None, ""):
             return float(value)
     return None
 
 
-def read_rows(path: Path) -> Dict[Tuple[str, int], dict]:
-    rows: Dict[Tuple[str, int], dict] = {}
+def read_rows(path: Path) -> Dict[str, dict]:
+    rows: Dict[str, dict] = {}
     with path.open(newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -60,13 +69,13 @@ def read_rows(path: Path) -> Dict[Tuple[str, int], dict]:
             if metric is None:
                 continue
             row["metric"] = metric
-            rows[(row["task"], int(row["layer"]))] = row
+            rows[row["task"]] = row
     return rows
 
 
 def paired_values(
-    base_rows: Dict[Tuple[str, int], dict],
-    run_rows: Dict[Tuple[str, int], dict],
+    base_rows: Dict[str, dict],
+    run_rows: Dict[str, dict],
     group: str,
     delta_mode: str,
     task_filter: Optional[set[str]] = None,
@@ -134,7 +143,7 @@ def read_run_dirs(args) -> List[Path]:
     ]
 
 
-def rank_run(base_rows: Dict[Tuple[str, int], dict], run_dir: Path, args) -> dict:
+def rank_run(base_rows: Dict[str, dict], run_dir: Path, args) -> dict:
     run_rows = read_rows(run_dir / "eval_benchmarks.csv")
     hvue_base, hvue_run, hvue_drop_values = paired_values(base_rows, run_rows, "hvue_forget", "drop")
     primary_base, primary_run, primary_drop_values = paired_values(
@@ -171,6 +180,7 @@ def rank_run(base_rows: Dict[Tuple[str, int], dict], run_dir: Path, args) -> dic
     selection_score = (forget_score if forget_score is not None else -1e9) - retain_penalty
     return {
         "run": run_dir.name,
+        "method": infer_method(run_dir.name),
         "checkpoint_dir": str(run_dir),
         "primary_forget_score": primary_drop,
         "secondary_forget_score": secondary_drop,
@@ -214,6 +224,10 @@ def main() -> None:
     base_rows = read_rows(base_dir / "eval_benchmarks.csv")
     rows = [rank_run(base_rows, run_dir, args) for run_dir in read_run_dirs(args)]
     rows.sort(key=lambda row: float(row["selection_score"]), reverse=True)
+    best_by_method = {}
+    for row in rows:
+        method = row.get("method") or "other"
+        best_by_method.setdefault(method, row)
 
     out_csv = Path(args.out_csv)
     out_json = Path(args.out_json)
@@ -223,6 +237,7 @@ def main() -> None:
         "n_runs": len(rows),
         "top_k": args.top_k,
         "top_runs": rows[: args.top_k],
+        "best_by_method": best_by_method,
         "rows": rows,
     }
     out_json.parent.mkdir(parents=True, exist_ok=True)

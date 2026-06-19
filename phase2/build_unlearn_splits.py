@@ -1,9 +1,9 @@
 """
 Build forget / retain splits for Phase 2 unlearning.
 
-Reuses data/host_tropism/manifest.csv:
-  - label=1 (human-tropic viral)  -> forget
-  - label=0 (non-human-tropic)    -> retain
+Reuses a family-target manifest:
+  - label=1 (target family)       -> forget
+  - label=0 (matched retain set)  -> retain
 
 Train/val/test are taken from the manifest's existing split column so
 unlearning training uses only `split == train` and we hold out val/test for
@@ -34,8 +34,8 @@ def write_csv(path: str, records, fieldnames) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--manifest", default="data/host_tropism/manifest.csv")
-    parser.add_argument("--out-dir", default="data/phase2/splits")
+    parser.add_argument("--manifest", default="data/family_targets/coronaviridae/manifest.csv")
+    parser.add_argument("--out-dir", default="data/phase2/coronaviridae_splits")
     args = parser.parse_args()
 
     records = read_manifest(args.manifest)

@@ -1,10 +1,9 @@
 """Shared utilities for Phase 3 recovery attacks."""
 import csv
-import glob
 import json
 import os
 import sys
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import numpy as np
 import torch
@@ -16,7 +15,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from phase1.utils import load_local_checkpoint, read_manifest
 from evo.tokenizer import CharLevelTokenizer
-from phase2.utils import language_model_loss, tokenize_batch
+from phase2.utils import get_localized_layers, language_model_loss, tokenize_batch
 
 
 def apply_checkpoint(model, ckpt_path: str) -> None:
@@ -96,3 +95,17 @@ def write_results(path: str, rows: List[dict]) -> None:
         writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
+
+
+def load_attack_layers(
+    ckpt_path: str,
+    localized_layers_path: str = "data/family_targets/coronaviridae/localized_layers.json",
+) -> List[int]:
+    meta_path = os.path.join(os.path.dirname(ckpt_path), "meta.json")
+    if os.path.exists(meta_path):
+        with open(meta_path) as f:
+            meta = json.load(f)
+        layers = meta.get("layers")
+        if isinstance(layers, list) and layers:
+            return [int(layer) for layer in layers]
+    return get_localized_layers(localized_layers_path)

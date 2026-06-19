@@ -1,9 +1,9 @@
 """Shared utilities for Phase 2 unlearning."""
 import csv
+import json
 import os
 import random
 import sys
-from dataclasses import dataclass
 from typing import Iterable, List, Tuple
 
 import numpy as np
@@ -15,10 +15,34 @@ from phase1.utils import ManifestRecord, pad_batch, read_manifest
 from evo.tokenizer import CharLevelTokenizer
 
 
-# Layers selected from activation_patching_analysis.md
-LOCALIZED_LAYERS = [3, 4, 5, 6, 7, 8, 9]  # 7 layers, causal effect
-PROBE_LAYERS = list(range(0, 11))           # layers 0-10, strongest probe AUROC
-RANDOM_LAYER_POOL = list(range(11, 31))  # exclude the unstable last block
+DEFAULT_LOCALIZED_LAYERS = [3, 4, 5, 6, 7, 8, 9]
+DEFAULT_PRIMARY_TARGET_LAYER = 6
+DEFAULT_LOCALIZED_LAYERS_PATH = "data/family_targets/coronaviridae/localized_layers.json"
+PROBE_LAYERS = list(range(0, 11))
+RANDOM_LAYER_POOL = list(range(11, 31))
+
+
+def load_localized_config(path: str = DEFAULT_LOCALIZED_LAYERS_PATH) -> dict:
+    if not path or not os.path.exists(path):
+        return {
+            "layers": DEFAULT_LOCALIZED_LAYERS,
+            "primary_target_layer": DEFAULT_PRIMARY_TARGET_LAYER,
+            "source": "default_fallback",
+        }
+    with open(path) as f:
+        data = json.load(f)
+    return data
+
+
+def get_localized_layers(path: str = DEFAULT_LOCALIZED_LAYERS_PATH) -> List[int]:
+    data = load_localized_config(path)
+    layers = [int(layer) for layer in data.get("layers", DEFAULT_LOCALIZED_LAYERS)]
+    return sorted(set(layers))
+
+
+def get_primary_target_layer(path: str = DEFAULT_LOCALIZED_LAYERS_PATH) -> int:
+    data = load_localized_config(path)
+    return int(data.get("primary_target_layer", DEFAULT_PRIMARY_TARGET_LAYER))
 
 
 def select_random_layers(seed: int, n: int) -> List[int]:
@@ -27,7 +51,7 @@ def select_random_layers(seed: int, n: int) -> List[int]:
 
 
 def split_records(records: List[ManifestRecord]) -> Tuple[List[ManifestRecord], List[ManifestRecord]]:
-    """label=1 → forget (human-tropic); label=0 → retain (non-human-tropic)."""
+    """label=1 -> forget (target family); label=0 -> retain (matched non-target viral families)."""
     forget = [r for r in records if r.label == 1]
     retain = [r for r in records if r.label == 0]
     return forget, retain

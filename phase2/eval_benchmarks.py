@@ -1,57 +1,51 @@
 """
-Evaluate the base model or an unlearned checkpoint on external HVUE/GUE benchmarks.
+Primary HVUE benchmark evaluator using supervised LoRA finetuning.
 
 Expected CSV columns:
   benchmark,task,split,sequence,label
 Optional columns:
   family,group,id
 
-Default benchmark groups:
-  - hvue_forget: HVUE human-virus-relevant tasks
-  - gue_retain: GUE retain tasks
-  - viral_retain: viral retain tasks such as host range / DNA-vs-RNA / HIV type
-
-The evaluator trains a frozen-representation linear probe per task/layer on the
-benchmark train split, selects C on validation, and reports test performance.
+This entrypoint intentionally replaces the previous frozen-feature linear probe
+protocol for primary benchmark results. The probe implementation is preserved in
+phase2/eval_benchmarks_probe_legacy.py for reference.
 """
 import argparse
 import csv
-import hashlib
 import json
 import math
 import os
-import re
+import random
 import signal
 import sys
 import time
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from safetensors.torch import load_file
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
-from sklearn.preprocessing import StandardScaler
-
-try:
-    from joblib import Parallel, delayed
-except ImportError:
-    Parallel = None
-    delayed = None
-
-try:
-    from threadpoolctl import threadpool_limits
-except ImportError:
-    threadpool_limits = None
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from evo.tokenizer import CharLevelTokenizer
-from phase2.notify import notify
 from phase1.utils import load_local_checkpoint
+from phase2.lora_utils import (
+    PooledEvoClassifier,
+    classification_metrics,
+    count_total,
+    count_trainable,
+    encode_labels,
+    inject_lora_all_blocks,
+    regression_metrics,
+    remove_lora_adapters,
+)
+from phase2.notify import notify
 from phase2.utils import tokenize_batch
+
+csv.field_size_limit(sys.maxsize)
 
 
 DEFAULT_HVUE_FORGET_TASKS = {
@@ -64,27 +58,37 @@ DEFAULT_HVUE_FORGET_TASKS = {
     "hvue_human_transmissibility_caliciviridae",
 }
 
-DEFAULT_VIRAL_RETAIN_TASKS = {
-    "host_range_prediction",
-    "dna_vs_rna_virus",
-    "hiv1_vs_hiv2",
-}
-
-C_GRID = [0.001, 0.01, 0.1, 1.0]
 RESULT_FIELDNAMES = [
     "benchmark",
     "task",
     "group",
-    "layer",
-    "best_c",
-    "selection_score",
+    "model_name",
+    "checkpoint",
+    "seed",
+    "problem_type",
     "n_train",
     "n_val",
     "n_test",
+    "train_loss",
+    "val_loss",
+    "validation_metric",
+    "metric_for_best",
+    "best_step",
+    "best_checkpoint",
     "accuracy",
-    "macro_f1",
+    "f1",
     "auroc",
-    "macro_auroc",
+    "auprc",
+    "mse",
+    "rmse",
+    "r2",
+    "pearson",
+    "lora_rank",
+    "lora_alpha",
+    "lora_dropout",
+    "lora_modules",
+    "trainable_params",
+    "total_params",
 ]
 
 
@@ -100,78 +104,9 @@ class BenchmarkRecord:
     record_id: str = ""
 
 
-def apply_checkpoint(model, ckpt_path: str) -> None:
-    delta = load_file(ckpt_path)
-    sd = model.state_dict()
-    missing = []
-    for key, val in delta.items():
-        if key not in sd:
-            missing.append(key)
-            continue
-        sd[key].copy_(val.to(sd[key].dtype).to(sd[key].device))
-    if missing:
-        print(f"[bench] skipped {len(missing)} checkpoint tensors not present in model")
-    print(f"[bench] applied {len(delta) - len(missing)} checkpoint tensors from {ckpt_path}")
-
-
-def parse_layers(spec: str) -> List[int]:
-    layers: List[int] = []
-    for part in spec.split(","):
-        part = part.strip()
-        if not part:
-            continue
-        if "-" in part:
-            start, end = [int(x) for x in part.split("-", 1)]
-            layers.extend(range(start, end + 1))
-        else:
-            layers.append(int(part))
-    return sorted(set(layers))
-
-
-def read_benchmark_manifest(path: str) -> List[BenchmarkRecord]:
-    records: List[BenchmarkRecord] = []
-    with open(path, newline="") as f:
-        reader = csv.DictReader(f)
-        required = {"benchmark", "task", "split", "sequence", "label"}
-        missing = required - set(reader.fieldnames or [])
-        if missing:
-            raise ValueError(f"Benchmark manifest missing required columns: {sorted(missing)}")
-        for row in reader:
-            label = normalize_label(row["label"])
-            if label is None:
-                continue
-            records.append(
-                BenchmarkRecord(
-                    benchmark=row["benchmark"],
-                    task=row["task"],
-                    split=row["split"].lower(),
-                    sequence=row["sequence"],
-                    label=label,
-                    family=row.get("family", ""),
-                    group=row.get("group", ""),
-                    record_id=row.get("id", ""),
-                )
-            )
-    return records
-
-
-def infer_group(task: str, benchmark: str) -> str:
-    task_key = task.lower()
-    benchmark_key = benchmark.lower()
-    if task_key in DEFAULT_HVUE_FORGET_TASKS:
-        return "hvue_forget"
-    if benchmark_key == "gue" or task_key.startswith("gue_"):
-        return "gue_retain"
-    if benchmark_key in {"viral_retain", "vgue", "virobench"} or task_key in DEFAULT_VIRAL_RETAIN_TASKS:
-        return "viral_retain"
-    return "unspecified"
-
-
 def normalize_label(label: str) -> Optional[str]:
     value = str(label).strip()
-    if not value:
-        return None
-    if value.lower() in {"nan", "na", "none", "null"}:
+    if not value or value.lower() in {"nan", "na", "none", "null"}:
         return None
     try:
         numeric = float(value)
@@ -184,21 +119,78 @@ def normalize_label(label: str) -> Optional[str]:
     return format(numeric, "g")
 
 
-def labels_to_int(labels: Iterable[str]) -> np.ndarray:
-    labels = list(labels)
-    label_to_id = {label: idx for idx, label in enumerate(sorted(set(labels)))}
-    return np.array([label_to_id[label] for label in labels], dtype=np.int64)
+def infer_group(task: str, benchmark: str) -> str:
+    if task.lower() in DEFAULT_HVUE_FORGET_TASKS or benchmark.lower() == "hvue":
+        return "hvue_forget"
+    return "unspecified"
 
 
-def limit_threads(num_threads: int):
-    if threadpool_limits is None:
-        class _NullContext:
-            def __enter__(self):
-                return None
-            def __exit__(self, exc_type, exc, tb):
-                return False
-        return _NullContext()
-    return threadpool_limits(limits=max(1, num_threads))
+def parse_task_filter(spec: str) -> Optional[set[str]]:
+    if not spec:
+        return None
+    return {part.strip() for part in spec.split(",") if part.strip()}
+
+
+def read_benchmark_manifest(
+    path: str,
+    benchmark_scope: str = "hvue",
+    task_filter: Optional[set[str]] = None,
+    default_benchmark: str = "host_tropism_hiyata",
+    default_task: str = "host_tropism_hiyata",
+    default_group: str = "host_tropism_adaptation",
+) -> List[BenchmarkRecord]:
+    records: List[BenchmarkRecord] = []
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        fields = set(reader.fieldnames or [])
+        required = {"split", "sequence", "label"}
+        missing = required - set(reader.fieldnames or [])
+        if missing:
+            raise ValueError(f"Benchmark manifest missing required columns: {sorted(missing)}")
+        for row in reader:
+            label = normalize_label(row["label"])
+            if label is None:
+                continue
+            benchmark = row.get("benchmark") or default_benchmark
+            task = row.get("task") or default_task
+            group = row.get("group", "") or infer_group(task, benchmark)
+            if group == "unspecified" and "benchmark" not in fields:
+                group = default_group
+            if task_filter is not None and task not in task_filter:
+                continue
+            if benchmark_scope == "hvue" and benchmark.lower() != "hvue" and group != "hvue_forget":
+                continue
+            if benchmark_scope == "task" and task_filter is None:
+                raise ValueError("--benchmark-scope task requires --task-filter")
+            if benchmark_scope == "task" and task_filter is not None and task not in task_filter:
+                continue
+            records.append(
+                BenchmarkRecord(
+                    benchmark=benchmark,
+                    task=task,
+                    split=row["split"].lower(),
+                    sequence=row["sequence"],
+                    label=label,
+                    family=row.get("family", ""),
+                    group=group,
+                    record_id=row.get("id") or row.get("record_id", ""),
+                )
+            )
+    return records
+
+
+def apply_checkpoint(model, ckpt_path: str) -> None:
+    delta = load_file(ckpt_path)
+    sd = model.state_dict()
+    missing = []
+    for key, val in delta.items():
+        if key not in sd:
+            missing.append(key)
+            continue
+        sd[key].copy_(val.to(sd[key].dtype).to(sd[key].device))
+    if missing:
+        print(f"[bench-lora] skipped {len(missing)} checkpoint tensors not present in model")
+    print(f"[bench-lora] applied {len(delta) - len(missing)} checkpoint tensors from {ckpt_path}")
 
 
 def tune_runtime(device: str, cpu_threads: int) -> None:
@@ -211,19 +203,15 @@ def tune_runtime(device: str, cpu_threads: int) -> None:
     if device.startswith("cuda"):
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
-    print(f"[bench] runtime config: device={device} cpu_threads={cpu_threads}")
+    print(f"[bench-lora] runtime config: device={device} cpu_threads={cpu_threads}")
 
 
-def is_oom_error(exc: RuntimeError) -> bool:
-    text = str(exc).lower()
-    return "out of memory" in text or "cuda error: out of memory" in text
-
-
-def load_existing_rows(path: str) -> List[dict]:
-    if not os.path.exists(path):
-        return []
-    with open(path, newline="") as f:
-        return list(csv.DictReader(f))
+def set_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 def append_rows(path: str, rows: List[dict]) -> None:
@@ -236,16 +224,25 @@ def append_rows(path: str, rows: List[dict]) -> None:
         if not exists:
             writer.writeheader()
         for row in rows:
-            writer.writerow({key: row.get(key, "") for key in RESULT_FIELDNAMES})
+            writer.writerow({key: format_cell(row.get(key)) for key in RESULT_FIELDNAMES})
 
 
-def write_summary(path: str, rows: List[dict]) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(summarize(rows), f, indent=2)
+def load_existing_rows(path: str) -> List[dict]:
+    if not os.path.exists(path):
+        return []
+    with open(path, newline="") as f:
+        return list(csv.DictReader(f))
 
 
-def write_progress(path: str, payload: Dict[str, object]) -> None:
+def format_cell(value: object) -> object:
+    if value is None:
+        return ""
+    if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+        return ""
+    return value
+
+
+def write_json(path: str, payload: Dict[str, object]) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp_path = path + ".tmp"
     with open(tmp_path, "w") as f:
@@ -253,795 +250,706 @@ def write_progress(path: str, payload: Dict[str, object]) -> None:
     os.replace(tmp_path, path)
 
 
-def sha256_file(path: str, chunk_size: int = 1024 * 1024) -> str:
-    digest = hashlib.sha256()
-    with open(path, "rb") as f:
-        while True:
-            chunk = f.read(chunk_size)
-            if not chunk:
-                break
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def checkpoint_cache_id(ckpt_path: Optional[str]) -> str:
-    if ckpt_path is None:
-        return "base"
-    return f"{os.path.basename(os.path.dirname(ckpt_path))}_{sha256_file(ckpt_path)[:16]}"
-
-
-def safe_path_component(value: str) -> str:
-    value = re.sub(r"[^A-Za-z0-9_.-]+", "_", value.strip())
-    return value.strip("_") or "unknown"
-
-
-def task_records_fingerprint(
-    task_records: List[BenchmarkRecord],
-    layers: List[int],
-    max_length: int,
-) -> str:
-    digest = hashlib.sha256()
-    digest.update(b"eval_benchmarks_features_v1\n")
-    digest.update(("layers=" + ",".join(str(layer) for layer in layers) + "\n").encode())
-    digest.update(f"max_length={max_length}\n".encode())
-    for idx, record in enumerate(task_records):
-        digest.update(f"{idx}\t{record.record_id}\t{record.split}\t{record.label}\t".encode())
-        digest.update(record.sequence.encode())
-        digest.update(b"\n")
-    return digest.hexdigest()[:20]
-
-
-def feature_cache_path(
-    cache_dir: Optional[str],
-    ckpt_id: str,
-    task: str,
-    task_fingerprint: str,
-) -> Optional[str]:
-    if not cache_dir:
-        return None
-    return os.path.join(
-        cache_dir,
-        safe_path_component(ckpt_id),
-        f"{safe_path_component(task)}_{task_fingerprint}.npz",
-    )
-
-
-def load_feature_cache(path: str, layers: List[int]) -> Optional[Dict[int, np.ndarray]]:
-    if not os.path.exists(path):
-        return None
-    try:
-        with np.load(path, allow_pickle=False) as data:
-            features = {}
-            for layer in layers:
-                key = f"layer_{layer}"
-                if key not in data:
-                    return None
-                features[layer] = data[key].astype(np.float32, copy=False)
-            return features
-    except Exception as exc:
-        print(f"[bench] ignoring unreadable feature cache {path}: {exc}")
-        return None
-
-
-def save_feature_cache(
-    path: str,
-    features_by_layer: Dict[int, np.ndarray],
-    compression: str = "compressed",
-) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp_path = path + ".tmp"
-    payload = {f"layer_{layer}": features for layer, features in features_by_layer.items()}
-    with open(tmp_path, "wb") as f:
-        if compression == "none":
-            np.savez(f, **payload)
-        else:
-            np.savez_compressed(f, **payload)
-    os.replace(tmp_path, path)
-    print(f"[bench] wrote feature cache {path} compression={compression}")
-
-
-def get_features_for_task(
-    model,
-    task_records: List[BenchmarkRecord],
-    tokenizer: CharLevelTokenizer,
-    layers: List[int],
-    batch_size: int,
-    auto_batch_size: int,
-    max_length: int,
-    device: str,
-    task_name: str,
-    progress_every: int,
-    ckpt_id: str,
-    feature_cache_dir: Optional[str],
-    feature_cache_compression: str,
-    feature_cache_write: bool,
-    progress_callback: Optional[Callable[[Dict[str, object]], None]] = None,
-) -> Dict[int, np.ndarray]:
-    cache_path = feature_cache_path(
-        feature_cache_dir,
-        ckpt_id,
-        task_name,
-        task_records_fingerprint(task_records, layers, max_length),
-    )
-    if cache_path:
-        cached = load_feature_cache(cache_path, layers)
-        if cached is not None:
-            print(f"[bench] feature cache hit task={task_name} path={cache_path}")
-            if progress_callback is not None:
-                progress_callback(
-                    {
-                        "phase": "cache_hit",
-                        "current_task": task_name,
-                        "task_sequences_done": len(task_records),
-                        "task_sequences_total": len(task_records),
-                    }
-                )
-            return cached
-
-    features = extract_features_for_layers(
-        model=model,
-        sequences=[record.sequence for record in task_records],
-        tokenizer=tokenizer,
-        layers=layers,
-        batch_size=batch_size,
-        auto_batch_size=auto_batch_size,
-        max_length=max_length,
-        device=device,
-        task_name=task_name,
-        progress_every=progress_every,
-        progress_callback=progress_callback,
-    )
-    if cache_path and feature_cache_write:
-        if progress_callback is not None:
-            progress_callback(
-                {
-                    "phase": "cache_write",
-                    "current_task": task_name,
-                    "task_sequences_done": len(task_records),
-                    "task_sequences_total": len(task_records),
-                    "feature_cache_path": cache_path,
-                }
-            )
-        save_feature_cache(cache_path, features, compression=feature_cache_compression)
-        if progress_callback is not None:
-            progress_callback(
-                {
-                    "phase": "cache_written",
-                    "current_task": task_name,
-                    "task_sequences_done": len(task_records),
-                    "task_sequences_total": len(task_records),
-                    "feature_cache_path": cache_path,
-                }
-            )
-    elif cache_path:
-        print(f"[bench] feature cache write disabled task={task_name} path={cache_path}")
-    return features
-
-
-def extract_features_for_layers(
-    model,
-    sequences: List[str],
-    tokenizer: CharLevelTokenizer,
-    layers: List[int],
-    batch_size: int,
-    auto_batch_size: int,
-    max_length: int,
-    device: str,
-    task_name: str,
-    progress_every: int,
-    progress_callback: Optional[Callable[[Dict[str, object]], None]] = None,
-) -> Dict[int, np.ndarray]:
-    """Extract mean-pooled activations with length bucketing and batched host copies."""
-    num_layers = len(model.blocks)
-    layers_set = set(layers)
-    feature_buffers: Dict[int, np.ndarray | None] = {layer: None for layer in layers}
-    state = {"mask": None, "captured": {}}
-    handles = []
-
-    def make_hook(layer_idx: int):
-        def hook(_module, _inputs, output):
-            if layer_idx not in layers_set:
-                return
-            hidden = output[0] if isinstance(output, tuple) else output
-            if layer_idx + 1 < num_layers:
-                hidden = model.blocks[layer_idx + 1].pre_norm(hidden)
-            else:
-                hidden = model.norm(hidden)
-            mask = state["mask"]
-            denom = mask.sum(dim=1, keepdim=True).clamp(min=1)
-            pooled = (hidden * mask.unsqueeze(-1)).sum(dim=1) / denom
-            state["captured"][layer_idx] = pooled.detach().float()
-
-        return hook
-
-    for layer_idx in layers:
-        handles.append(model.blocks[layer_idx].register_forward_hook(make_hook(layer_idx)))
-
-    lengths = np.array([min(len(seq), max_length) for seq in sequences], dtype=np.int32)
-    order = np.argsort(lengths, kind="stable")
-    current_batch_size = batch_size if batch_size > 0 else max(1, auto_batch_size)
-    processed = 0
-    batch_count = 0
-    next_report = progress_every if progress_every > 0 else len(sequences) + 1
-    started = time.time()
-    if progress_callback is not None:
-        progress_callback({
-            "phase": "extract",
-            "current_task": task_name,
-            "task_sequences_done": 0,
-            "task_sequences_total": len(sequences),
-            "task_batches": 0,
-            "current_batch_size": current_batch_size,
-            "task_elapsed_sec": 0.0,
-            "task_seq_per_sec": 0.0,
-            "task_eta_sec": None,
-        })
-
-    try:
-        with torch.inference_mode():
-            cursor = 0
-            while cursor < len(order):
-                batch_indices = order[cursor : cursor + current_batch_size]
-                batch = [sequences[idx] for idx in batch_indices]
-                try:
-                    ids, mask = tokenize_batch(batch, tokenizer, max_length, device)
-                    state["mask"] = mask
-                    state["captured"] = {}
-                    _ = model(ids, padding_mask=mask)
-
-                    pooled_stack = torch.stack([state["captured"][layer] for layer in layers], dim=0)
-                    pooled_np = pooled_stack.cpu().numpy()
-                    for layer_offset, layer_idx in enumerate(layers):
-                        layer_feats = pooled_np[layer_offset]
-                        if feature_buffers[layer_idx] is None:
-                            feature_buffers[layer_idx] = np.empty(
-                                (len(sequences), layer_feats.shape[1]),
-                                dtype=np.float32,
-                            )
-                        feature_buffers[layer_idx][batch_indices] = layer_feats
-
-                    processed += len(batch_indices)
-                    batch_count += 1
-                    cursor += len(batch_indices)
-                    if processed >= next_report or cursor == len(order):
-                        elapsed = max(time.time() - started, 1e-6)
-                        seq_per_sec = processed / elapsed
-                        remaining = max(len(sequences) - processed, 0)
-                        eta_sec = remaining / max(seq_per_sec, 1e-6)
-                        payload = {
-                            "phase": "extract",
-                            "current_task": task_name,
-                            "task_sequences_done": processed,
-                            "task_sequences_total": len(sequences),
-                            "task_batches": batch_count,
-                            "current_batch_size": current_batch_size,
-                            "task_elapsed_sec": elapsed,
-                            "task_seq_per_sec": seq_per_sec,
-                            "task_eta_sec": eta_sec,
-                        }
-                        if progress_callback is not None:
-                            progress_callback(payload)
-                        print(
-                            f"[bench] extract task={task_name} "
-                            f"done={processed}/{len(sequences)} "
-                            f"batches={batch_count} "
-                            f"batch_size={current_batch_size} "
-                            f"seq_per_sec={seq_per_sec:.1f} "
-                            f"eta_min={eta_sec / 60.0:.1f}"
-                        )
-                        next_report += progress_every
-                    del ids, mask, pooled_stack, pooled_np
-                except RuntimeError as exc:
-                    if device.startswith("cuda") and is_oom_error(exc) and current_batch_size > 1:
-                        new_batch_size = max(1, current_batch_size // 2)
-                        torch.cuda.empty_cache()
-                        print(
-                            f"[bench] OOM during extraction for task={task_name}; "
-                            f"batch_size {current_batch_size} -> {new_batch_size}"
-                        )
-                        current_batch_size = new_batch_size
-                        continue
-                    raise
-    finally:
-        for handle in handles:
-            handle.remove()
-
-    missing_layers = [layer for layer, feats in feature_buffers.items() if feats is None]
-    if missing_layers:
-        raise RuntimeError(f"No features captured for layers: {missing_layers}")
-    return {layer: feature_buffers[layer] for layer in layers}
-
-
-def score_classifier(model: LogisticRegression, x: np.ndarray, y: np.ndarray) -> Dict[str, float]:
-    pred = model.predict(x)
-    scores = {
-        "accuracy": float(accuracy_score(y, pred)),
-        "macro_f1": float(f1_score(y, pred, average="macro", zero_division=0)),
-    }
-    classes = np.asarray(model.classes_)
-    observed = np.unique(y)
-    if len(classes) == 2 and len(observed) == 2:
-        prob = model.predict_proba(x)[:, 1]
-        scores["auroc"] = float(roc_auc_score(y, prob))
-    elif len(classes) > 2 and set(observed.tolist()) == set(classes.tolist()):
-        prob = model.predict_proba(x)
-        scores["macro_auroc"] = float(
-            roc_auc_score(y, prob, multi_class="ovr", average="macro")
-        )
-    return scores
-
-
-def select_metric(scores: Dict[str, float]) -> float:
-    if "auroc" in scores:
-        return scores["auroc"]
-    if "macro_auroc" in scores:
-        return scores["macro_auroc"]
-    return scores["accuracy"]
-
-
-def resolve_solver(solver: str, n_train: int) -> Tuple[str, int, float]:
-    if solver == "auto":
-        if n_train >= 50000:
-            return "saga", 200, 1e-3
-        return "lbfgs", 1000, 1e-4
-    if solver == "saga":
-        return "saga", 200, 1e-3
-    return "lbfgs", 1000, 1e-4
-
-
-def train_probe_for_task(
-    features: np.ndarray,
-    labels: np.ndarray,
-    splits: np.ndarray,
-    solver: str,
-) -> Dict[str, object] | None:
-    train_mask = splits == "train"
-    val_mask = splits == "val"
-    test_mask = splits == "test"
-    if train_mask.sum() == 0 or test_mask.sum() == 0:
-        return None
-    if len(np.unique(labels[train_mask])) < 2 or len(np.unique(labels[test_mask])) < 2:
-        return None
-
-    scaler = StandardScaler()
-    x_train = scaler.fit_transform(features[train_mask])
-    x_test = scaler.transform(features[test_mask])
-    x_val = scaler.transform(features[val_mask]) if val_mask.sum() else None
-
-    resolved_solver, max_iter, tol = resolve_solver(solver, int(train_mask.sum()))
-    best_model = None
-    best_c = None
-    best_score = -np.inf
-    for c in C_GRID:
-        clf = LogisticRegression(
-            C=c,
-            class_weight="balanced",
-            max_iter=max_iter,
-            solver=resolved_solver,
-            tol=tol,
-        )
-        clf.fit(x_train, labels[train_mask])
-        if x_val is not None and len(np.unique(labels[val_mask])) >= 2:
-            val_scores = score_classifier(clf, x_val, labels[val_mask])
-            score = select_metric(val_scores)
-        else:
-            score = score_classifier(clf, x_train, labels[train_mask])["accuracy"]
-        if score > best_score:
-            best_model = clf
-            best_c = c
-            best_score = score
-
-    assert best_model is not None
-    test_scores = score_classifier(best_model, x_test, labels[test_mask])
-    return {
-        "best_c": best_c,
-        "selection_score": best_score,
-        "n_train": int(train_mask.sum()),
-        "n_val": int(val_mask.sum()),
-        "n_test": int(test_mask.sum()),
-        **test_scores,
-    }
-
-
-def fit_task_layers(
-    pending_layers: List[int],
-    features_by_layer: Dict[int, np.ndarray],
-    labels: np.ndarray,
-    splits: np.ndarray,
-    probe_jobs: int,
-    cpu_threads: int,
-    solver: str,
-) -> List[Tuple[int, Dict[str, object] | None]]:
-    def run_one(layer: int) -> Tuple[int, Dict[str, object] | None]:
-        return layer, train_probe_for_task(features_by_layer[layer], labels, splits, solver)
-
-    n_jobs = max(1, min(probe_jobs, len(pending_layers)))
-    if Parallel is None or delayed is None or n_jobs == 1:
-        results = []
-        with limit_threads(cpu_threads):
-            for layer in pending_layers:
-                results.append(run_one(layer))
-        return results
-
-    with limit_threads(1):
-        return Parallel(n_jobs=n_jobs, prefer="threads")(
-            delayed(run_one)(layer) for layer in pending_layers
-        )
-
-
 def summarize(rows: List[dict]) -> Dict[str, dict]:
-    by_group = defaultdict(list)
-    by_benchmark = defaultdict(list)
-    by_task = defaultdict(list)
+    by_task: Dict[str, List[float]] = defaultdict(list)
+    by_group: Dict[str, List[float]] = defaultdict(list)
     for row in rows:
-        metric = None
-        for metric_name in ("auroc", "macro_auroc", "accuracy"):
-            raw_metric = row.get(metric_name)
-            if raw_metric in (None, ""):
-                continue
-            value = float(raw_metric)
-            if not np.isnan(value):
-                metric = value
-                break
-        if metric is not None:
-            by_group[row["group"]].append(metric)
-            by_benchmark[row["benchmark"]].append(metric)
-            by_task[row["task"]].append(metric)
+        metric = first_float(row, ["auroc", "f1", "accuracy", "pearson", "r2"])
+        if metric is None:
+            continue
+        by_task[row["task"]].append(metric)
+        by_group[row["group"]].append(metric)
     return {
         "groups": {
-            group: {"mean_score": float(np.mean(values)), "n_task_layers": len(values)}
+            group: {"mean_score": float(np.mean(values)), "n_tasks": len(values)}
             for group, values in sorted(by_group.items())
             if values
         },
-        "benchmarks": {
-            benchmark: {"mean_score": float(np.mean(values)), "n_task_layers": len(values)}
-            for benchmark, values in sorted(by_benchmark.items())
-            if values
-        },
         "tasks": {
-            task: {"mean_score": float(np.mean(values)), "n_layers": len(values)}
+            task: {"mean_score": float(np.mean(values)), "n_rows": len(values)}
             for task, values in sorted(by_task.items())
             if values
         },
     }
 
 
+def write_summary(path: str, rows: List[dict]) -> None:
+    write_json(path, summarize(rows))
+
+
+def first_float(row: dict, keys: Iterable[str]) -> Optional[float]:
+    for key in keys:
+        value = row.get(key)
+        if value in (None, ""):
+            continue
+        try:
+            value_f = float(value)
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(value_f):
+            return value_f
+    return None
+
+
+def split_records(records: List[BenchmarkRecord]) -> Dict[str, List[BenchmarkRecord]]:
+    splits = {"train": [], "val": [], "test": []}
+    for record in records:
+        split = "val" if record.split in {"dev", "valid", "validation"} else record.split
+        if split in splits:
+            splits[split].append(record)
+    return splits
+
+
+def infer_problem_type(labels: List[str], requested: str) -> str:
+    if requested != "auto":
+        return requested
+    return "classification"
+
+
+def batch_indices(size: int, batch_size: int, shuffle: bool, rng: random.Random) -> Iterable[List[int]]:
+    indices = list(range(size))
+    if shuffle:
+        rng.shuffle(indices)
+    for start in range(0, size, batch_size):
+        yield indices[start : start + batch_size]
+
+
+def trainable_state_dict(module: torch.nn.Module) -> Dict[str, torch.Tensor]:
+    return {
+        name: param.detach().cpu()
+        for name, param in module.named_parameters()
+        if param.requires_grad
+    }
+
+
+def load_trainable_state_dict(module: torch.nn.Module, state: Dict[str, torch.Tensor], device: str) -> None:
+    named_params = dict(module.named_parameters())
+    for name, value in state.items():
+        if name not in named_params:
+            raise KeyError(f"Checkpoint tensor {name} not found in model")
+        param = named_params[name]
+        param.data.copy_(value.to(device=param.device, dtype=param.dtype))
+
+
+def save_best_checkpoint(path: str, module: torch.nn.Module, meta: Dict[str, object]) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    torch.save({"state_dict": trainable_state_dict(module), "meta": meta}, path)
+
+
+def select_metric_name(metric_for_best: str, metrics: Dict[str, Optional[float]], problem_type: str) -> str:
+    if metric_for_best != "auto":
+        return metric_for_best
+    if problem_type == "classification":
+        for name in ("auroc", "f1", "accuracy"):
+            if metrics.get(name) is not None:
+                return name
+        return "accuracy"
+    for name in ("pearson", "r2"):
+        if metrics.get(name) is not None:
+            return name
+    return "mse"
+
+
+def metric_value_for_selection(
+    metric_name: str,
+    metrics: Dict[str, Optional[float]],
+    val_loss: float,
+) -> Optional[float]:
+    if metric_name in {"loss", "val_loss"}:
+        return -val_loss
+    value = metrics.get(metric_name)
+    if value is None:
+        return None
+    if metric_name in {"mse", "rmse"}:
+        return -float(value)
+    return float(value)
+
+
+def compute_loss_and_outputs(
+    model: PooledEvoClassifier,
+    ids: torch.Tensor,
+    mask: torch.Tensor,
+    targets: torch.Tensor,
+    problem_type: str,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    outputs = model(ids, mask)
+    if problem_type == "classification":
+        loss = F.cross_entropy(outputs.float(), targets.long())
+    else:
+        loss = F.mse_loss(outputs.squeeze(-1).float(), targets.float())
+    return loss, outputs
+
+
+def evaluate_model(
+    model: PooledEvoClassifier,
+    records: List[BenchmarkRecord],
+    labels: np.ndarray,
+    tokenizer: CharLevelTokenizer,
+    batch_size: int,
+    max_length: int,
+    device: str,
+    problem_type: str,
+    num_classes: int,
+) -> Tuple[float, Dict[str, Optional[float]]]:
+    model.eval()
+    losses: List[float] = []
+    preds: List[np.ndarray] = []
+    scores: List[np.ndarray] = []
+    targets_out: List[np.ndarray] = []
+    with torch.no_grad():
+        for indices in batch_indices(len(records), batch_size, shuffle=False, rng=random.Random(0)):
+            batch = [records[idx] for idx in indices]
+            ids, mask = tokenize_batch([record.sequence for record in batch], tokenizer, max_length, device)
+            target_np = labels[indices]
+            if problem_type == "classification":
+                targets = torch.tensor(target_np, dtype=torch.long, device=device)
+            else:
+                targets = torch.tensor(target_np, dtype=torch.float32, device=device)
+            loss, outputs = compute_loss_and_outputs(model, ids, mask, targets, problem_type)
+            losses.append(float(loss.item()) * len(indices))
+            targets_out.append(target_np)
+            if problem_type == "classification":
+                prob = torch.softmax(outputs.float(), dim=-1).detach().cpu().numpy()
+                scores.append(prob)
+                preds.append(prob.argmax(axis=1))
+            else:
+                pred = outputs.squeeze(-1).float().detach().cpu().numpy()
+                preds.append(pred)
+            del ids, mask, targets, outputs, loss
+
+    denom = max(1, len(records))
+    mean_loss = float(sum(losses) / denom)
+    y_true = np.concatenate(targets_out, axis=0) if targets_out else np.array([])
+    y_pred = np.concatenate(preds, axis=0) if preds else np.array([])
+    if problem_type == "classification":
+        y_score = np.concatenate(scores, axis=0) if scores else None
+        return mean_loss, classification_metrics(y_true, y_pred, y_score, num_classes)
+    return mean_loss, regression_metrics(y_true.astype(float), y_pred.astype(float))
+
+
+def labels_for_split(
+    records: List[BenchmarkRecord],
+    all_label_to_id: Optional[Dict[str, int]],
+    problem_type: str,
+) -> np.ndarray:
+    if problem_type == "classification":
+        assert all_label_to_id is not None
+        return np.array([all_label_to_id[record.label] for record in records], dtype=np.int64)
+    return np.array([float(record.label) for record in records], dtype=np.float32)
+
+
+def train_task(
+    model,
+    task: str,
+    task_records: List[BenchmarkRecord],
+    tokenizer: CharLevelTokenizer,
+    args,
+    out_dir: str,
+    checkpoint_label: str,
+) -> Optional[dict]:
+    splits = split_records(task_records)
+    n_train, n_val, n_test = len(splits["train"]), len(splits["val"]), len(splits["test"])
+    if n_train == 0 or n_val == 0 or n_test == 0:
+        print(f"[bench-lora] skip task={task}: missing train/val/test split")
+        return None
+
+    problem_type = infer_problem_type([record.label for record in task_records], args.problem_type)
+    label_encoding = None
+    if problem_type == "classification":
+        _, label_encoding = encode_labels(record.label for record in task_records)
+        if label_encoding.num_classes < 2:
+            print(f"[bench-lora] skip task={task}: classification needs at least two labels")
+            return None
+        train_labels = labels_for_split(splits["train"], label_encoding.label_to_id, problem_type)
+        val_labels = labels_for_split(splits["val"], label_encoding.label_to_id, problem_type)
+        test_labels = labels_for_split(splits["test"], label_encoding.label_to_id, problem_type)
+        output_dim = label_encoding.num_classes
+    else:
+        train_labels = labels_for_split(splits["train"], None, problem_type)
+        val_labels = labels_for_split(splits["val"], None, problem_type)
+        test_labels = labels_for_split(splits["test"], None, problem_type)
+        output_dim = 1
+
+    task_model = None
+    optimizer = None
+    adapter_params, lora_modules = inject_lora_all_blocks(
+        model,
+        rank=args.lora_rank,
+        alpha=args.lora_alpha,
+        dropout=args.lora_dropout,
+    )
+    hidden_dim = int(model.blocks[0].pre_norm.scale.shape[0])
+    task_model = PooledEvoClassifier(model, hidden_dim, output_dim, problem_type).to(args.device)
+    for param in task_model.head.parameters():
+        param.requires_grad_(True)
+
+    optimizer = torch.optim.AdamW(
+        [param for param in task_model.parameters() if param.requires_grad],
+        lr=args.lr,
+        weight_decay=args.weight_decay,
+    )
+
+    task_dir = os.path.join(out_dir, "checkpoints", task)
+    best_path = os.path.join(task_dir, "best.pt")
+    log_path = os.path.join(out_dir, "logs", f"{task}.jsonl")
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+    rng = random.Random(args.seed)
+    best_score = -float("inf")
+    best_payload: Optional[dict] = None
+    bad_evals = 0
+    global_step = 0
+    last_train_loss = float("nan")
+    selected_metric_name = args.metric_for_best
+    started = time.time()
+
+    try:
+        task_model.train()
+        with open(log_path, "a") as log_f:
+            for epoch in range(1, args.epochs + 1):
+                if args.max_steps and global_step >= args.max_steps:
+                    break
+                for indices in batch_indices(n_train, args.batch_size, shuffle=True, rng=rng):
+                    if args.max_steps and global_step >= args.max_steps:
+                        break
+                    batch = [splits["train"][idx] for idx in indices]
+                    target_np = train_labels[indices]
+                    ids, mask = tokenize_batch([record.sequence for record in batch], tokenizer, args.max_length, args.device)
+                    if problem_type == "classification":
+                        targets = torch.tensor(target_np, dtype=torch.long, device=args.device)
+                    else:
+                        targets = torch.tensor(target_np, dtype=torch.float32, device=args.device)
+                    optimizer.zero_grad(set_to_none=True)
+                    loss, _outputs = compute_loss_and_outputs(task_model, ids, mask, targets, problem_type)
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(
+                        [param for param in task_model.parameters() if param.requires_grad],
+                        args.grad_clip,
+                    )
+                    optimizer.step()
+                    global_step += 1
+                    last_train_loss = float(loss.item())
+                    del ids, mask, targets, loss, _outputs
+
+                    should_eval = args.eval_every > 0 and global_step % args.eval_every == 0
+                    if not should_eval:
+                        continue
+                    val_loss, val_metrics = evaluate_model(
+                        task_model,
+                        splits["val"],
+                        val_labels,
+                        tokenizer,
+                        args.batch_size,
+                        args.max_length,
+                        args.device,
+                        problem_type,
+                        output_dim,
+                    )
+                    selected_metric_name = select_metric_name(
+                        args.metric_for_best,
+                        val_metrics,
+                        problem_type,
+                    )
+                    selection_value = metric_value_for_selection(
+                        selected_metric_name,
+                        val_metrics,
+                        val_loss,
+                    )
+                    improved = selection_value is not None and selection_value > best_score + args.min_delta
+                    if improved:
+                        best_score = float(selection_value)
+                        bad_evals = 0
+                        best_payload = {
+                            "epoch": epoch,
+                            "step": global_step,
+                            "train_loss": last_train_loss,
+                            "val_loss": val_loss,
+                            "val_metrics": val_metrics,
+                            "metric_for_best": selected_metric_name,
+                            "selection_value": selection_value,
+                            "task": task,
+                        }
+                        save_best_checkpoint(best_path, task_model, best_payload)
+                    else:
+                        bad_evals += 1
+
+                    log_row = {
+                        "epoch": epoch,
+                        "step": global_step,
+                        "train_loss": last_train_loss,
+                        "val_loss": val_loss,
+                        "val_metrics": val_metrics,
+                        "metric_for_best": selected_metric_name,
+                        "selection_value": selection_value,
+                        "best_step": best_payload["step"] if best_payload else "",
+                        "bad_evals": bad_evals,
+                        "elapsed_sec": time.time() - started,
+                    }
+                    log_f.write(json.dumps(log_row) + "\n")
+                    log_f.flush()
+                    print(
+                        f"[bench-lora] task={task} step={global_step} "
+                        f"train_loss={last_train_loss:.4f} val_loss={val_loss:.4f} "
+                        f"{selected_metric_name}={selection_value if selection_value is not None else 'nan'}"
+                    )
+                    task_model.train()
+                    if bad_evals >= args.patience:
+                        print(f"[bench-lora] early stop task={task} step={global_step}")
+                        break
+                if bad_evals >= args.patience:
+                    break
+
+            if best_payload is None:
+                val_loss, val_metrics = evaluate_model(
+                    task_model,
+                    splits["val"],
+                    val_labels,
+                    tokenizer,
+                    args.batch_size,
+                    args.max_length,
+                    args.device,
+                    problem_type,
+                    output_dim,
+                )
+                selected_metric_name = select_metric_name(args.metric_for_best, val_metrics, problem_type)
+                selection_value = metric_value_for_selection(selected_metric_name, val_metrics, val_loss)
+                best_payload = {
+                    "epoch": epoch if "epoch" in locals() else 0,
+                    "step": global_step,
+                    "train_loss": last_train_loss,
+                    "val_loss": val_loss,
+                    "val_metrics": val_metrics,
+                    "metric_for_best": selected_metric_name,
+                    "selection_value": selection_value,
+                    "task": task,
+                }
+                save_best_checkpoint(best_path, task_model, best_payload)
+                log_row = {
+                    "epoch": best_payload["epoch"],
+                    "step": global_step,
+                    "train_loss": last_train_loss,
+                    "val_loss": val_loss,
+                    "val_metrics": val_metrics,
+                    "metric_for_best": selected_metric_name,
+                    "selection_value": selection_value,
+                    "best_step": global_step,
+                    "bad_evals": bad_evals,
+                    "elapsed_sec": time.time() - started,
+                }
+                log_f.write(json.dumps(log_row) + "\n")
+                log_f.flush()
+
+        best_ckpt = torch.load(best_path, map_location="cpu")
+        load_trainable_state_dict(task_model, best_ckpt["state_dict"], args.device)
+        test_loss, test_metrics = evaluate_model(
+            task_model,
+            splits["test"],
+            test_labels,
+            tokenizer,
+            args.batch_size,
+            args.max_length,
+            args.device,
+            problem_type,
+            output_dim,
+        )
+
+        benchmark = task_records[0].benchmark
+        explicit_groups = {record.group for record in task_records if record.group}
+        group = explicit_groups.pop() if len(explicit_groups) == 1 else infer_group(task, benchmark)
+        row = {
+            "benchmark": benchmark,
+            "task": task,
+            "group": group,
+            "model_name": args.model_name,
+            "checkpoint": checkpoint_label,
+            "seed": args.seed,
+            "problem_type": problem_type,
+            "n_train": n_train,
+            "n_val": n_val,
+            "n_test": n_test,
+            "train_loss": best_payload.get("train_loss"),
+            "val_loss": best_payload.get("val_loss"),
+            "validation_metric": best_payload.get("selection_value"),
+            "metric_for_best": best_payload.get("metric_for_best"),
+            "best_step": best_payload.get("step"),
+            "best_checkpoint": best_path,
+            "accuracy": test_metrics.get("accuracy"),
+            "f1": test_metrics.get("f1"),
+            "auroc": test_metrics.get("auroc"),
+            "auprc": test_metrics.get("auprc"),
+            "mse": test_metrics.get("mse"),
+            "rmse": test_metrics.get("rmse"),
+            "r2": test_metrics.get("r2"),
+            "pearson": test_metrics.get("pearson"),
+            "lora_rank": args.lora_rank,
+            "lora_alpha": args.lora_alpha,
+            "lora_dropout": args.lora_dropout,
+            "lora_modules": len(lora_modules),
+            "trainable_params": count_trainable(task_model),
+            "total_params": count_total(task_model),
+            "test_loss": test_loss,
+        }
+        print(
+            f"[bench-lora] finished task={task} best_step={row['best_step']} "
+            f"test_auroc={row.get('auroc')} test_f1={row.get('f1')} test_acc={row.get('accuracy')}"
+        )
+        return row
+    finally:
+        if task_model is not None:
+            task_model.close()
+        del task_model, optimizer, adapter_params
+        remove_lora_adapters(model)
+        if args.device.startswith("cuda"):
+            torch.cuda.empty_cache()
+
+
+def build_comparison_table(base_dir: str, gd_dir: str, rmu_dir: str, out_csv: str) -> None:
+    def read(path: str) -> Dict[Tuple[str, str], float]:
+        result = {}
+        with open(os.path.join(path, "eval_benchmarks.csv"), newline="") as f:
+            for row in csv.DictReader(f):
+                for metric in ("accuracy", "f1", "auroc", "auprc", "mse", "rmse", "r2", "pearson"):
+                    value = row.get(metric)
+                    if value not in (None, ""):
+                        result[(row["task"], metric)] = float(value)
+        return result
+
+    base = read(base_dir)
+    gd = read(gd_dir)
+    rmu = read(rmu_dir)
+    keys = sorted(set(base) | set(gd) | set(rmu))
+    os.makedirs(os.path.dirname(out_csv), exist_ok=True)
+    with open(out_csv, "w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["task", "metric", "Original Evo", "GD", "RMU", "delta_GD", "delta_RMU"],
+        )
+        writer.writeheader()
+        for key in keys:
+            base_v = base.get(key)
+            gd_v = gd.get(key)
+            rmu_v = rmu.get(key)
+            writer.writerow(
+                {
+                    "task": key[0],
+                    "metric": key[1],
+                    "Original Evo": format_cell(base_v),
+                    "GD": format_cell(gd_v),
+                    "RMU": format_cell(rmu_v),
+                    "delta_GD": format_cell(gd_v - base_v if gd_v is not None and base_v is not None else None),
+                    "delta_RMU": format_cell(rmu_v - base_v if rmu_v is not None and base_v is not None else None),
+                }
+            )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--ckpt", default=None, help="Optional unlearned weights.safetensors path")
+    parser.add_argument("--benchmark-manifest", required=True)
     parser.add_argument(
-        "--ckpt",
-        default=None,
-        help="Path to unlearned weights.safetensors. Omit for base-model evaluation.",
+        "--benchmark-scope",
+        choices=["hvue", "all", "task"],
+        default="hvue",
+        help="Default hvue preserves primary HVUE filtering; all/task allow local or derived manifests.",
     )
     parser.add_argument(
-        "--benchmark-manifest",
-        required=True,
-        help="CSV with benchmark,task,split,sequence,label columns",
+        "--task-filter",
+        default="",
+        help="Comma-separated task names to evaluate, e.g. host_tropism_hiyata.",
     )
+    parser.add_argument("--default-benchmark", default="host_tropism_hiyata")
+    parser.add_argument("--default-task", default="host_tropism_hiyata")
+    parser.add_argument("--default-group", default="host_tropism_adaptation")
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
+    parser.add_argument("--model-name", default="Evo-1-8k-base")
     parser.add_argument("--device", default="cuda:0")
-    parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=0,
-        help="Feature-extraction batch size. Use 0 to start high and back off on OOM.",
-    )
-    parser.add_argument(
-        "--auto-batch-size",
-        type=int,
-        default=64,
-        help="Starting batch size when --batch-size=0.",
-    )
-    parser.add_argument(
-        "--cpu-threads",
-        type=int,
-        default=min(os.cpu_count() or 1, 16),
-        help="CPU threads budget for probe fitting.",
-    )
-    parser.add_argument(
-        "--probe-jobs",
-        type=int,
-        default=7,
-        help="Parallel linear-probe fits across layers.",
-    )
-    parser.add_argument(
-        "--probe-solver",
-        choices=["auto", "lbfgs", "saga"],
-        default="auto",
-        help="Linear probe solver. auto uses saga for very large train splits.",
-    )
-    parser.add_argument(
-        "--progress-every",
-        type=int,
-        default=1024,
-        help="Extraction progress report interval in sequences.",
-    )
-    parser.add_argument(
-        "--resume",
-        action="store_true",
-        help="Resume from an existing eval_benchmarks.csv in --out-dir.",
-    )
+    parser.add_argument("--cpu-threads", type=int, default=min(os.cpu_count() or 1, 16))
+    parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--max-length", type=int, default=512)
+    parser.add_argument("--epochs", type=int, default=3)
+    parser.add_argument("--max-steps", type=int, default=0)
+    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--weight-decay", type=float, default=0.0)
+    parser.add_argument("--grad-clip", type=float, default=1.0)
+    parser.add_argument("--lora-rank", type=int, default=8)
+    parser.add_argument("--lora-alpha", type=int, default=16)
+    parser.add_argument("--lora-dropout", type=float, default=0.0)
+    parser.add_argument("--patience", type=int, default=3)
+    parser.add_argument("--min-delta", type=float, default=0.0)
+    parser.add_argument("--eval-every", type=int, default=100)
     parser.add_argument(
-        "--layers",
-        default="3-9",
-        help="Comma list/ranges used for frozen representation probes",
+        "--metric-for-best",
+        choices=["auto", "accuracy", "f1", "auroc", "auprc", "mse", "rmse", "r2", "pearson", "loss", "val_loss"],
+        default="auto",
     )
-    parser.add_argument(
-        "--out-dir",
-        default=None,
-        help="Defaults to the checkpoint directory",
-    )
-    parser.add_argument(
-        "--feature-cache-dir",
-        default=None,
-        help="Optional directory for checkpoint/task/layer activation caches.",
-    )
-    parser.add_argument(
-        "--feature-cache-compression",
-        choices=["compressed", "none"],
-        default="compressed",
-        help="Feature cache write format. Existing caches are readable either way.",
-    )
-    parser.add_argument(
-        "--no-feature-cache-write",
-        action="store_true",
-        help="Read existing feature caches but do not write new ones.",
-    )
-    parser.add_argument(
-        "--notify-webhook",
-        default=os.environ.get("FEISHU_WEBHOOK", ""),
-        help="Optional Feishu incoming webhook URL. Defaults to FEISHU_WEBHOOK.",
-    )
-    parser.add_argument(
-        "--notify-sound",
-        action="store_true",
-        help="Emit a terminal bell when the run completes or exits early.",
-    )
-    parser.add_argument(
-        "--notify-on-complete",
-        action="store_true",
-        help="Also send notifications for successful completion.",
-    )
+    parser.add_argument("--problem-type", choices=["auto", "classification", "regression"], default="auto")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--out-dir", default=None)
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--progress-every", type=int, default=1, help="Task-level progress write interval")
+    parser.add_argument("--notify-webhook", default=os.environ.get("FEISHU_WEBHOOK", ""))
+    parser.add_argument("--notify-sound", action="store_true")
+    parser.add_argument("--notify-on-complete", action="store_true")
+    parser.add_argument("--compare-base-dir", default=None)
+    parser.add_argument("--compare-gd-dir", default=None)
+    parser.add_argument("--compare-rmu-dir", default=None)
+    parser.add_argument("--comparison-out", default=None)
     args = parser.parse_args()
 
-    layers = parse_layers(args.layers)
+    if args.compare_base_dir and args.compare_gd_dir and args.compare_rmu_dir:
+        out_csv = args.comparison_out or os.path.join(args.compare_base_dir, "..", "hvue_lora_comparison.csv")
+        build_comparison_table(args.compare_base_dir, args.compare_gd_dir, args.compare_rmu_dir, out_csv)
+        print(f"[bench-lora] wrote comparison table to {out_csv}")
+        return
+
+    set_seed(args.seed)
+    tune_runtime(args.device, args.cpu_threads)
+
     out_dir = args.out_dir or (os.path.dirname(args.ckpt) if args.ckpt else "data/phase2/base_benchmarks")
     results_path = os.path.join(out_dir, "eval_benchmarks.csv")
     summary_path = os.path.join(out_dir, "eval_benchmarks_summary.json")
     progress_path = os.path.join(out_dir, "eval_benchmarks_progress.json")
     os.makedirs(out_dir, exist_ok=True)
-
+    os.makedirs(os.path.join(out_dir, "logs"), exist_ok=True)
+    os.makedirs(os.path.join(out_dir, "checkpoints"), exist_ok=True)
     if not args.resume and os.path.exists(results_path):
         os.remove(results_path)
 
-    tune_runtime(args.device, args.cpu_threads)
-    records = read_benchmark_manifest(args.benchmark_manifest)
+    task_filter = parse_task_filter(args.task_filter)
+    records = read_benchmark_manifest(
+        args.benchmark_manifest,
+        benchmark_scope=args.benchmark_scope,
+        task_filter=task_filter,
+        default_benchmark=args.default_benchmark,
+        default_task=args.default_task,
+        default_group=args.default_group,
+    )
     tasks = defaultdict(list)
     for record in records:
         tasks[record.task].append(record)
     task_items = sorted(tasks.items())
-    expected_task_layers = len(task_items) * len(layers)
+    if not task_items:
+        raise RuntimeError(
+            f"No rows found in benchmark manifest for scope={args.benchmark_scope} "
+            f"task_filter={args.task_filter or '<none>'}"
+        )
     print(
-        f"[bench] loaded manifest rows={len(records)} tasks={len(task_items)} "
-        f"layers={layers} expected_task_layers={expected_task_layers}"
+        f"[bench-lora] loaded rows={len(records)} tasks={len(task_items)} "
+        f"scope={args.benchmark_scope}"
     )
 
-    ckpt_id = checkpoint_cache_id(args.ckpt) if args.feature_cache_dir else ""
-    if args.feature_cache_dir:
-        print(f"[bench] feature cache enabled dir={args.feature_cache_dir} ckpt_id={ckpt_id}")
+    checkpoint_label = args.ckpt or "base"
+    rows: List[dict] = load_existing_rows(results_path) if args.resume else []
+    completed = {row["task"] for row in rows if row.get("task")}
+    if rows:
+        write_summary(summary_path, rows)
+        print(f"[bench-lora] resume enabled: loaded {len(rows)} completed task rows")
 
     model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     if args.ckpt:
         apply_checkpoint(model, args.ckpt)
     else:
-        print("[bench] evaluating base model without unlearning checkpoint")
+        print("[bench-lora] evaluating base model without unlearning checkpoint")
     model.eval()
     tokenizer = CharLevelTokenizer(512)
-
-    rows: List[dict] = load_existing_rows(results_path) if args.resume else []
-    completed = {
-        (row["task"], int(row["layer"]))
-        for row in rows
-        if row.get("task") and row.get("layer") not in (None, "")
-    }
-    if rows:
-        print(f"[bench] resume enabled: loaded {len(rows)} existing task-layer rows")
-        write_summary(summary_path, rows)
-
-    overall_started = time.time()
+    started = time.time()
     last_progress: Dict[str, object] = {}
 
     def report_progress(status: str, **extra: object) -> None:
         nonlocal last_progress
         payload = {
             "status": status,
-            "task_index": int(extra.pop("task_index", 0)),
-            "task_total": len(task_items),
-            "completed_task_layers": len(completed),
-            "expected_task_layers": expected_task_layers,
-            "elapsed_sec": time.time() - overall_started,
+            "completed_tasks": len(completed),
+            "expected_tasks": len(task_items),
+            "elapsed_sec": time.time() - started,
         }
         payload.update(extra)
-        write_progress(progress_path, payload)
+        write_json(progress_path, payload)
         last_progress = payload
 
     def notify_run(title: str, detail: str, *, force: bool = False) -> None:
         if not force and not args.notify_on_complete:
             return
-        ckpt_label = args.ckpt or "base"
-        current_task = last_progress.get("current_task", "")
-        phase = last_progress.get("phase", "")
-        body = (
-            f"checkpoint: {ckpt_label}\n"
-            f"out_dir: {out_dir}\n"
-            f"status: {last_progress.get('status', 'unknown')}\n"
-            f"task: {last_progress.get('task_index', 0)}/{len(task_items)} {current_task}\n"
-            f"phase: {phase}\n"
-            f"completed layers: {len(completed)}/{expected_task_layers}\n"
-            f"elapsed min: {(time.time() - overall_started) / 60.0:.1f}\n"
-            f"{detail}"
-        )
         notify(
             title=title,
-            body=body,
+            body=(
+                f"checkpoint: {checkpoint_label}\n"
+                f"out_dir: {out_dir}\n"
+                f"status: {last_progress.get('status', 'unknown')}\n"
+                f"task: {last_progress.get('current_task', '')}\n"
+                f"completed tasks: {len(completed)}/{len(task_items)}\n"
+                f"elapsed min: {(time.time() - started) / 60.0:.1f}\n"
+                f"{detail}"
+            ),
             webhook_url=args.notify_webhook or None,
             sound=args.notify_sound,
         )
 
     def handle_signal(signum: int, _frame) -> None:
         signal_name = signal.Signals(signum).name
-        report_progress(
-            "interrupted",
-            task_index=int(last_progress.get("task_index", 0)),
-            phase=last_progress.get("phase", "signal"),
-            current_task=last_progress.get("current_task", ""),
-            exit_reason=f"received {signal_name}",
-            signal=signal_name,
-        )
-        notify_run(
-            "[bench] interrupted",
-            f"exit_reason: received {signal_name}",
-            force=True,
-        )
+        report_progress("interrupted", exit_reason=f"received {signal_name}", signal=signal_name)
+        notify_run("[bench-lora] interrupted", f"exit_reason: received {signal_name}", force=True)
         raise SystemExit(128 + signum)
 
     for handled_signal in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(handled_signal, handle_signal)
 
     try:
-        report_progress("running", phase="initializing", task_index=0)
-
+        report_progress("running", phase="initializing")
         for task_idx, (task, task_records) in enumerate(task_items, start=1):
-            labels = labels_to_int(record.label for record in task_records)
-            splits = np.array([record.split for record in task_records])
-            benchmark = task_records[0].benchmark
-            explicit_groups = {record.group for record in task_records if record.group}
-            group = explicit_groups.pop() if len(explicit_groups) == 1 else infer_group(task, benchmark)
-            pending_layers = [layer for layer in layers if (task, layer) not in completed]
-
-            if not pending_layers:
-                print(f"[bench] skip task {task_idx}/{len(task_items)} task={task}: already complete")
-                report_progress("running", current_task=task, task_index=task_idx, phase="skip")
+            if task in completed:
+                print(f"[bench-lora] skip task {task_idx}/{len(task_items)} task={task}: already complete")
                 continue
-
-            print(
-                f"[bench] task {task_idx}/{len(task_items)} extracting task={task} "
-                f"n={len(task_records)} group={group} layers={pending_layers}"
-            )
-            task_started = time.time()
             report_progress(
                 "running",
+                phase="train",
                 current_task=task,
                 task_index=task_idx,
-                phase="extract",
-                task_sequences_done=0,
-                task_sequences_total=len(task_records),
-                current_batch_size=args.batch_size if args.batch_size > 0 else args.auto_batch_size,
+                task_total=len(task_items),
             )
-            features_by_layer = get_features_for_task(
+            print(
+                f"[bench-lora] task {task_idx}/{len(task_items)} task={task} "
+                f"rows={len(task_records)}"
+            )
+            row = train_task(
                 model=model,
+                task=task,
                 task_records=task_records,
                 tokenizer=tokenizer,
-                layers=pending_layers,
-                batch_size=args.batch_size,
-                auto_batch_size=args.auto_batch_size,
-                max_length=args.max_length,
-                device=args.device,
-                task_name=task,
-                progress_every=args.progress_every,
-                ckpt_id=ckpt_id,
-                feature_cache_dir=args.feature_cache_dir,
-                feature_cache_compression=args.feature_cache_compression,
-                feature_cache_write=not args.no_feature_cache_write,
-                progress_callback=lambda payload: report_progress(
-                    "running",
-                    task_index=task_idx,
-                    **payload,
-                ),
+                args=args,
+                out_dir=out_dir,
+                checkpoint_label=checkpoint_label,
             )
-            report_progress(
-                "running",
-                current_task=task,
-                task_index=task_idx,
-                phase="fit",
-                task_sequences_done=len(task_records),
-                task_sequences_total=len(task_records),
-            )
-            layer_results = fit_task_layers(
-                pending_layers=pending_layers,
-                features_by_layer=features_by_layer,
-                labels=labels,
-                splits=splits,
-                probe_jobs=args.probe_jobs,
-                cpu_threads=args.cpu_threads,
-                solver=args.probe_solver,
-            )
-
-            task_rows: List[dict] = []
-            for layer, result in layer_results:
-                if result is None:
-                    print(f"[bench] skipped task={task} layer={layer}: insufficient splits/classes")
-                    continue
-                row = {
-                    "benchmark": benchmark,
-                    "task": task,
-                    "group": group,
-                    "layer": layer,
-                    **result,
-                }
-                rows.append(row)
-                task_rows.append(row)
-                completed.add((task, layer))
-                metric = next(
-                    value
-                    for value in (row.get("auroc"), row.get("macro_auroc"), row.get("accuracy"))
-                    if value is not None and not np.isnan(float(value))
-                )
-                print(f"  layer {layer:>2}: score={metric:.4f} acc={row['accuracy']:.4f}")
-
-            append_rows(results_path, task_rows)
+            if row is None:
+                continue
+            rows.append(row)
+            append_rows(results_path, [row])
+            completed.add(task)
             write_summary(summary_path, rows)
             report_progress(
                 "running",
+                phase="task_complete",
                 current_task=task,
                 task_index=task_idx,
-                phase="task_complete",
-                task_sequences_done=len(task_records),
-                task_sequences_total=len(task_records),
-                wrote_rows=len(task_rows),
-                task_minutes=(time.time() - task_started) / 60.0,
+                task_total=len(task_items),
             )
-            print(
-                f"[bench] finished task={task} wrote_rows={len(task_rows)} "
-                f"task_minutes={(time.time() - task_started) / 60.0:.2f} "
-                f"total_rows={len(rows)}"
-            )
-            del features_by_layer
-            if args.device.startswith("cuda"):
-                torch.cuda.empty_cache()
 
         write_summary(summary_path, rows)
-        report_progress("complete", phase="complete", task_index=len(task_items))
-        notify_run("[bench] complete", "exit_reason: complete")
-        print(f"[bench] wrote benchmark results to {results_path}")
-        print(f"[bench] wrote benchmark summary to {summary_path}")
+        report_progress("complete", phase="complete")
+        notify_run("[bench-lora] complete", "exit_reason: complete")
+        print(f"[bench-lora] wrote benchmark results to {results_path}")
+        print(f"[bench-lora] wrote benchmark summary to {summary_path}")
     except SystemExit:
         raise
     except BaseException as exc:
         report_progress(
             "failed",
-            task_index=int(last_progress.get("task_index", 0)),
             phase=last_progress.get("phase", "exception"),
             current_task=last_progress.get("current_task", ""),
             exit_reason=f"{type(exc).__name__}: {exc}",
         )
-        notify_run(
-            "[bench] failed",
-            f"exit_reason: {type(exc).__name__}: {exc}",
-            force=True,
-        )
+        notify_run("[bench-lora] failed", f"exit_reason: {type(exc).__name__}: {exc}", force=True)
         raise
 
 

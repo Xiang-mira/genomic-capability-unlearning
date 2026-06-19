@@ -16,8 +16,8 @@ def load_layer_features(feature_dir: str, layer: int) -> np.ndarray:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Diagnose extracted layer-wise feature tensors.")
-    parser.add_argument("--feature-dir", default="data/host_tropism/features")
-    parser.add_argument("--out", default="data/host_tropism/features/feature_diagnostics.csv")
+    parser.add_argument("--feature-dir", default="data/family_targets/coronaviridae/features")
+    parser.add_argument("--out", default="data/family_targets/coronaviridae/features/feature_diagnostics.csv")
     parser.add_argument("--duplicate-atol", type=float, default=0.0)
     args = parser.parse_args()
 

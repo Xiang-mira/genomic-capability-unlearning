@@ -483,6 +483,138 @@
       },
       "n_task_dirs": 33
     },
+    "viral_retain_raw": {
+      "exists": false,
+      "roots": [
+        "data/benchmarks/raw/viral_retain",
+        "data/benchmarks/raw/vgue"
+      ],
+      "target_tasks": [
+        "dna_vs_rna_virus",
+        "hiv1_vs_hiv2",
+        "host_range_prediction",
+        "influenza_subtype_typing",
+        "sars_cov_2_lineage_typing",
+        "virus_vs_nonvirus"
+      ],
+      "present_tasks": [],
+      "missing_tasks": [
+        "dna_vs_rna_virus",
+        "hiv1_vs_hiv2",
+        "host_range_prediction",
+        "influenza_subtype_typing",
+        "sars_cov_2_lineage_typing",
+        "virus_vs_nonvirus"
+      ],
+      "task_split_counts": {}
+    },
+    "virobench_raw": {
+      "exists": true,
+      "root": "data/benchmarks/raw/virobench/ViroBench-CLS-Lite",
+      "target_tasks": [
+        "virobench_all_taxon_genus",
+        "virobench_all_taxon_times",
+        "virobench_dna_taxon_genus",
+        "virobench_dna_taxon_times",
+        "virobench_rna_taxon_genus",
+        "virobench_rna_taxon_times"
+      ],
+      "present_tasks": [
+        "virobench_all_taxon_genus",
+        "virobench_all_taxon_times",
+        "virobench_dna_taxon_genus",
+        "virobench_dna_taxon_times",
+        "virobench_rna_taxon_genus",
+        "virobench_rna_taxon_times"
+      ],
+      "missing_tasks": [],
+      "task_split_counts": {
+        "virobench_all_taxon_genus": {
+          "train": {
+            "metadata_rows": 6400,
+            "sequence_rows": 6400
+          },
+          "val": {
+            "metadata_rows": 800,
+            "sequence_rows": 800
+          },
+          "test": {
+            "metadata_rows": 800,
+            "sequence_rows": 800
+          }
+        },
+        "virobench_all_taxon_times": {
+          "train": {
+            "metadata_rows": 6400,
+            "sequence_rows": 6400
+          },
+          "val": {
+            "metadata_rows": 800,
+            "sequence_rows": 800
+          },
+          "test": {
+            "metadata_rows": 800,
+            "sequence_rows": 800
+          }
+        },
+        "virobench_dna_taxon_genus": {
+          "train": {
+            "metadata_rows": 1407,
+            "sequence_rows": 1407
+          },
+          "val": {
+            "metadata_rows": 176,
+            "sequence_rows": 176
+          },
+          "test": {
+            "metadata_rows": 176,
+            "sequence_rows": 176
+          }
+        },
+        "virobench_dna_taxon_times": {
+          "train": {
+            "metadata_rows": 1411,
+            "sequence_rows": 1411
+          },
+          "val": {
+            "metadata_rows": 178,
+            "sequence_rows": 178
+          },
+          "test": {
+            "metadata_rows": 170,
+            "sequence_rows": 170
+          }
+        },
+        "virobench_rna_taxon_genus": {
+          "train": {
+            "metadata_rows": 4786,
+            "sequence_rows": 4786
+          },
+          "val": {
+            "metadata_rows": 598,
+            "sequence_rows": 598
+          },
+          "test": {
+            "metadata_rows": 599,
+            "sequence_rows": 599
+          }
+        },
+        "virobench_rna_taxon_times": {
+          "train": {
+            "metadata_rows": 4755,
+            "sequence_rows": 4755
+          },
+          "val": {
+            "metadata_rows": 611,
+            "sequence_rows": 611
+          },
+          "test": {
+            "metadata_rows": 617,
+            "sequence_rows": 617
+          }
+        }
+      }
+    },
     "vgue_scan": {
       "workspace_scan_paths": [],
       "present_tasks": [],
@@ -491,13 +623,17 @@
         "hiv1_tropism",
         "hiv1_vs_hiv2",
         "host_range_prediction",
-        "sars_cov_2_lineage_typing"
+        "influenza_subtype_typing",
+        "sars_cov_2_lineage_typing",
+        "virus_vs_nonvirus"
       ],
       "task_hits": {
+        "virus_vs_nonvirus": [],
         "host_range_prediction": [],
         "dna_vs_rna_virus": [],
         "hiv1_vs_hiv2": [],
         "sars_cov_2_lineage_typing": [],
+        "influenza_subtype_typing": [],
         "hiv1_tropism": []
       }
     },
@@ -505,6 +641,8 @@
       "forget_set_available": true,
       "retain_set_available": true,
       "gue_available": true,
+      "viral_retain_available": false,
+      "virobench_available": true,
       "vgue_available": false
     }
   },
@@ -512,7 +650,7 @@
     "manifest_summary": {
       "exists": true,
       "path": "data/benchmarks/hvue_gue_manifest.csv",
-      "rows": 1781247,
+      "rows": 1812731,
       "task_split_counts": {
         "gue_emp_h3": {
           "val": 1497,
@@ -713,11 +851,42 @@
           "val": 544,
           "test": 545,
           "train": 2539
+        },
+        "virobench_all_taxon_genus": {
+          "train": 6400,
+          "val": 800,
+          "test": 800
+        },
+        "virobench_all_taxon_times": {
+          "train": 6400,
+          "val": 800,
+          "test": 800
+        },
+        "virobench_dna_taxon_genus": {
+          "train": 1407,
+          "val": 176,
+          "test": 176
+        },
+        "virobench_dna_taxon_times": {
+          "train": 1411,
+          "val": 178,
+          "test": 170
+        },
+        "virobench_rna_taxon_genus": {
+          "train": 4786,
+          "val": 598,
+          "test": 599
+        },
+        "virobench_rna_taxon_times": {
+          "train": 4755,
+          "val": 611,
+          "test": 617
         }
       },
       "group_counts": {
         "gue_retain": 865161,
-        "hvue_forget": 916086
+        "hvue_forget": 916086,
+        "viral_retain": 31484
       }
     },
     "manifest_hvue_coverage_issues": [],
@@ -818,11 +987,26 @@
   },
   "step2": {
     "current_retain_strategy_in_repo": [
-      "gue_retain"
+      "gue_retain",
+      "viral_retain_if_task_tables_present"
     ],
-    "missing_for_requested_plan": [
-      "vGUE viral retain benchmark integration"
+    "target_viral_retain_tasks": [
+      "dna_vs_rna_virus",
+      "hiv1_vs_hiv2",
+      "host_range_prediction",
+      "influenza_subtype_typing",
+      "sars_cov_2_lineage_typing",
+      "virus_vs_nonvirus"
     ],
+    "target_virobench_retain_tasks": [
+      "virobench_all_taxon_genus",
+      "virobench_all_taxon_times",
+      "virobench_dna_taxon_genus",
+      "virobench_dna_taxon_times",
+      "virobench_rna_taxon_genus",
+      "virobench_rna_taxon_times"
+    ],
+    "missing_for_requested_plan": [],
     "base_benchmark_summary": {
       "groups": {
         "gue_retain": {
@@ -1006,168 +1190,14 @@
   },
   "step3": {
     "phase2_checkpoints": {
-      "exists": true,
-      "runs": [
-        {
-          "name": "gd_full",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_probe",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_random",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_full",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_localized",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_random",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        }
-      ],
-      "n_runs": 7
+      "exists": false,
+      "runs": []
     },
     "phase2_tuned_checkpoints": {
       "exists": true,
       "runs": [
         {
-          "name": "gd_localized",
-          "has_weights": true,
-          "has_eval_auroc": false,
-          "has_eval_ppl": false,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar10.0",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar2.0",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5",
-          "has_weights": true,
-          "has_eval_auroc": false,
-          "has_eval_ppl": false,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5.0",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5_lr2e-5",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5_lr5e-5",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5_lr5e-6",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5_s1000",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5_s2000",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "gd_localized_ar5_s500",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_full_nonhuman",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_full_sc100",
+          "name": "gd_full_ar5",
           "has_weights": true,
           "has_eval_auroc": true,
           "has_eval_ppl": true,
@@ -1181,41 +1211,9 @@
           "has_eval_ppl": true,
           "has_meta": true,
           "has_log": true
-        },
-        {
-          "name": "rmu_full_sc50",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_localized_nonhuman",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_localized_s500",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
-        },
-        {
-          "name": "rmu_localized_sc100",
-          "has_weights": true,
-          "has_eval_auroc": true,
-          "has_eval_ppl": true,
-          "has_meta": true,
-          "has_log": true
         }
       ],
-      "n_runs": 18
+      "n_runs": 2
     }
   },
   "step5": {
