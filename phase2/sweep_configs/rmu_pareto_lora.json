@@ -1,0 +1,32 @@
+{
+  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): three constrained-Pareto RMU checkpoints selected from the layer-6/layer-8 family-specific sweep for separate LoRA evaluation. Do not merge their scores into the global-host-tropism full benchmark ranking.",
+  "objective_id": "coronaviridae_family",
+  "train_defaults": {
+    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
+    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+  },
+  "experiments": [
+    {
+      "group": "pareto",
+      "name": "rmu_pareto_l8_ratio050",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 0.5, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "pareto",
+      "name": "rmu_pareto_l8_ratio150",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.5, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "pareto",
+      "name": "rmu_pareto_l6_ar2_lr1e5",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 2.0, "lr": 1e-5, "steps": 200}
+    }
+  ],
+  "aliases": {
+    "pareto": ["pareto"],
+    "all": ["pareto"]
+  }
+}

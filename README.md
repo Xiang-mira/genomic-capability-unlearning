@@ -6,6 +6,8 @@ The research question is whether human-virus-relevant genomic capabilities can b
 
 Phase 1 uses taxonomy and host annotation only for localization. Phase 2 unlearning is evaluated primarily on external HVUE + GUE benchmarks rather than only on the training-data forget/retain perplexity proxy. A local audit of the current workspace is saved to `data/phase2/experiment_audit.json`; at present the requested vGUE retain tasks are not yet present locally, and the public HVUE Calici CSVs do not expose the taxonomy metadata needed for a literal family-held-out shortcut audit.
 
+> **Two different unlearning objectives coexist in this repository.** Checkpoint results are comparable only when their `meta.json` files point to the same `forget_csv` and `retain_csv`. The original/full LoRA grid targets global human host tropism; the newer Coronaviridae RMU layer/tuning/Pareto runs target family identity. `full` describes which model layers are trainable—it does **not** identify the unlearning objective.
+
 ---
 
 ## Current Review Status
@@ -22,6 +24,7 @@ This section summarizes what the current code and checked-in result files can an
 
 ### Current limitations
 
+- Checkpoint directory names such as `rmu_full_*` do not uniquely encode the training objective. Before aggregating or comparing checkpoints, inspect `meta.json` and require identical `forget_csv`, `retain_csv`, and label semantics. In particular, do not rank `checkpoints_rmu_pareto/*` against `checkpoints_lora_grid/*` as if they were the same unlearning experiment.
 - The internal probe AUROC and forget/retain PPL are **diagnostics**, not the final selective-unlearning claim. They are useful for debugging whether a method affects the host-tropism representation and whether the language-model objective is damaged, but final method selection should rely on external HVUE/GUE deltas.
 - The current training scripts save the final checkpoint for each run. They do **not** yet automatically save and evaluate intermediate checkpoints at fixed milestones such as 2k, 5k, 10k, or 25k steps. Therefore, the repository currently has final-checkpoint PPL/AUROC for multiple step settings, plus training-loss traces, but not a complete validation PPL/AUROC time series over training.
 - vGUE retain tasks are not yet present locally as task-ready `sequence,label,split` tables. The current retain-side external benchmark is GUE, with viral-retain integration left as a data-engineering follow-up.
@@ -182,10 +185,19 @@ The PPL delta is flat across all layers (mean Δloss ≈ 0.048, std < 0.0001), i
 
 ### Data Construction
 
-- **Forget set**: human-tropic viral sequences (label=1), train split, 3,800 sequences
-- **Retain set**: non-human-tropic viral sequences (label=0), train split, 3,814 sequences
-- **Internal diagnostic**: val + test split, Phase 1 probe AUROC, and forget/retain perplexity
+There are two distinct experiment families:
+
+| Objective ID | Forget / retain semantics | Explicit split paths | Checkpoint families |
+|:---|:---|:---|:---|
+| `global_host_tropism` | Human-tropic viruses / non-human-tropic viruses; 3,800 / 3,814 training sequences | `data/phase2/splits/forget.csv`, `data/phase2/splits/retain.csv` | `checkpoints_lora_grid/*`, earlier `checkpoints_tuned/*` host-tropism runs |
+| `coronaviridae_family` | Coronaviridae / non-Coronaviridae; balanced 1,888 / 1,888 training windows | `data/phase2/coronaviridae_splits/forget.csv`, `data/phase2/coronaviridae_splits/retain.csv` | `checkpoints_layer_scan/*`, `checkpoints_rmu_tuning/*`, `checkpoints_rmu_pareto/*` |
+
+The Coronaviridae positive set includes non-human coronaviruses (for example bat coronaviruses), so it must not be described as a human-tropism forget set. Conversely, a score drop on a host-tropism benchmark does not by itself prove that a `coronaviridae_family` checkpoint was trained to forget host tropism.
+
+- **Internal diagnostic**: use validation/test rows, probes, and forget/retain perplexity that match the checkpoint's objective
 - **Primary evaluation**: downstream benchmark rows evaluated with supervised LoRA finetuning, fixed manifest splits, validation early stopping, and test metrics from the best validation checkpoint
+
+Every new sweep must specify `forget_csv` and `retain_csv` explicitly in `train_defaults` or per-run arguments. Do not rely on the training script defaults. Before combining results, verify the checkpoint's `meta.json`; benchmark scope (`--benchmark-scope all`) changes evaluation coverage but does not change what the checkpoint learned to forget.
 
 ### Gradient Difference (GD)
 
@@ -193,7 +205,7 @@ At each training step, one forget batch and one retain batch are sampled. The lo
 
 $$\mathcal{L} = -\alpha_{\text{forget}} \cdot \mathcal{L}_{\text{forget}} + \alpha_{\text{retain}} \cdot \mathcal{L}_{\text{retain}}$$
 
-where $\mathcal{L}_{\text{forget}}$ and $\mathcal{L}_{\text{retain}}$ are next-token cross-entropy losses. Maximizing $\mathcal{L}_{\text{forget}}$ degrades the model's ability to predict human-tropic sequences; minimizing $\mathcal{L}_{\text{retain}}$ preserves non-human-tropic sequence modeling. Gradient updates are restricted to the selected layer condition via `requires_grad` masking. Checkpoints store only the weight deltas of modified layers.
+where $\mathcal{L}_{\text{forget}}$ and $\mathcal{L}_{\text{retain}}$ are next-token cross-entropy losses. Maximizing $\mathcal{L}_{\text{forget}}$ degrades modeling of the configured forget set; minimizing $\mathcal{L}_{\text{retain}}$ preserves modeling of the configured retain set. Their biological meanings depend on the objective table above. Gradient updates are restricted to the selected layer condition via `requires_grad` masking. Checkpoints store only the weight deltas of modified layers.
 
 Four conditions are implemented:
 
@@ -207,8 +219,10 @@ Four conditions are implemented:
 ### RMU (Li et al., ICML 2024)
 
 A frozen reference model is maintained. At each step:
-- **Forget**: push hidden activations at layer 6 (strongest causal layer) toward a fixed random unit direction scaled by `steer_coef`
-- **Retain**: constrain hidden activations at layer 6 to stay close to the reference model via MSE loss
+- **Forget**: push forget-set hidden activations at the configured `target_layer`/`loss_layers` toward a fixed random direction scaled by `steer_coef`
+- **Retain**: constrain retain-set activations at the same loss layer(s) to stay close to the frozen reference model via MSE
+
+The original global-host-tropism grid uses layer 6 and uncalibrated steering coefficients such as 25–200. The newer Coronaviridae tuning uses layers 6 or 8 with reference-RMS scale calibration and ratios such as 0.5–1.5. Those coefficient values are not numerically interchangeable.
 
 Three conditions: `full`, `localized` (current RefSeq: layers 5-9; legacy first run: layers 3-9), `random`.
 

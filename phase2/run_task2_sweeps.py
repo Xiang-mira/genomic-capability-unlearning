@@ -37,7 +37,9 @@ def add_args(cmd: List[str], args: Dict[str, object]) -> None:
 def run_command(cmd: List[str], dry_run: bool) -> None:
     print("[sweep]", " ".join(shlex.quote(part) for part in cmd), flush=True)
     if not dry_run:
-        subprocess.run(cmd, check=True)
+        env = os.environ.copy()
+        env.setdefault("PYTHONUNBUFFERED", "1")
+        subprocess.run(cmd, check=True, env=env)
 
 
 def write_progress(path: Path, payload: dict) -> None:
@@ -66,7 +68,11 @@ def update_run_status(progress_path: Path, run_name: str, **updates: object) -> 
 
 
 def internal_eval_complete(ckpt_dir: Path) -> bool:
-    return (ckpt_dir / "eval_auroc.csv").exists() and (ckpt_dir / "eval_ppl.json").exists()
+    return (
+        (ckpt_dir / "eval_auroc.csv").exists()
+        and (ckpt_dir / "eval_ppl.json").exists()
+        and (ckpt_dir / "eval_representation.csv").exists()
+    )
 
 
 def taxonomy_eval_complete(args, run_name: str) -> bool:
@@ -74,7 +80,19 @@ def taxonomy_eval_complete(args, run_name: str) -> bool:
 
 
 def benchmark_eval_complete(ckpt_dir: Path) -> bool:
-    return (ckpt_dir / "eval_benchmarks_summary.json").exists()
+    if not (ckpt_dir / "eval_benchmarks_summary.json").exists():
+        return False
+    progress_path = ckpt_dir / "eval_benchmarks_progress.json"
+    if not progress_path.exists():
+        return False
+    try:
+        with progress_path.open() as f:
+            progress = json.load(f)
+    except json.JSONDecodeError:
+        return False
+    completed = int(progress.get("completed_tasks") or 0)
+    expected = int(progress.get("expected_tasks") or 0)
+    return progress.get("status") == "complete" and expected > 0 and completed >= expected
 
 
 def load_config(path: str) -> dict:
@@ -120,6 +138,21 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
         checkpoint_dir=str(ckpt_dir),
         status="started",
     )
+
+    if (
+        args.resume
+        and args.delete_checkpoint_after_internal_eval
+        and internal_eval_complete(ckpt_dir)
+    ):
+        print(f"[sweep] skip completed ephemeral run: {run_name}")
+        update_run_status(
+            progress_path,
+            run_name,
+            train="complete",
+            internal_eval="complete",
+            status="complete",
+        )
+        return
 
     if args.resume and ckpt_path.exists():
         print(f"[sweep] skip existing train: {run_name}")
@@ -169,6 +202,8 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
                 str(args.eval_batch_size),
                 "--max-length",
                 str(args.max_length),
+                "--layers",
+                args.internal_layers,
             ]
             update_run_status(progress_path, run_name, internal_eval="running", status="internal_eval")
             run_command(eval_cmd, False)
@@ -237,6 +272,12 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
                 args.device,
                 "--batch-size",
                 str(args.bench_batch_size),
+                "--train-batch-size",
+                str(args.bench_train_batch_size),
+                "--eval-batch-size",
+                str(args.bench_eval_batch_size),
+                "--validation-max-rows",
+                str(args.bench_validation_max_rows),
                 "--cpu-threads",
                 str(args.bench_cpu_threads),
                 "--epochs",
@@ -266,9 +307,19 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
             ]
             if args.bench_task_filter:
                 bench_cmd.extend(["--task-filter", args.bench_task_filter])
+            if args.bench_discard_task_checkpoint:
+                bench_cmd.append("--discard-task-checkpoint")
             update_run_status(progress_path, run_name, benchmark_eval="running", status="benchmark_eval")
             run_command(bench_cmd, False)
             update_run_status(progress_path, run_name, benchmark_eval="complete")
+    if args.delete_checkpoint_after_internal_eval and args.run_internal_eval and ckpt_path.exists():
+        ckpt_path.unlink()
+        update_run_status(
+            progress_path,
+            run_name,
+            checkpoint_deleted_after_internal_eval=True,
+        )
+        print(f"[sweep] deleted temporary checkpoint after evaluations: {ckpt_path}")
     update_run_status(progress_path, run_name, status="complete")
 
 
@@ -280,6 +331,20 @@ def main() -> None:
     parser.add_argument("--device", default=os.environ.get("DEVICE", "cuda:0"))
     parser.add_argument("--batch-size", type=int, default=int(os.environ.get("BATCH", "2")))
     parser.add_argument("--eval-batch-size", type=int, default=int(os.environ.get("EVAL_BATCH", "4")))
+    parser.add_argument(
+        "--internal-layers",
+        default=os.environ.get("INTERNAL_LAYERS", "0-10"),
+        help="Layers evaluated by eval_unlearn.py; use 0-31 for full-depth RMU scans.",
+    )
+    parser.add_argument(
+        "--delete-checkpoint-after-internal-eval",
+        action="store_true",
+        help=(
+            "Delete weights.safetensors after internal evaluation. Useful for full-model "
+            "layer scans whose temporary checkpoints are very large; selected layers must "
+            "be retrained later if their weights are needed."
+        ),
+    )
     parser.add_argument("--max-length", type=int, default=int(os.environ.get("MAX_LEN", "512")))
     parser.add_argument(
         "--save-steps",
@@ -316,6 +381,22 @@ def main() -> None:
     parser.add_argument("--bench-task-filter", default=os.environ.get("BENCH_TASK_FILTER", ""))
     parser.add_argument("--bench-layers", default=os.environ.get("BENCH_LAYERS", "3-9"))
     parser.add_argument("--bench-batch-size", type=int, default=int(os.environ.get("BENCH_BATCH", "1")))
+    parser.add_argument(
+        "--bench-train-batch-size",
+        type=int,
+        default=int(os.environ.get("BENCH_TRAIN_BATCH", os.environ.get("BENCH_BATCH", "1"))),
+    )
+    parser.add_argument(
+        "--bench-eval-batch-size",
+        type=int,
+        default=int(os.environ.get("BENCH_EVAL_BATCH", os.environ.get("BENCH_BATCH", "1"))),
+    )
+    parser.add_argument(
+        "--bench-validation-max-rows",
+        type=int,
+        default=int(os.environ.get("BENCH_VALIDATION_MAX_ROWS", "0")),
+        help="Cap validation rows used for benchmark early stopping; 0 keeps the full validation split.",
+    )
     parser.add_argument("--bench-auto-batch-size", type=int, default=int(os.environ.get("BENCH_AUTO_BATCH", "96")))
     parser.add_argument("--bench-cpu-threads", type=int, default=int(os.environ.get("BENCH_CPU_THREADS", "16")))
     parser.add_argument("--bench-probe-jobs", type=int, default=int(os.environ.get("BENCH_PROBE_JOBS", "7")))
@@ -329,6 +410,12 @@ def main() -> None:
     parser.add_argument("--bench-lora-rank", type=int, default=int(os.environ.get("BENCH_LORA_RANK", "8")))
     parser.add_argument("--bench-lora-alpha", type=int, default=int(os.environ.get("BENCH_LORA_ALPHA", "16")))
     parser.add_argument("--bench-lora-dropout", type=float, default=float(os.environ.get("BENCH_LORA_DROPOUT", "0.0")))
+    parser.add_argument(
+        "--bench-discard-task-checkpoint",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Delete temporary per-task LoRA best.pt files after test metrics are written.",
+    )
     parser.add_argument("--bench-metric-for-best", default=os.environ.get("BENCH_METRIC_FOR_BEST", "auto"))
     args = parser.parse_args()
 

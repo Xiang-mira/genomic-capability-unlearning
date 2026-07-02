@@ -1,0 +1,43 @@
+{
+  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): scale-calibrated full RMU tuning for layer 6 and layer 8. Baselines are retained; tuning runs use a fractional design over target norm ratio, retain weight, learning rate, and steps.",
+  "objective_id": "coronaviridae_family",
+  "train_defaults": {
+    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
+    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+  },
+  "experiments": [
+    {"group": "retain_baselines", "name": "rmu_full_l6_base", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "retain_baselines", "name": "rmu_full_l8_base", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+
+    {"group": "tune_l6", "name": "rmu_l6_ratio050_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 0.5, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio075_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 0.75, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio125_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.25, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio150_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.5, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar2_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar3_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 3.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar5_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 5.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar2_lr2e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 2e-6, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar2_lr1e5_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 1e-5, "steps": 200}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar2_lr5e6_s100", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 5e-6, "steps": 100}},
+    {"group": "tune_l6", "name": "rmu_l6_ratio100_ar2_lr5e6_s300", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 5e-6, "steps": 300}},
+
+    {"group": "tune_l8", "name": "rmu_l8_ratio050_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 0.5, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio075_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 0.75, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio125_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.25, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio150_ar1_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.5, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar2_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar3_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 3.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar5_lr5e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 5.0, "lr": 5e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar2_lr2e6_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 2e-6, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar2_lr1e5_s200", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 1e-5, "steps": 200}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar2_lr5e6_s100", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 5e-6, "steps": 100}},
+    {"group": "tune_l8", "name": "rmu_l8_ratio100_ar2_lr5e6_s300", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_retain": 2.0, "lr": 5e-6, "steps": 300}}
+  ],
+  "aliases": {
+    "baselines": ["retain_baselines"],
+    "tune": ["tune_l6", "tune_l8"],
+    "l6": ["tune_l6"],
+    "l8": ["tune_l8"],
+    "all": ["retain_baselines", "tune_l6", "tune_l8"]
+  }
+}

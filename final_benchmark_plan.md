@@ -1,5 +1,7 @@
 # Final Benchmark Plan
 
+> **Objective scope:** this plan applies only to `global_host_tropism` checkpoints trained with `data/phase2/splits/forget.csv` and `data/phase2/splits/retain.csv`. Do not insert Coronaviridae-family checkpoints from `checkpoints_layer_scan`, `checkpoints_rmu_tuning`, or `checkpoints_rmu_pareto` into the same method ranking. Those checkpoints use a different target and require a separately labelled family-specific analysis.
+
 ## Audit Result
 
 The repository can currently run:
@@ -25,7 +27,7 @@ Use the evaluator's reported task-layer probe scores from `phase2/eval_benchmark
 - GUE Retain Score: mean checkpoint `gue_retain` score.
 - Viral Retain Score: mean checkpoint `viral_retain` score when vGUE task-ready tables exist. For the current repo state this field should remain blank or `NA`.
 
-The final decision for Phase 3 should compare `gd_full_ar5` and `rmu_full_sc200` against Base using the same filtered manifest and the same layers, batch settings, and probe settings.
+The final decision for Phase 3 should compare `gd_full_ar5` and `rmu_full_sc200` against Base using the same filtered manifest and the same layers, batch settings, and probe settings. Before launching, confirm that both checkpoint `meta.json` files have the same `forget_csv` and `retain_csv`; matching benchmark settings alone are insufficient.
 
 ## Build The Filtered Row-Level Eval Manifest
 

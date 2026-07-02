@@ -10,6 +10,7 @@ from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
     f1_score,
+    matthews_corrcoef,
     mean_squared_error,
     r2_score,
     roc_auc_score,
@@ -165,6 +166,7 @@ def classification_metrics(
     metrics: Dict[str, Optional[float]] = {
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "f1": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
+        "mcc": float(matthews_corrcoef(y_true, y_pred)),
         "auroc": None,
         "auprc": None,
     }

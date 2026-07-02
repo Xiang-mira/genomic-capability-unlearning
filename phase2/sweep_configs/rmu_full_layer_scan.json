@@ -1,0 +1,31 @@
+{
+  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): localization-prior-free full RMU coarse single-layer scan across Evo depth. Scale-calibrated loss makes deep-layer objectives comparable; steer_coef is a target/reference vector-norm ratio.",
+  "objective_id": "coronaviridae_family",
+  "train_defaults": {
+    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
+    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+  },
+  "experiments": [
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer00", "method": "rmu", "args": {"condition": "full", "target_layer": 0, "loss_layers": "0", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer02", "method": "rmu", "args": {"condition": "full", "target_layer": 2, "loss_layers": "2", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer04", "method": "rmu", "args": {"condition": "full", "target_layer": 4, "loss_layers": "4", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer06", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer08", "method": "rmu", "args": {"condition": "full", "target_layer": 8, "loss_layers": "8", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer10", "method": "rmu", "args": {"condition": "full", "target_layer": 10, "loss_layers": "10", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer12", "method": "rmu", "args": {"condition": "full", "target_layer": 12, "loss_layers": "12", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer14", "method": "rmu", "args": {"condition": "full", "target_layer": 14, "loss_layers": "14", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer16", "method": "rmu", "args": {"condition": "full", "target_layer": 16, "loss_layers": "16", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer18", "method": "rmu", "args": {"condition": "full", "target_layer": 18, "loss_layers": "18", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer20", "method": "rmu", "args": {"condition": "full", "target_layer": 20, "loss_layers": "20", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer22", "method": "rmu", "args": {"condition": "full", "target_layer": 22, "loss_layers": "22", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer24", "method": "rmu", "args": {"condition": "full", "target_layer": 24, "loss_layers": "24", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer26", "method": "rmu", "args": {"condition": "full", "target_layer": 26, "loss_layers": "26", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer28", "method": "rmu", "args": {"condition": "full", "target_layer": 28, "loss_layers": "28", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer30", "method": "rmu", "args": {"condition": "full", "target_layer": 30, "loss_layers": "30", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},
+    {"group": "rmu_layer_scan", "name": "rmu_full_layer31", "method": "rmu", "args": {"condition": "full", "target_layer": 31, "loss_layers": "31", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}}
+  ],
+  "aliases": {
+    "layers": ["rmu_layer_scan"],
+    "all": ["rmu_layer_scan"]
+  }
+}

@@ -88,6 +88,14 @@ def eval_command(
     ]
     if args.task_filter:
         cmd.extend(["--task-filter", args.task_filter])
+    if args.train_batch_size is not None:
+        cmd.extend(["--train-batch-size", str(args.train_batch_size)])
+    if args.eval_batch_size is not None:
+        cmd.extend(["--eval-batch-size", str(args.eval_batch_size)])
+    if args.validation_max_rows:
+        cmd.extend(["--validation-max-rows", str(args.validation_max_rows)])
+    if args.discard_task_checkpoint:
+        cmd.append("--discard-task-checkpoint")
     if ckpt is not None:
         cmd.extend(["--ckpt", str(ckpt)])
     return cmd
@@ -159,17 +167,50 @@ def run_pilot(args) -> None:
         run_command(rank_cmd, args.dry_run)
 
 
-def load_top_runs(rankings_path: Path, top_k: int) -> List[str]:
+def load_top_runs(
+    rankings_path: Path,
+    top_k: int,
+    top_k_per_method: int = 0,
+) -> List[str]:
     with rankings_path.open() as f:
         payload = json.load(f)
+    if top_k_per_method > 0:
+        selected: List[str] = []
+        counts: dict[str, int] = {}
+        for row in payload.get("rows", []):
+            method = str(row.get("method") or "other")
+            if method not in {"gd", "rmu"}:
+                continue
+            if counts.get(method, 0) >= top_k_per_method:
+                continue
+            selected.append(row["run"])
+            counts[method] = counts.get(method, 0) + 1
+        missing = [
+            method
+            for method in ("gd", "rmu")
+            if counts.get(method, 0) < top_k_per_method
+        ]
+        if missing:
+            raise RuntimeError(
+                f"Could not select {top_k_per_method} runs for method(s): "
+                f"{', '.join(missing)} from {rankings_path}"
+            )
+        return selected
     return [row["run"] for row in payload.get("top_runs", [])[:top_k]]
 
 
 def run_full_top(args) -> None:
     rankings_path = Path(args.rankings_json)
-    top_runs = load_top_runs(rankings_path, args.top_k)
+    top_runs = list(args.full_runs or [])
+    if not top_runs:
+        top_runs = load_top_runs(
+            rankings_path,
+            args.top_k,
+            top_k_per_method=args.top_k_per_method,
+        )
     if not top_runs:
         raise RuntimeError(f"No top runs found in {rankings_path}")
+    print(f"[pilot] selected full benchmark runs: {', '.join(top_runs)}", flush=True)
     ensure_lora_result_schema(Path(args.full_base_out_dir))
     run_command(
         eval_command(args, args.full_manifest, Path(args.full_base_out_dir)),
@@ -186,6 +227,28 @@ def run_full_top(args) -> None:
             eval_command(args, args.full_manifest, out_dir, ckpt=ckpt),
             args.dry_run,
         )
+    if not args.dry_run and args.rank_full_results:
+        full_root = Path(args.full_out_root)
+        rank_cmd = [
+            args.python,
+            "phase2/rank_benchmark_pilot.py",
+            "--base-dir",
+            args.full_base_out_dir,
+            "--run-dirs",
+            *[str(full_root / run_name) for run_name in top_runs],
+            "--out-csv",
+            str(full_root / "full_rankings.csv"),
+            "--out-json",
+            str(full_root / "full_rankings.json"),
+            "--top-k",
+            str(len(top_runs)),
+            "--n-bootstrap",
+            str(args.n_bootstrap),
+            "--seed",
+            str(args.seed),
+            "--print-table",
+        ]
+        run_command(rank_cmd, False)
 
 
 def discover_candidates(ckpt_root: str) -> List[str]:
@@ -254,9 +317,29 @@ def main() -> None:
     )
     parser.add_argument("--full-base-out-dir", default="data/phase2/base_benchmarks_lora")
     parser.add_argument("--full-out-root", default="data/phase2/full_benchmarks_lora")
+    parser.add_argument(
+        "--full-runs",
+        nargs="*",
+        default=None,
+        help="Explicit ordered checkpoint run names for full-top; bypasses ranking selection.",
+    )
     parser.add_argument("--rankings-json", default="data/phase2/benchmark_pilot_lora/pilot_rankings.json")
     parser.add_argument("--python", default=os.environ.get("PHASE2_PYTHON", sys.executable))
     parser.add_argument("--top-k", type=int, default=2)
+    parser.add_argument(
+        "--top-k-per-method",
+        type=int,
+        default=0,
+        help=(
+            "For full-top, select this many runs independently for GD and RMU "
+            "from the ranked rows. Overrides global --top-k selection."
+        ),
+    )
+    parser.add_argument(
+        "--rank-full-results",
+        action="store_true",
+        help="After full-top completes, rank the full results against the full base run.",
+    )
     parser.add_argument("--n-bootstrap", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--keep-all-task-rows", type=int, default=6000)
@@ -268,6 +351,10 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument("--train-batch-size", type=int, default=None)
+    parser.add_argument("--eval-batch-size", type=int, default=None)
+    parser.add_argument("--validation-max-rows", type=int, default=0)
+    parser.add_argument("--discard-task-checkpoint", action="store_true")
     parser.add_argument("--cpu-threads", type=int, default=16)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--max-steps", type=int, default=0)

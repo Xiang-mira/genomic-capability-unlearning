@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, Iterable, Optional, Tuple
 
 
-METRICS = ("accuracy", "f1", "auroc", "auprc", "mse", "rmse", "r2", "pearson")
+METRICS = ("accuracy", "f1", "mcc", "auroc", "auprc", "mse", "rmse", "r2", "pearson")
 FIELDNAMES = ["Task", "Metric", "Original Evo", "GD", "RMU", "Delta GD", "Delta RMU"]
 
 

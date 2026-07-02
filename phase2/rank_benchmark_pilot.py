@@ -16,6 +16,7 @@ RESULT_FIELDS = [
     "checkpoint_dir",
     "primary_forget_score",
     "secondary_forget_score",
+    "balanced_forget_score",
     "hvue_forget_mean",
     "hvue_forget_base",
     "hvue_forget_drop",
@@ -176,7 +177,16 @@ def rank_run(base_rows: Dict[str, dict], run_dir: Path, args) -> dict:
     gue_penalty = max(0.0, -(gue_delta or 0.0))
     viral_penalty = max(0.0, -(viral_delta or 0.0))
     retain_penalty = gue_penalty + viral_penalty
-    forget_score = primary_drop if primary_drop is not None else hvue_drop
+    weighted_forget_scores = []
+    if primary_drop is not None:
+        weighted_forget_scores.append((args.primary_weight, primary_drop))
+    if secondary_drop is not None:
+        weighted_forget_scores.append((args.secondary_weight, secondary_drop))
+    if weighted_forget_scores:
+        total_weight = sum(weight for weight, _score in weighted_forget_scores)
+        forget_score = sum(weight * score for weight, score in weighted_forget_scores) / total_weight
+    else:
+        forget_score = hvue_drop
     selection_score = (forget_score if forget_score is not None else -1e9) - retain_penalty
     return {
         "run": run_dir.name,
@@ -184,6 +194,7 @@ def rank_run(base_rows: Dict[str, dict], run_dir: Path, args) -> dict:
         "checkpoint_dir": str(run_dir),
         "primary_forget_score": primary_drop,
         "secondary_forget_score": secondary_drop,
+        "balanced_forget_score": forget_score,
         "hvue_forget_mean": float(hvue_run.mean()) if hvue_run.size else None,
         "hvue_forget_base": float(hvue_base.mean()) if hvue_base.size else None,
         "hvue_forget_drop": hvue_drop,
@@ -217,6 +228,18 @@ def main() -> None:
     parser.add_argument("--top-k", type=int, default=2)
     parser.add_argument("--n-bootstrap", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--primary-weight",
+        type=float,
+        default=0.5,
+        help="Weight for the mean primary-forget drop in checkpoint selection.",
+    )
+    parser.add_argument(
+        "--secondary-weight",
+        type=float,
+        default=0.5,
+        help="Weight for the mean secondary-forget drop in checkpoint selection.",
+    )
     parser.add_argument("--print-table", action="store_true")
     args = parser.parse_args()
 

@@ -2,16 +2,18 @@
 RMU (Representation Misdirection for Unlearning) for Evo-1-8k-base.
 
 Idea (Li et al., ICML 2024):
-  - Forget set: push hidden activations at a target layer toward a random unit
-    direction (steering coefficient c). This destroys the structured representation.
+  - Forget set: push hidden activations at one or more target layers toward a
+    steering direction (random or non-human).
   - Retain set: keep hidden activations close to those of a *frozen* reference
     copy of the model.
 
-We use a single target hook layer (default: the strongest causal layer from the
-localized_layers.json selection). Trainable parameters depend on the condition:
+This implementation supports multi-layer RMU. That matters for this project:
+Phase 1 localizes host-tropism causally to a span of layers rather than a
+single layer, so a one-layer hook can leave later "localized" layers with no
+effective gradient. Trainable parameters depend on the condition:
   full       : all blocks
   localized  : layers loaded from localized_layers.json
-  random     : 7 random layers from 11..30
+  random     : matched random layers from 11..30
 """
 import argparse
 import json
@@ -103,6 +105,13 @@ def masked_cosine(a: torch.Tensor, b: torch.Tensor, mask: torch.Tensor) -> torch
     return (cos.sum(dim=1) / denom).mean()
 
 
+def masked_component_rms(hidden: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """Reference activation RMS per scalar component over valid tokens."""
+    values = hidden.detach().float().pow(2).mean(dim=-1)
+    values = values * mask.float()
+    return torch.sqrt(values.sum() / mask.float().sum().clamp(min=1)).clamp(min=1e-8)
+
+
 class HiddenCapture:
     """Capture a single layer's hidden state during forward pass."""
     def __init__(self, model, layer_idx: int):
@@ -121,39 +130,78 @@ class HiddenCapture:
         self.handle.remove()
 
 
-def compute_nonhuman_direction(
+def mean_pool_hidden(hidden: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    denom = mask.float().sum(dim=1, keepdim=True).clamp(min=1)
+    return (hidden * mask.unsqueeze(-1).float()).sum(dim=1) / denom
+
+
+def resolve_loss_layers(
+    spec: str,
+    condition: str,
+    requested_target_layer: int,
+    trainable_layers: List[int],
+    localized_layers: List[int],
+) -> List[int]:
+    spec = spec.strip().lower()
+    if spec == "auto":
+        if condition == "localized":
+            layers = [layer for layer in localized_layers if layer in trainable_layers]
+            return layers if layers else [requested_target_layer]
+        if condition == "random":
+            return list(trainable_layers)
+        layers = [layer for layer in localized_layers if layer in trainable_layers]
+        return layers if layers else [requested_target_layer]
+    if spec == "target":
+        return [requested_target_layer]
+    if spec == "trainable":
+        return list(trainable_layers)
+    if spec == "localized":
+        layers = [layer for layer in localized_layers if layer in trainable_layers]
+        if not layers:
+            raise ValueError("No localized layers overlap the trainable set.")
+        return layers
+    layers = []
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        layers.append(int(part))
+    if not layers:
+        raise ValueError(f"Could not parse --loss-layers={spec!r}")
+    invalid = [layer for layer in layers if layer not in trainable_layers]
+    if invalid:
+        raise ValueError(
+            f"Loss layers must be trainable. Invalid layers: {invalid}; "
+            f"trainable={trainable_layers}"
+        )
+    return sorted(set(layers))
+
+
+def compute_nonhuman_directions(
     model,
     forget_records: list,
     retain_records: list,
     tokenizer: "CharLevelTokenizer",
-    target_layer: int,
+    target_layers: List[int],
     batch_size: int,
     max_length: int,
     device: str,
     max_seqs: int = 500,
     seed: int = 0,
-) -> torch.Tensor:
-    """Compute the non-human-tropic steering direction at target_layer.
+) -> Dict[int, torch.Tensor]:
+    """Compute per-layer non-human steering directions.
 
-    direction = normalize(mean_retain_activation - mean_forget_activation)
-
-    This is more targeted than a random vector: it steers human-tropic
-    representations toward the subspace occupied by non-human-tropic sequences
-    rather than toward an arbitrary random direction.
-
-    Uses mean-pooled hidden states (same convention as probe extraction).
-    Runs under inference_mode; does not affect model gradients.
+    direction[layer] = normalize(mean_retain_activation - mean_forget_activation)
     """
     rng_local = random.Random(seed)
+    captures = {layer: HiddenCapture(model, layer) for layer in target_layers}
 
-    capture = HiddenCapture(model, target_layer)
-
-    def mean_pool_records(records: list) -> torch.Tensor:
+    def mean_pool_records(records: list) -> Dict[int, torch.Tensor]:
         subset = list(records)
         if len(subset) > max_seqs:
             rng_local.shuffle(subset)
             subset = subset[:max_seqs]
-        accum = []
+        accum = {layer: [] for layer in target_layers}
         with torch.inference_mode():
             for start in range(0, len(subset), batch_size):
                 batch = subset[start : start + batch_size]
@@ -161,25 +209,35 @@ def compute_nonhuman_direction(
                     [r.sequence for r in batch], tokenizer, max_length, device
                 )
                 _ = model(ids, padding_mask=mask)
-                hidden = capture.get().float()          # (B, T, D)
-                denom = mask.float().sum(dim=1, keepdim=True).clamp(min=1)
-                pooled = (hidden * mask.unsqueeze(-1).float()).sum(dim=1) / denom
-                accum.append(pooled.cpu())
-        return torch.cat(accum, dim=0).mean(dim=0)     # (D,)
+                for layer, capture in captures.items():
+                    hidden = capture.get().float()
+                    pooled = mean_pool_hidden(hidden, mask)
+                    accum[layer].append(pooled.cpu())
+        return {
+            layer: torch.cat(pieces, dim=0).mean(dim=0)
+            for layer, pieces in accum.items()
+        }
 
-    print(f"[RMU] computing non-human direction: extracting forget activations "
-          f"(up to {max_seqs} seqs) ...")
+    print(
+        f"[RMU] computing non-human directions for layers {target_layers}: "
+        f"extracting forget activations (up to {max_seqs} seqs) ..."
+    )
     mean_forget = mean_pool_records(forget_records)
-    print(f"[RMU] computing non-human direction: extracting retain activations "
-          f"(up to {max_seqs} seqs) ...")
+    print(
+        f"[RMU] computing non-human directions for layers {target_layers}: "
+        f"extracting retain activations (up to {max_seqs} seqs) ..."
+    )
     mean_retain = mean_pool_records(retain_records)
-    capture.remove()
+    for capture in captures.values():
+        capture.remove()
 
-    direction = (mean_retain - mean_forget).to(device)
-    norm = direction.norm().clamp(min=1e-8)
-    direction = direction / norm
-    print(f"[RMU] non-human direction computed: raw_norm={norm.item():.4f}")
-    return direction
+    directions = {}
+    for layer in target_layers:
+        direction = (mean_retain[layer] - mean_forget[layer]).to(device)
+        norm = direction.norm().clamp(min=1e-8)
+        directions[layer] = direction / norm
+        print(f"[RMU] layer {layer} non-human direction raw_norm={norm.item():.4f}")
+    return directions
 
 
 def save_block_deltas(model, layers: List[int], out_path: str) -> None:
@@ -211,6 +269,16 @@ def main() -> None:
                         help="Hook layer for representation steering (strongest causal layer).")
     parser.add_argument("--steer-coef", type=float, default=50.0,
                         help="Magnitude of random target direction for forget set.")
+    parser.add_argument(
+        "--scale-calibrated",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help=(
+            "Calibrate RMU MSE by each layer's reference activation RMS. In this mode "
+            "--steer-coef is the target-vector norm divided by the typical reference "
+            "hidden-vector norm, enabling comparable searches across shallow/deep layers."
+        ),
+    )
     parser.add_argument("--alpha-retain", type=float, default=1.0)
     parser.add_argument("--alpha-forget", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=2)
@@ -232,6 +300,18 @@ def main() -> None:
         default="data/family_targets/coronaviridae/localized_layers.json",
     )
     parser.add_argument(
+        "--loss-layers",
+        default="auto",
+        help=(
+            "Which layers receive RMU losses. "
+            "'auto': localized span for localized/full, trainable layers for random. "
+            "'target': only --target-layer. "
+            "'localized': localized_layers.json span. "
+            "'trainable': every trainable layer. "
+            "Or pass a comma-separated layer list, e.g. 5,6,7,8,9."
+        ),
+    )
+    parser.add_argument(
         "--target-direction",
         choices=["random", "nonhuman"],
         default="random",
@@ -247,6 +327,15 @@ def main() -> None:
         type=int,
         default=500,
         help="Max sequences per class used to estimate the non-human direction (--target-direction=nonhuman).",
+    )
+    parser.add_argument(
+        "--retain-cosine-weight",
+        type=float,
+        default=0.0,
+        help=(
+            "Optional extra retain penalty: alpha_retain * "
+            "(MSE + retain_cosine_weight * (1 - cosine))."
+        ),
     )
     args = parser.parse_args()
 
@@ -278,54 +367,61 @@ def main() -> None:
     for p in ref_model.parameters():
         p.requires_grad_(False)
 
+    localized_layers = get_localized_layers(args.localized_layers_path)
     layers = configure_trainable_blocks(model, args.condition, args.seed, args.localized_layers_path)
     print(f"[RMU] trainable layers: {layers}")
     print(f"[RMU] trainable params: {count_trainable(model):,}")
 
-    # The hook layer must be <= the highest trainable layer so gradients can flow back.
-    # For localized/full, target_layer=6 is fine (layers 3-9 or all are upstream).
-    # For random (layers 11-30), we use the last trainable layer as hook and normalize
-    # hidden states to prevent the ~1e15 activation explosion in layers 11+.
-    target_layer = requested_target_layer
-    normalize_hidden = False
-    if target_layer not in layers and max(layers) > target_layer:
-        target_layer = max(layers)
-        normalize_hidden = True
-        print(f"[RMU] target_layer {requested_target_layer} not in trainable set; "
-              f"using layer {target_layer} with normalized MSE (activations unstable in layers 11+)")
+    loss_layers = resolve_loss_layers(
+        args.loss_layers,
+        args.condition,
+        requested_target_layer=requested_target_layer,
+        trainable_layers=layers,
+        localized_layers=localized_layers,
+    )
+    normalize_hidden = any(layer >= 11 for layer in loss_layers) and not args.scale_calibrated
+    print(f"[RMU] loss layers: {loss_layers}")
+    if normalize_hidden:
+        print("[RMU] using normalized hidden losses because loss layers include 11+")
+    if args.scale_calibrated:
+        print("[RMU] using per-batch, per-layer reference-RMS calibration")
 
     forget = filter_train(read_manifest(args.forget_csv))
     retain = filter_train(read_manifest(args.retain_csv))
     print(f"[RMU] forget train={len(forget)}  retain train={len(retain)}")
 
-    # Hooks at the target layer for both models
-    train_hook = HiddenCapture(model, target_layer)
-    ref_hook = HiddenCapture(ref_model, target_layer)
+    train_hooks = {layer: HiddenCapture(model, layer) for layer in loss_layers}
+    ref_hooks = {layer: HiddenCapture(ref_model, layer) for layer in loss_layers}
 
     # Steering direction for the forget set
     if args.target_direction == "nonhuman":
-        # Computed from ref_model (frozen base) so training model state is unaffected.
         ref_model.eval()
-        raw_direction = compute_nonhuman_direction(
+        raw_directions = compute_nonhuman_directions(
             model=ref_model,
             forget_records=forget,
             retain_records=retain,
             tokenizer=tokenizer,
-            target_layer=target_layer,
+            target_layers=loss_layers,
             batch_size=args.batch_size,
             max_length=args.max_length,
             device=args.device,
             max_seqs=args.direction_seqs,
             seed=args.seed,
         )
-        target_vec = (args.steer_coef * raw_direction).to(torch.float32)
-        print(f"[RMU] non-human target dir norm={target_vec.norm().item():.2f}")
+        target_vecs = {
+            layer: (args.steer_coef * raw_directions[layer]).to(torch.float32)
+            for layer in loss_layers
+        }
+        for layer in loss_layers:
+            print(f"[RMU] layer {layer} non-human target dir norm={target_vecs[layer].norm().item():.2f}")
     else:
-        g = torch.Generator(device=args.device).manual_seed(args.seed + 999)
-        random_dir = torch.randn(hidden_dim, generator=g, device=args.device).float()
-        random_dir = random_dir / random_dir.norm().clamp(min=1e-8)
-        target_vec = (args.steer_coef * random_dir).to(torch.float32)  # (D,)
-        print(f"[RMU] random target dir norm={target_vec.norm().item():.2f}")
+        target_vecs = {}
+        for layer in loss_layers:
+            g = torch.Generator(device=args.device).manual_seed(args.seed + 999 + layer)
+            random_dir = torch.randn(hidden_dim, generator=g, device=args.device).float()
+            random_dir = random_dir / random_dir.norm().clamp(min=1e-8)
+            target_vecs[layer] = (args.steer_coef * random_dir).to(torch.float32)
+            print(f"[RMU] layer {layer} random target dir norm={target_vecs[layer].norm().item():.2f}")
 
     trainable = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(trainable, lr=args.lr, weight_decay=0.0)
@@ -355,28 +451,92 @@ def main() -> None:
     for step in pbar:
         optimizer.zero_grad(set_to_none=True)
 
-        # Forget batch: push hidden at target_layer toward random direction
+        # Forget batch: push hidden states toward steering directions.
         fbatch = next_forget()
         f_ids, f_mask = tokenize_batch([r.sequence for r in fbatch], tokenizer, args.max_length, args.device)
         with torch.no_grad():
             _ = ref_model(f_ids, padding_mask=f_mask)
-            f_hidden_ref = ref_hook.get().detach()
         _ = model(f_ids, padding_mask=f_mask)
-        f_hidden = train_hook.get()  # (B, T, D) with grad
-        target = target_vec.view(1, 1, -1).expand_as(f_hidden)
-        L_forget = masked_mse(f_hidden, target, f_mask, normalize=normalize_hidden)
-        L_forget_original = masked_mse(f_hidden.detach(), f_hidden_ref, f_mask, normalize=normalize_hidden)
-        forget_original_cosine = masked_cosine(f_hidden.detach(), f_hidden_ref, f_mask)
+        forget_losses = []
+        forget_original_losses = []
+        forget_original_cosines = []
+        forget_layer_metrics = {}
+        for layer in loss_layers:
+            f_hidden_ref = ref_hooks[layer].get().detach()
+            f_hidden = train_hooks[layer].get()
+            target_vec = target_vecs[layer]
+            layer_scale = None
+            if args.scale_calibrated:
+                component_rms = masked_component_rms(f_hidden_ref, f_mask)
+                reference_vector_norm = component_rms * (f_hidden.shape[-1] ** 0.5)
+                target_vec = target_vec / target_vec.norm().clamp(min=1e-8)
+                target_vec = target_vec * args.steer_coef * reference_vector_norm
+                layer_scale = component_rms
+            target = target_vec.view(1, 1, -1).expand_as(f_hidden)
+            if layer_scale is None:
+                layer_forget = masked_mse(f_hidden, target, f_mask, normalize=normalize_hidden)
+            else:
+                layer_forget = masked_mse(
+                    f_hidden / layer_scale, target / layer_scale, f_mask, normalize=False
+                )
+            if layer_scale is None:
+                layer_forget_original = masked_mse(
+                    f_hidden.detach(), f_hidden_ref, f_mask, normalize=normalize_hidden
+                )
+            else:
+                layer_forget_original = masked_mse(
+                    f_hidden.detach() / layer_scale,
+                    f_hidden_ref / layer_scale,
+                    f_mask,
+                    normalize=False,
+                )
+            layer_forget_cosine = masked_cosine(f_hidden.detach(), f_hidden_ref, f_mask)
+            forget_losses.append(layer_forget)
+            forget_original_losses.append(layer_forget_original)
+            forget_original_cosines.append(layer_forget_cosine)
+            forget_layer_metrics[str(layer)] = {
+                "forget_to_target_mse": layer_forget.item(),
+                "forget_to_original_mse": layer_forget_original.item(),
+                "forget_original_modified_cosine": layer_forget_cosine.item(),
+            }
+        L_forget = torch.stack(forget_losses).mean()
+        L_forget_original = torch.stack(forget_original_losses).mean()
+        forget_original_cosine = torch.stack(forget_original_cosines).mean()
 
-        # Retain batch: keep hidden at target_layer close to reference model
+        # Retain batch: anchor hidden states to the frozen reference.
         rbatch = next_retain()
         r_ids, r_mask = tokenize_batch([r.sequence for r in rbatch], tokenizer, args.max_length, args.device)
         with torch.no_grad():
             _ = ref_model(r_ids, padding_mask=r_mask)
-            r_hidden_ref = ref_hook.get().detach()
         _ = model(r_ids, padding_mask=r_mask)
-        r_hidden = train_hook.get()
-        L_retain = masked_mse(r_hidden, r_hidden_ref, r_mask, normalize=normalize_hidden)
+        retain_mse_losses = []
+        retain_cosine_penalties = []
+        retain_layer_metrics = {}
+        for layer in loss_layers:
+            r_hidden_ref = ref_hooks[layer].get().detach()
+            r_hidden = train_hooks[layer].get()
+            if args.scale_calibrated:
+                retain_scale = masked_component_rms(r_hidden_ref, r_mask)
+                retain_mse = masked_mse(
+                    r_hidden / retain_scale,
+                    r_hidden_ref / retain_scale,
+                    r_mask,
+                    normalize=False,
+                )
+            else:
+                retain_mse = masked_mse(
+                    r_hidden, r_hidden_ref, r_mask, normalize=normalize_hidden
+                )
+            retain_cosine = 1.0 - masked_cosine(r_hidden, r_hidden_ref, r_mask)
+            retain_mse_losses.append(retain_mse)
+            retain_cosine_penalties.append(retain_cosine)
+            retain_layer_metrics[str(layer)] = {
+                "retain_rep_mse": retain_mse.item(),
+                "retain_cosine_penalty": retain_cosine.item(),
+            }
+        L_retain_mse = torch.stack(retain_mse_losses).mean()
+        L_retain_cosine = torch.stack(retain_cosine_penalties).mean()
+        L_retain = L_retain_mse + (args.retain_cosine_weight * L_retain_cosine)
 
         weighted_forget = args.alpha_forget * L_forget
         weighted_retain = args.alpha_retain * L_retain
@@ -391,19 +551,34 @@ def main() -> None:
             row = {
                 "step": current_step,
                 "L_forget_mse": L_forget.item(),
-                "L_retain_mse": L_retain.item(),
+                "L_retain_mse": L_retain_mse.item(),
+                "L_retain_cosine": L_retain_cosine.item(),
+                "L_retain_total": L_retain.item(),
                 "forget_to_target_mse": L_forget.item(),
                 "forget_to_original_mse": L_forget_original.item(),
-                "retain_rep_mse": L_retain.item(),
+                "retain_rep_mse": L_retain_mse.item(),
                 "forget_original_modified_cosine": forget_original_cosine.item(),
                 "weighted_forget_term": weighted_forget.item(),
                 "weighted_retain_term": weighted_retain.item(),
                 "loss": loss.item(),
-                "target_norm": target_vec.norm().item(),
-                "target_variance": target_vec.float().var(unbiased=False).item(),
+                "target_norm_mean": float(
+                    torch.stack([target_vecs[layer].norm() for layer in loss_layers]).mean().item()
+                ),
+                "target_variance_mean": float(
+                    torch.stack(
+                        [target_vecs[layer].float().var(unbiased=False) for layer in loss_layers]
+                    ).mean().item()
+                ),
+                "loss_layers": loss_layers,
+                "forget_layer_metrics": forget_layer_metrics,
+                "retain_layer_metrics": retain_layer_metrics,
             }
             log_rows.append(row)
-            pbar.set_postfix(Lf=f"{row['L_forget_mse']:.2f}", Lr=f"{row['L_retain_mse']:.2f}")
+            pbar.set_postfix(
+                Lf=f"{row['L_forget_mse']:.2f}",
+                Lr=f"{row['L_retain_total']:.2f}",
+                nL=len(loss_layers),
+            )
         if current_step in save_steps:
             step_dir = os.path.join(run_dir, f"step_{current_step:06d}")
             save_block_deltas(model, layers=layers, out_path=os.path.join(step_dir, "weights.safetensors"))
@@ -413,11 +588,14 @@ def main() -> None:
                     "condition": args.condition,
                     "layers": layers,
                     "checkpoint_step": current_step,
-                    "target_layer": target_layer,
+                    "target_layer": requested_target_layer,
+                    "loss_layers": loss_layers,
                     "normalize_hidden": normalize_hidden,
+                    "scale_calibrated": args.scale_calibrated,
                     "steer_coef": args.steer_coef,
                     "target_direction": args.target_direction,
                     "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
+                    "retain_cosine_weight": args.retain_cosine_weight,
                     "steps": args.steps, "lr": args.lr,
                     "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
                     "batch_size": args.batch_size, "max_length": args.max_length,
@@ -429,8 +607,10 @@ def main() -> None:
                 }, f, indent=2)
 
     elapsed = time.time() - t0
-    train_hook.remove()
-    ref_hook.remove()
+    for hook in train_hooks.values():
+        hook.remove()
+    for hook in ref_hooks.values():
+        hook.remove()
     print(f"[RMU] done in {elapsed:.1f}s")
 
     save_block_deltas(model, layers=layers, out_path=os.path.join(run_dir, "weights.safetensors"))
@@ -439,11 +619,14 @@ def main() -> None:
             "method": "rmu",
             "condition": args.condition,
             "layers": layers,
-            "target_layer": target_layer,
+            "target_layer": requested_target_layer,
+            "loss_layers": loss_layers,
             "normalize_hidden": normalize_hidden,
+            "scale_calibrated": args.scale_calibrated,
             "steer_coef": args.steer_coef,
             "target_direction": args.target_direction,
             "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
+            "retain_cosine_weight": args.retain_cosine_weight,
             "steps": args.steps, "lr": args.lr,
             "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
             "batch_size": args.batch_size, "max_length": args.max_length,

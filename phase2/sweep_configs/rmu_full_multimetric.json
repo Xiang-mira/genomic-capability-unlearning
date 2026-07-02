@@ -1,0 +1,88 @@
+{
+  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): full-model RMU search for LoRA evaluation without localized-layer priors. Stage 1 coarsely compares three evenly spaced numerically stable layers (2, 6, 10) and retain anchoring. Stage 2 varies steering strength at the same layers.",
+  "objective_id": "coronaviridae_family",
+  "train_defaults": {
+    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
+    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+  },
+  "experiments": [
+    {
+      "group": "rmu_full_stage1",
+      "name": "rmu_full_l2_sc100_ar1",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 2, "loss_layers": "2", "steer_coef": 100, "alpha_retain": 1, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage1",
+      "name": "rmu_full_l2_sc100_ar3",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 2, "loss_layers": "2", "steer_coef": 100, "alpha_retain": 3, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage1",
+      "name": "rmu_full_l6_sc100_ar1",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "steer_coef": 100, "alpha_retain": 1, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage1",
+      "name": "rmu_full_l6_sc100_ar3",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "steer_coef": 100, "alpha_retain": 3, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage1",
+      "name": "rmu_full_l10_sc100_ar1",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 10, "loss_layers": "10", "steer_coef": 100, "alpha_retain": 1, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage1",
+      "name": "rmu_full_l10_sc100_ar3",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 10, "loss_layers": "10", "steer_coef": 100, "alpha_retain": 3, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage2",
+      "name": "rmu_full_l2_sc75_ar2",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 2, "loss_layers": "2", "steer_coef": 75, "alpha_retain": 2, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage2",
+      "name": "rmu_full_l2_sc125_ar2",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 2, "loss_layers": "2", "steer_coef": 125, "alpha_retain": 2, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage2",
+      "name": "rmu_full_l6_sc75_ar2",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "steer_coef": 75, "alpha_retain": 2, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage2",
+      "name": "rmu_full_l6_sc125_ar2",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "steer_coef": 125, "alpha_retain": 2, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage2",
+      "name": "rmu_full_l10_sc75_ar2",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 10, "loss_layers": "10", "steer_coef": 75, "alpha_retain": 2, "lr": 5e-6, "steps": 200}
+    },
+    {
+      "group": "rmu_full_stage2",
+      "name": "rmu_full_l10_sc125_ar2",
+      "method": "rmu",
+      "args": {"condition": "full", "target_layer": 10, "loss_layers": "10", "steer_coef": 125, "alpha_retain": 2, "lr": 5e-6, "steps": 200}
+    }
+  ],
+  "aliases": {
+    "stage1": ["rmu_full_stage1"],
+    "stage2": ["rmu_full_stage2"],
+    "rmu": ["rmu_full_stage1", "rmu_full_stage2"],
+    "all": ["rmu_full_stage1", "rmu_full_stage2"]
+  }
+}

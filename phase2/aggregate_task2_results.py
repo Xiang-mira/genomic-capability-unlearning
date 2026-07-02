@@ -28,6 +28,10 @@ CSV_FIELDS = [
     "internal_auroc_drop",
     "forget_ppl",
     "retain_ppl",
+    "retain_representation_mse",
+    "retain_original_modified_cosine",
+    "forget_representation_mse",
+    "forget_original_modified_cosine",
     "hvue_forget_mean",
     "hvue_forget_drop",
     "gue_retain_mean",
@@ -64,6 +68,31 @@ def read_internal_auroc(path: Path, layers: set[int]) -> Optional[float]:
             if layer in layers:
                 values.append(value)
     return float(np.mean(values)) if values else None
+
+
+def read_representation_metrics(path: Path, layers: set[int]) -> dict:
+    grouped = {"forget": {"mse": [], "cosine": []}, "retain": {"mse": [], "cosine": []}}
+    if not path.exists():
+        return {}
+    with path.open(newline="") as f:
+        for row in csv.DictReader(f):
+            try:
+                layer = int(row["layer"])
+                subset = row["subset"]
+                split = row["split"]
+                mse = float(row["representation_mse"])
+                cosine = float(row["original_modified_cosine"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if layer in layers and split == "test" and subset in grouped:
+                grouped[subset]["mse"].append(mse)
+                grouped[subset]["cosine"].append(cosine)
+    result = {}
+    for subset, metrics in grouped.items():
+        if metrics["mse"]:
+            result[f"{subset}_representation_mse"] = float(np.mean(metrics["mse"]))
+            result[f"{subset}_original_modified_cosine"] = float(np.mean(metrics["cosine"]))
+    return result
 
 
 def group_mean(summary: Optional[dict], group: str) -> Optional[float]:
@@ -142,6 +171,7 @@ def row_for_run(args, run_dir: Path, layers: set[int], baselines: dict) -> dict:
         tax_summary = load_json(run_dir / "taxonomy_heldout_summary.json")
 
     internal = read_internal_auroc(run_dir / "eval_auroc.csv", layers)
+    representation = read_representation_metrics(run_dir / "eval_representation.csv", layers)
     h_forget = group_mean(benchmark_summary, "hvue_forget")
     g_retain = group_mean(benchmark_summary, "gue_retain")
     v_retain = group_mean(benchmark_summary, "viral_retain")
@@ -182,6 +212,10 @@ def row_for_run(args, run_dir: Path, layers: set[int], baselines: dict) -> dict:
         "internal_auroc_drop": internal_drop,
         "forget_ppl": as_float(ppl.get("forget_val_perplexity")),
         "retain_ppl": retain_ppl,
+        "retain_representation_mse": representation.get("retain_representation_mse"),
+        "retain_original_modified_cosine": representation.get("retain_original_modified_cosine"),
+        "forget_representation_mse": representation.get("forget_representation_mse"),
+        "forget_original_modified_cosine": representation.get("forget_original_modified_cosine"),
         "hvue_forget_mean": h_forget,
         "hvue_forget_drop": hvue_drop,
         "gue_retain_mean": g_retain,

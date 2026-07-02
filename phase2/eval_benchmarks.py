@@ -12,6 +12,7 @@ phase2/eval_benchmarks_probe_legacy.py for reference.
 """
 import argparse
 import csv
+import hashlib
 import json
 import math
 import os
@@ -27,6 +28,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from safetensors.torch import load_file
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(line_buffering=True)
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(line_buffering=True)
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -68,6 +74,8 @@ RESULT_FIELDNAMES = [
     "problem_type",
     "n_train",
     "n_val",
+    "n_val_full",
+    "n_val_early_stop",
     "n_test",
     "train_loss",
     "val_loss",
@@ -77,6 +85,7 @@ RESULT_FIELDNAMES = [
     "best_checkpoint",
     "accuracy",
     "f1",
+    "mcc",
     "auroc",
     "auprc",
     "mse",
@@ -86,6 +95,9 @@ RESULT_FIELDNAMES = [
     "lora_rank",
     "lora_alpha",
     "lora_dropout",
+    "train_batch_size",
+    "eval_batch_size",
+    "checkpoint_retained",
     "lora_modules",
     "trainable_params",
     "total_params",
@@ -254,7 +266,7 @@ def summarize(rows: List[dict]) -> Dict[str, dict]:
     by_task: Dict[str, List[float]] = defaultdict(list)
     by_group: Dict[str, List[float]] = defaultdict(list)
     for row in rows:
-        metric = first_float(row, ["auroc", "f1", "accuracy", "pearson", "r2"])
+        metric = first_float(row, ["auroc", "mcc", "f1", "accuracy", "pearson", "r2"])
         if metric is None:
             continue
         by_task[row["task"]].append(metric)
@@ -300,6 +312,45 @@ def split_records(records: List[BenchmarkRecord]) -> Dict[str, List[BenchmarkRec
     return splits
 
 
+def deterministic_stratified_subset(
+    records: List[BenchmarkRecord],
+    max_rows: int,
+    seed: int,
+    task: str,
+) -> List[BenchmarkRecord]:
+    """Select a stable, label-balanced subset while preserving full coverage for small splits."""
+    if max_rows <= 0 or len(records) <= max_rows:
+        return list(records)
+
+    by_label: Dict[str, List[Tuple[int, BenchmarkRecord]]] = defaultdict(list)
+    for index, record in enumerate(records):
+        stable_id = record.record_id or f"{record.split}|{record.label}|{index}|{record.sequence[:64]}"
+        digest = hashlib.sha256(f"{seed}|{task}|{record.label}|{stable_id}".encode()).digest()
+        score = int.from_bytes(digest[:8], "big")
+        by_label[record.label].append((score, record))
+    for values in by_label.values():
+        values.sort(key=lambda item: item[0])
+
+    labels = sorted(by_label)
+    positions = {label: 0 for label in labels}
+    selected: List[BenchmarkRecord] = []
+    while len(selected) < max_rows:
+        added = False
+        for label in labels:
+            position = positions[label]
+            values = by_label[label]
+            if position >= len(values):
+                continue
+            selected.append(values[position][1])
+            positions[label] += 1
+            added = True
+            if len(selected) >= max_rows:
+                break
+        if not added:
+            break
+    return selected
+
+
 def infer_problem_type(labels: List[str], requested: str) -> str:
     if requested != "auto":
         return requested
@@ -340,7 +391,7 @@ def select_metric_name(metric_for_best: str, metrics: Dict[str, Optional[float]]
     if metric_for_best != "auto":
         return metric_for_best
     if problem_type == "classification":
-        for name in ("auroc", "f1", "accuracy"):
+        for name in ("auroc", "mcc", "f1", "accuracy"):
             if metrics.get(name) is not None:
                 return name
         return "accuracy"
@@ -448,10 +499,27 @@ def train_task(
     checkpoint_label: str,
 ) -> Optional[dict]:
     splits = split_records(task_records)
-    n_train, n_val, n_test = len(splits["train"]), len(splits["val"]), len(splits["test"])
-    if n_train == 0 or n_val == 0 or n_test == 0:
+    n_train = len(splits["train"])
+    n_val_full = len(splits["val"])
+    n_test = len(splits["test"])
+    if n_train == 0 or n_val_full == 0 or n_test == 0:
         print(f"[bench-lora] skip task={task}: missing train/val/test split")
         return None
+    validation_records = deterministic_stratified_subset(
+        splits["val"],
+        args.validation_max_rows,
+        args.seed,
+        task,
+    )
+    n_val_early_stop = len(validation_records)
+    if n_val_early_stop != n_val_full:
+        label_counts: Dict[str, int] = defaultdict(int)
+        for record in validation_records:
+            label_counts[record.label] += 1
+        print(
+            f"[bench-lora] task={task} validation subset "
+            f"rows={n_val_early_stop}/{n_val_full} labels={dict(sorted(label_counts.items()))}"
+        )
 
     problem_type = infer_problem_type([record.label for record in task_records], args.problem_type)
     label_encoding = None
@@ -461,12 +529,12 @@ def train_task(
             print(f"[bench-lora] skip task={task}: classification needs at least two labels")
             return None
         train_labels = labels_for_split(splits["train"], label_encoding.label_to_id, problem_type)
-        val_labels = labels_for_split(splits["val"], label_encoding.label_to_id, problem_type)
+        val_labels = labels_for_split(validation_records, label_encoding.label_to_id, problem_type)
         test_labels = labels_for_split(splits["test"], label_encoding.label_to_id, problem_type)
         output_dim = label_encoding.num_classes
     else:
         train_labels = labels_for_split(splits["train"], None, problem_type)
-        val_labels = labels_for_split(splits["val"], None, problem_type)
+        val_labels = labels_for_split(validation_records, None, problem_type)
         test_labels = labels_for_split(splits["test"], None, problem_type)
         output_dim = 1
 
@@ -509,7 +577,7 @@ def train_task(
             for epoch in range(1, args.epochs + 1):
                 if args.max_steps and global_step >= args.max_steps:
                     break
-                for indices in batch_indices(n_train, args.batch_size, shuffle=True, rng=rng):
+                for indices in batch_indices(n_train, args.train_batch_size, shuffle=True, rng=rng):
                     if args.max_steps and global_step >= args.max_steps:
                         break
                     batch = [splits["train"][idx] for idx in indices]
@@ -536,10 +604,10 @@ def train_task(
                         continue
                     val_loss, val_metrics = evaluate_model(
                         task_model,
-                        splits["val"],
+                        validation_records,
                         val_labels,
                         tokenizer,
-                        args.batch_size,
+                        args.eval_batch_size,
                         args.max_length,
                         args.device,
                         problem_type,
@@ -602,10 +670,10 @@ def train_task(
             if best_payload is None:
                 val_loss, val_metrics = evaluate_model(
                     task_model,
-                    splits["val"],
+                    validation_records,
                     val_labels,
                     tokenizer,
-                    args.batch_size,
+                    args.eval_batch_size,
                     args.max_length,
                     args.device,
                     problem_type,
@@ -646,7 +714,7 @@ def train_task(
             splits["test"],
             test_labels,
             tokenizer,
-            args.batch_size,
+            args.eval_batch_size,
             args.max_length,
             args.device,
             problem_type,
@@ -665,16 +733,19 @@ def train_task(
             "seed": args.seed,
             "problem_type": problem_type,
             "n_train": n_train,
-            "n_val": n_val,
+            "n_val": n_val_early_stop,
+            "n_val_full": n_val_full,
+            "n_val_early_stop": n_val_early_stop,
             "n_test": n_test,
             "train_loss": best_payload.get("train_loss"),
             "val_loss": best_payload.get("val_loss"),
             "validation_metric": best_payload.get("selection_value"),
             "metric_for_best": best_payload.get("metric_for_best"),
             "best_step": best_payload.get("step"),
-            "best_checkpoint": best_path,
+            "best_checkpoint": "" if args.discard_task_checkpoint else best_path,
             "accuracy": test_metrics.get("accuracy"),
             "f1": test_metrics.get("f1"),
+            "mcc": test_metrics.get("mcc"),
             "auroc": test_metrics.get("auroc"),
             "auprc": test_metrics.get("auprc"),
             "mse": test_metrics.get("mse"),
@@ -684,14 +755,20 @@ def train_task(
             "lora_rank": args.lora_rank,
             "lora_alpha": args.lora_alpha,
             "lora_dropout": args.lora_dropout,
+            "train_batch_size": args.train_batch_size,
+            "eval_batch_size": args.eval_batch_size,
+            "checkpoint_retained": not args.discard_task_checkpoint,
             "lora_modules": len(lora_modules),
             "trainable_params": count_trainable(task_model),
             "total_params": count_total(task_model),
             "test_loss": test_loss,
         }
+        if args.discard_task_checkpoint:
+            row["_cleanup_checkpoint"] = best_path
         print(
             f"[bench-lora] finished task={task} best_step={row['best_step']} "
-            f"test_auroc={row.get('auroc')} test_f1={row.get('f1')} test_acc={row.get('accuracy')}"
+            f"test_auroc={row.get('auroc')} test_mcc={row.get('mcc')} "
+            f"test_f1={row.get('f1')} test_acc={row.get('accuracy')}"
         )
         return row
     finally:
@@ -703,12 +780,72 @@ def train_task(
             torch.cuda.empty_cache()
 
 
+def run_batch_preflight(args) -> None:
+    """Exercise the peak train/eval batch shapes before a full benchmark starts."""
+    model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
+    task_model = None
+    adapter_params: List[torch.nn.Parameter] = []
+    try:
+        adapter_params, _lora_modules = inject_lora_all_blocks(
+            model,
+            rank=args.lora_rank,
+            alpha=args.lora_alpha,
+            dropout=args.lora_dropout,
+        )
+        hidden_dim = int(model.blocks[0].pre_norm.scale.shape[0])
+        task_model = PooledEvoClassifier(model, hidden_dim, 2, "classification").to(args.device)
+        for param in task_model.head.parameters():
+            param.requires_grad_(True)
+        tokenizer = CharLevelTokenizer(args.max_length)
+        sequence = ("ACGT" * ((args.max_length + 3) // 4))[: args.max_length]
+
+        task_model.train()
+        ids, mask = tokenize_batch(
+            [sequence] * args.train_batch_size,
+            tokenizer,
+            args.max_length,
+            args.device,
+        )
+        targets = torch.arange(args.train_batch_size, device=args.device) % 2
+        loss, outputs = compute_loss_and_outputs(task_model, ids, mask, targets, "classification")
+        loss.backward()
+        del ids, mask, targets, outputs, loss
+        task_model.zero_grad(set_to_none=True)
+        if args.device.startswith("cuda"):
+            torch.cuda.empty_cache()
+
+        task_model.eval()
+        with torch.no_grad():
+            ids, mask = tokenize_batch(
+                [sequence] * args.eval_batch_size,
+                tokenizer,
+                args.max_length,
+                args.device,
+            )
+            outputs = task_model(ids, mask)
+            del ids, mask, outputs
+        if args.device.startswith("cuda"):
+            torch.cuda.synchronize()
+        print(
+            f"[bench-lora] preflight passed train_batch={args.train_batch_size} "
+            f"eval_batch={args.eval_batch_size} max_length={args.max_length}"
+        )
+    finally:
+        if task_model is not None:
+            task_model.close()
+        del task_model, adapter_params
+        remove_lora_adapters(model)
+        del model
+        if args.device.startswith("cuda"):
+            torch.cuda.empty_cache()
+
+
 def build_comparison_table(base_dir: str, gd_dir: str, rmu_dir: str, out_csv: str) -> None:
     def read(path: str) -> Dict[Tuple[str, str], float]:
         result = {}
         with open(os.path.join(path, "eval_benchmarks.csv"), newline="") as f:
             for row in csv.DictReader(f):
-                for metric in ("accuracy", "f1", "auroc", "auprc", "mse", "rmse", "r2", "pearson"):
+                for metric in ("accuracy", "f1", "mcc", "auroc", "auprc", "mse", "rmse", "r2", "pearson"):
                     value = row.get(metric)
                     if value not in (None, ""):
                         result[(row["task"], metric)] = float(value)
@@ -745,7 +882,7 @@ def build_comparison_table(base_dir: str, gd_dir: str, rmu_dir: str, out_csv: st
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", default=None, help="Optional unlearned weights.safetensors path")
-    parser.add_argument("--benchmark-manifest", required=True)
+    parser.add_argument("--benchmark-manifest", default=None)
     parser.add_argument(
         "--benchmark-scope",
         choices=["hvue", "all", "task"],
@@ -766,6 +903,34 @@ def main() -> None:
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--cpu-threads", type=int, default=min(os.cpu_count() or 1, 16))
     parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument(
+        "--train-batch-size",
+        type=int,
+        default=None,
+        help="Training batch size; defaults to --batch-size for backward compatibility.",
+    )
+    parser.add_argument(
+        "--eval-batch-size",
+        type=int,
+        default=None,
+        help="Validation/test batch size; defaults to --batch-size for backward compatibility.",
+    )
+    parser.add_argument(
+        "--validation-max-rows",
+        type=int,
+        default=0,
+        help="Maximum deterministic stratified validation rows used for early stopping; 0 keeps all.",
+    )
+    parser.add_argument(
+        "--discard-task-checkpoint",
+        action="store_true",
+        help="Delete each temporary best.pt after its test result is durably appended.",
+    )
+    parser.add_argument(
+        "--preflight-only",
+        action="store_true",
+        help="Run one synthetic LoRA train/eval batch for memory validation, then exit.",
+    )
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--max-steps", type=int, default=0)
@@ -780,7 +945,7 @@ def main() -> None:
     parser.add_argument("--eval-every", type=int, default=100)
     parser.add_argument(
         "--metric-for-best",
-        choices=["auto", "accuracy", "f1", "auroc", "auprc", "mse", "rmse", "r2", "pearson", "loss", "val_loss"],
+        choices=["auto", "accuracy", "f1", "mcc", "auroc", "auprc", "mse", "rmse", "r2", "pearson", "loss", "val_loss"],
         default="auto",
     )
     parser.add_argument("--problem-type", choices=["auto", "classification", "regression"], default="auto")
@@ -796,6 +961,12 @@ def main() -> None:
     parser.add_argument("--compare-rmu-dir", default=None)
     parser.add_argument("--comparison-out", default=None)
     args = parser.parse_args()
+    args.train_batch_size = args.train_batch_size or args.batch_size
+    args.eval_batch_size = args.eval_batch_size or args.batch_size
+    if args.train_batch_size <= 0 or args.eval_batch_size <= 0:
+        parser.error("train/eval batch sizes must be positive")
+    if args.validation_max_rows < 0:
+        parser.error("--validation-max-rows must be non-negative")
 
     if args.compare_base_dir and args.compare_gd_dir and args.compare_rmu_dir:
         out_csv = args.comparison_out or os.path.join(args.compare_base_dir, "..", "hvue_lora_comparison.csv")
@@ -805,6 +976,12 @@ def main() -> None:
 
     set_seed(args.seed)
     tune_runtime(args.device, args.cpu_threads)
+
+    if args.preflight_only:
+        run_batch_preflight(args)
+        return
+    if not args.benchmark_manifest:
+        parser.error("--benchmark-manifest is required unless --preflight-only is used")
 
     out_dir = args.out_dir or (os.path.dirname(args.ckpt) if args.ckpt else "data/phase2/base_benchmarks")
     results_path = os.path.join(out_dir, "eval_benchmarks.csv")
@@ -923,8 +1100,23 @@ def main() -> None:
             )
             if row is None:
                 continue
+            cleanup_checkpoint = row.pop("_cleanup_checkpoint", "")
             rows.append(row)
             append_rows(results_path, [row])
+            if cleanup_checkpoint:
+                try:
+                    os.remove(cleanup_checkpoint)
+                    task_checkpoint_dir = os.path.dirname(cleanup_checkpoint)
+                    if os.path.isdir(task_checkpoint_dir) and not os.listdir(task_checkpoint_dir):
+                        os.rmdir(task_checkpoint_dir)
+                    print(f"[bench-lora] removed temporary checkpoint {cleanup_checkpoint}")
+                except FileNotFoundError:
+                    pass
+                except OSError as exc:
+                    print(
+                        f"[bench-lora] warning: could not remove temporary checkpoint "
+                        f"{cleanup_checkpoint}: {exc}"
+                    )
             completed.add(task)
             write_summary(summary_path, rows)
             report_progress(

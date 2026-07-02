@@ -1,5 +1,6 @@
 {
   "description": "Probe-free Phase 2 candidate grid for LoRA-based downstream selection. This grid trains full-model GD/RMU checkpoints on the original host-tropism human-vs-non-human forget/retain split, with pre-registered hyperparameters; checkpoint selection should be done later with supervised LoRA validation tradeoffs, not internal probe AUROC.",
+  "objective_id": "global_host_tropism",
   "train_defaults": {
     "forget_csv": "data/phase2/splits/forget.csv",
     "retain_csv": "data/phase2/splits/retain.csv"

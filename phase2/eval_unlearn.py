@@ -24,7 +24,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from safetensors.torch import load_file
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score, matthews_corrcoef, roc_auc_score
 from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -200,6 +200,7 @@ def main() -> None:
             if mask.sum() == 0:
                 continue
             row[f"{split}_acc"] = float(accuracy_score(labels[mask], preds[mask]))
+            row[f"{split}_mcc"] = float(matthews_corrcoef(labels[mask], preds[mask]))
             row[f"{split}_auroc"] = float(roc_auc_score(labels[mask], probs[mask]))
         rows.append(row)
         print(f"  layer {layer_idx:>2}: "
@@ -224,7 +225,10 @@ def main() -> None:
     out_dir = os.path.dirname(args.ckpt)
     auroc_path = os.path.join(out_dir, "eval_auroc.csv")
     with open(auroc_path, "w", newline="") as f:
-        fieldnames = ["layer", "val_acc", "val_auroc", "test_acc", "test_auroc"]
+        fieldnames = [
+            "layer", "val_acc", "val_mcc", "val_auroc",
+            "test_acc", "test_mcc", "test_auroc",
+        ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for r in rows:
@@ -246,6 +250,48 @@ def main() -> None:
         json.dump(payload, f, indent=2)
     print(f"[eval] forget_ppl={fppl:.3f}  retain_ppl={rppl:.3f}")
     print(f"[eval] wrote perplexity to {ppl_path}")
+
+    # Fixed held-out representation comparison. Training-log representation
+    # metrics are batch-dependent and must not be used for checkpoint selection.
+    del model
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    base_model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
+    base_model.eval()
+    base_features = extract_features_for_layers(
+        base_model, sequences, tokenizer, layers, args.batch_size, args.max_length, args.device
+    )
+    rep_rows = []
+    for layer_idx in layers:
+        original = base_features[layer_idx].astype(np.float32)
+        modified = features[layer_idx].astype(np.float32)
+        for split in ("val", "test"):
+            for label, subset in (("forget", 1), ("retain", 0)):
+                mask = (splits == split) & (labels == subset)
+                if not mask.any():
+                    continue
+                a, b = original[mask], modified[mask]
+                mse_per_example = np.mean((a - b) ** 2, axis=1)
+                denom = np.linalg.norm(a, axis=1) * np.linalg.norm(b, axis=1)
+                cosine = np.sum(a * b, axis=1) / np.clip(denom, 1e-12, None)
+                rep_rows.append({
+                    "layer": layer_idx,
+                    "split": split,
+                    "subset": label,
+                    "n": int(mask.sum()),
+                    "representation_mse": float(np.mean(mse_per_example)),
+                    "original_modified_cosine": float(np.mean(cosine)),
+                })
+    rep_path = os.path.join(out_dir, "eval_representation.csv")
+    rep_fields = [
+        "layer", "split", "subset", "n",
+        "representation_mse", "original_modified_cosine",
+    ]
+    with open(rep_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=rep_fields)
+        writer.writeheader()
+        writer.writerows(rep_rows)
+    print(f"[eval] wrote held-out representation metrics to {rep_path}")
 
 
 if __name__ == "__main__":
