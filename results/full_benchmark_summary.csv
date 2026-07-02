@@ -1,0 +1,5 @@
+run,method,balanced_forget_score,hvue_forget_drop,gue_retain_delta,viral_retain_delta,selection_score
+lora_gd_full_ar3_s200,gd,0.20658,0.198063,-0.14426,-0.0266113,0.0357089
+lora_gd_full_ar5_s500,gd,0.0862683,0.0839637,-0.104681,-0.0217885,-0.0402017
+lora_rmu_full_sc50_s200,rmu,0.00448276,0.00573253,0.00121511,-0.00657891,-0.00209615
+lora_rmu_full_sc200_s200,rmu,0.0310096,0.0363138,-0.0441791,-0.00575199,-0.0189215
