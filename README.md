@@ -8,39 +8,24 @@ This repository studies whether a genomic capability in
    Misdirection for Unlearning (RMU); and
 3. tested for recovery under full-parameter and LoRA fine-tuning attacks.
 
-The current experiments focus on viral host-tropism and Coronaviridae-related
-representations. The code supports internal representation/perplexity
-diagnostics and downstream LoRA evaluation on HVUE, GUE, Hiyata Host Tropism,
-and optional viral-retain tasks.
-
-> [!IMPORTANT]
-> This repository contains two different unlearning objectives. The original
-> experiments target **global human host tropism**; newer RefSeq experiments
-> target **Coronaviridae family identity**. Only compare checkpoints whose
-> `meta.json` files use the same `forget_csv`, `retain_csv`, and label semantics.
-> A directory name containing `full` describes trainable layers, not the
-> biological objective.
+The current reported result is the completed 44-task full benchmark comparing
+two Gradient Difference (GD) checkpoints and two Representation Misdirection
+for Unlearning (RMU) checkpoints on HVUE, GUE, and ViroBench.
 
 ## Current status
 
 | Area | Status |
 |:---|:---|
 | Phase 1 probing and activation patching | Complete |
-| RefSeq Coronaviridae localization | Complete; selected layers `[5, 6, 7, 8, 9]`, primary layer 6 |
 | GD/RMU condition sweeps | Complete for the checked-in Task 2 grid |
-| Full-depth RMU layer scan | 17/17 runs complete |
-| RMU layer 6/8 tuning | 24/24 baseline and tuning runs complete |
-| HVUE/GUE LoRA evaluation of the earlier full-model grid | Complete for four selected candidates |
-| RMU Pareto candidate LoRA evaluation | In progress; do not treat as a final result |
+| 44-task full benchmark | Complete for four selected GD/RMU checkpoints |
 | Phase 3 recovery attacks | Implemented; current attack setting is preliminary |
 
 Machine-readable progress and results are stored under `data/phase2/`, notably:
 
 - `data/phase2/experiment_audit.json`
 - `data/phase2/results/task2_runs.csv`
-- `data/phase2/checkpoints_rmu_tuning/tuning_summary.csv`
 - `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv`
-- `data/phase2/checkpoints_rmu_pareto/progress.json`
 
 ## Main findings so far
 
@@ -56,48 +41,6 @@ durably removed from an open-weight genomic foundation model while:
 The experiments so far show that GD and RMU can change target viral
 capabilities, but they do not yet establish selective, durable, and
 recovery-resistant removal.
-
-### Localization
-
-![Activation patching analysis](figures/patching_analysis.png)
-
-- The original host-tropism run found high probe AUROC in early layers and a
-  broader causal region at layers 3–9.
-- The RefSeq Coronaviridae rerun selected the current sparse localized set
-  `[5, 6, 7, 8, 9]`, with layer 6 as the primary target.
-- Layers 0–2 can be linearly decodable while having little patching effect:
-  probe salience is not the same as intervention salience.
-- Single-layer patching produces nearly flat language-model loss changes,
-  suggesting downstream compensation.
-
-### Unlearning
-
-![Phase 2 unlearning results](figures/phase2_results.png)
-
-Internal probe AUROC and forget/retain perplexity are useful optimization
-diagnostics, but they are not the primary selective-unlearning claim. Final
-selection uses downstream benchmark deltas:
-
-| Axis | Tasks | Desired direction |
-|:---|:---|:---|
-| Forget | HVUE host tropism, pathogenicity, and transmissibility | Score decreases relative to base Evo |
-| Retain | GUE promoter, splice-site, TF-binding, and chromatin tasks | Minimal change relative to base Evo |
-| Optional viral retain | ViroBench/vGUE-style non-overlapping taxon tasks | Minimal change relative to base Evo |
-
-In the completed external evaluation of four earlier full-model candidates:
-
-- `lora_gd_full_ar3_s200` produced the largest mean HVUE decrease, but also a
-  substantial GUE decrease.
-- `lora_rmu_full_sc50_s200` preserved GUE most closely, but produced almost no
-  HVUE decrease.
-- These results expose the current forgetting–retention trade-off; they do not
-  establish a final winner.
-- The newer RMU layer-6/layer-8 Pareto candidates still require completed
-  downstream LoRA evaluation before comparison with the earlier grid.
-
-See
-`data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv` for exact
-paired scores and confidence intervals.
 
 ## Completed 44-task full benchmark
 
@@ -147,53 +90,15 @@ The four checkpoints expose two different failure modes:
   `lora_rmu_full_sc200_s200` increases forgetting only modestly while GUE
   also begins to fall.
 
-The current conclusion is therefore not that one method has solved selective
-unlearning. GD is the strongest-forgetting baseline, while the earlier RMU
-settings motivate a more careful search over steering scale, loss layer, and
-retain constraints.
+The completed benchmark therefore establishes the current result: GD provides
+the strongest target forgetting but lacks selectivity, while the evaluated RMU
+settings preserve retain performance better but do not forget enough. None of
+the four checkpoints reaches the desired high-forgetting, low-retain-loss
+region.
 
-## Next-stage RMU experiments
-
-The new RMU design addresses four limitations exposed by the completed full
-benchmark:
-
-1. absolute target norms do not account for layer-specific activation scale;
-2. layer 6 alone is insufficient to identify the best loss layer;
-3. broad parameter updates may alter shared general representations; and
-4. retain loss on random training batches does not establish held-out retain
-   preservation.
-
-The revised implementation therefore:
-
-- calibrates the steering target to the reference activation RMS, so ratios
-  such as `0.5`, `1.0`, and `1.5` have a comparable meaning across layers;
-- explicitly separates the trainable parameter range from the RMU loss layer;
-- creates an independent hook, steering direction, scale, and loss record for
-  each loss layer; and
-- evaluates held-out forget and retain representation MSE and
-  original-modified cosine similarity.
-
-Three representative configurations test complementary questions:
-
-| Checkpoint | Core setting | Question |
-|:---|:---|:---|
-| `rmu_pareto_l8_ratio050` | Layer 8, ratio 0.5, retain weight 1, LR `5e-6` | Can conservative calibrated steering produce useful forgetting with low retain cost? |
-| `rmu_pareto_l8_ratio150` | Layer 8, ratio 1.5, retain weight 1, LR `5e-6` | Does stronger layer-8 steering add more forgetting than retain damage? |
-| `rmu_pareto_l6_ar2_lr1e5` | Layer 6, ratio 1.0, retain weight 2, LR `1e-5` | Can layer 6 with stronger retain protection provide a better balance? |
-
-These configurations are intended to identify whether the main RMU bottleneck
-is insufficient steering strength, loss-layer choice, retain protection, or an
-overly broad update range. They should not be treated as final results until
-their downstream evaluations are complete and validated.
-
-### Recovery attacks
-
-![Phase 3 recovery attack results](figures/phase3_results.png)
-
-The implemented Phase 3 pipeline applies SFT and LoRA recovery attacks. In the
-current preliminary setting, LoRA recovery is weak and SFT often degrades even
-the control checkpoints. The present result should therefore be interpreted as
-an underpowered attack configuration, not evidence of definitive robustness.
+See
+`data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv` for exact
+paired scores and confidence intervals.
 
 ## Repository layout
 
@@ -263,7 +168,7 @@ export PHASE2_PYTHON="$(command -v python)"
 | Objective ID | Forget set | Retain set | Typical checkpoint roots |
 |:---|:---|:---|:---|
 | `global_host_tropism` | Human-tropic viruses | Non-human-tropic viruses | `checkpoints_lora_grid/`, earlier `checkpoints_tuned/` runs |
-| `coronaviridae_family` | Coronaviridae | Non-Coronaviridae | `checkpoints_layer_scan/`, `checkpoints_rmu_tuning/`, `checkpoints_rmu_pareto/` |
+| `coronaviridae_family` | Coronaviridae | Non-Coronaviridae | `checkpoints_layer_scan/`, `checkpoints_rmu_tuning/` |
 
 The global host-tropism training split contains 3,800 forget and 3,814 retain
 sequences. The balanced Coronaviridae split contains 1,888 windows per class.
@@ -340,8 +245,6 @@ Available checked-in configurations:
 | `lora_full_grid.json` | Global host-tropism full-model candidate grid |
 | `rmu_full_layer_scan.json` | Full-depth RMU target-layer scan |
 | `rmu_full_multimetric.json` | Multi-metric RMU stage-1/stage-2 search |
-| `rmu_l6_l8_tuning.json` | Reference-RMS-calibrated layer 6/8 tuning |
-| `rmu_pareto_lora.json` | Selected Pareto candidates plus LoRA evaluation |
 
 Use `--dry-run` to inspect commands, `--resume` to reuse complete artifacts,
 and `--internal-layers 0-31` for full-depth diagnostics.
@@ -440,9 +343,8 @@ RMU keeps a frozen reference model. Forget activations at the configured target
 layer(s) are pushed toward a fixed random direction, while retain activations
 are constrained to remain near the reference representation with MSE.
 
-Older global-host-tropism runs use absolute steering coefficients such as
-25–200. Newer Coronaviridae tuning calibrates steering to reference activation
-RMS and uses ratios such as 0.5–1.5. These values are not interchangeable.
+The completed full-benchmark RMU checkpoints use absolute steering
+coefficients of 50 and 200.
 
 ### Evaluation hierarchy
 
