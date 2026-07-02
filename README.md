@@ -1,388 +1,488 @@
-# Evo-1 Host-Tropism Representation Localization and Targeted Unlearning
+# Genomic Capability Localization and Unlearning in Evo-1
 
-This repository contains a three-phase pipeline for **capability localization and targeted machine unlearning** in the Evo-1-8k-base genomic foundation model (StripedHyena, 32 layers, ~7B parameters).
+This repository studies whether a genomic capability in
+[`Evo-1-8k-base`](https://huggingface.co/togethercomputer/evo-1-8k-base) can be:
 
-The research question is whether human-virus-relevant genomic capabilities can be (1) localized to specific layers via probing and causal analysis, (2) selectively removed via targeted unlearning while preserving non-human viral biology and general genomics competence, and (3) tested for robustness against fine-tuning recovery attacks.
+1. localized to specific model layers with probes and activation patching;
+2. selectively weakened with Gradient Difference (GD) or Representation
+   Misdirection for Unlearning (RMU); and
+3. tested for recovery under full-parameter and LoRA fine-tuning attacks.
 
-Phase 1 uses taxonomy and host annotation only for localization. Phase 2 unlearning is evaluated primarily on external HVUE + GUE benchmarks rather than only on the training-data forget/retain perplexity proxy. A local audit of the current workspace is saved to `data/phase2/experiment_audit.json`; at present the requested vGUE retain tasks are not yet present locally, and the public HVUE Calici CSVs do not expose the taxonomy metadata needed for a literal family-held-out shortcut audit.
+The current experiments focus on viral host-tropism and Coronaviridae-related
+representations. The code supports internal representation/perplexity
+diagnostics and downstream LoRA evaluation on HVUE, GUE, Hiyata Host Tropism,
+and optional viral-retain tasks.
 
-> **Two different unlearning objectives coexist in this repository.** Checkpoint results are comparable only when their `meta.json` files point to the same `forget_csv` and `retain_csv`. The original/full LoRA grid targets global human host tropism; the newer Coronaviridae RMU layer/tuning/Pareto runs target family identity. `full` describes which model layers are trainable—it does **not** identify the unlearning objective.
+> [!IMPORTANT]
+> This repository contains two different unlearning objectives. The original
+> experiments target **global human host tropism**; newer RefSeq experiments
+> target **Coronaviridae family identity**. Only compare checkpoints whose
+> `meta.json` files use the same `forget_csv`, `retain_csv`, and label semantics.
+> A directory name containing `full` describes trainable layers, not the
+> biological objective.
 
----
+## Current status
 
-## Current Review Status
+| Area | Status |
+|:---|:---|
+| Phase 1 probing and activation patching | Complete |
+| RefSeq Coronaviridae localization | Complete; selected layers `[5, 6, 7, 8, 9]`, primary layer 6 |
+| GD/RMU condition sweeps | Complete for the checked-in Task 2 grid |
+| Full-depth RMU layer scan | 17/17 runs complete |
+| RMU layer 6/8 tuning | 24/24 baseline and tuning runs complete |
+| HVUE/GUE LoRA evaluation of the earlier full-model grid | Complete for four selected candidates |
+| RMU Pareto candidate LoRA evaluation | In progress; do not treat as a final result |
+| Phase 3 recovery attacks | Implemented; current attack setting is preliminary |
 
-This section summarizes what the current code and checked-in result files can answer, and what still needs an additional run.
+Machine-readable progress and results are stored under `data/phase2/`, notably:
 
-### What is already implemented
+- `data/phase2/experiment_audit.json`
+- `data/phase2/results/task2_runs.csv`
+- `data/phase2/checkpoints_rmu_tuning/tuning_summary.csv`
+- `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv`
+- `data/phase2/checkpoints_rmu_pareto/progress.json`
 
-- **Baseline and controls.** The Phase 2 scripts implement `full`, `localized`, `probe`, and `random` conditions. The first Phase 1 host-tropism localization selected layers 3-9; the second RefSeq Coronaviridae Phase 1 rerun selected `[5, 6, 7, 8, 9]` in `data/family_targets/coronaviridae/localized_layers.json`, with primary target layer 6. Current RefSeq `localized` runs update layers 5-9. Current RefSeq `random` controls update the same number of non-causal layers sampled from 11-30; with seed 42 these are `[11, 14, 18, 19, 27]`. The older 3-9 experiments used 7 random layers: `[11, 13, 14, 18, 19, 22, 27]`.
-- **Internal diagnostics.** `phase2/eval_unlearn.py` reports the legacy internal host-tropism probe AUROC and forget/retain validation perplexity. These results are aggregated in `data/phase2/results/task2_runs.csv` and `data/phase2/results/task2_best_checkpoints.csv`.
-- **External benchmark protocol.** `phase2/eval_benchmarks.py` now evaluates downstream tasks with supervised LoRA finetuning on a frozen Evo backbone. Hiyata Host Tropism is used for lightweight task adaptation and k-mer comparison, while HVUE Host Tropism remains a non-overlapping held-out benchmark. The old frozen-representation probe evaluator is preserved as `phase2/eval_benchmarks_probe_legacy.py` for reference only.
-- **Legacy candidate cross-checks.** External evaluations under `data/phase2/benchmark_pilot_lean/` and `data/phase2/final_fast_eval/` were run on checkpoint candidates that were originally chosen from internal probe/PPL diagnostics. They are useful for reference, but they should not be treated as the post-LoRA primary selection.
-- **Training losses.** Each unlearning run writes a `log.json` with training losses every `--log-every` steps. For example, tuned runs under `data/phase2/checkpoints_tuned/<run>/log.json` contain the optimization loss trace.
+## Main findings so far
 
-### Current limitations
+### Research question
 
-- Checkpoint directory names such as `rmu_full_*` do not uniquely encode the training objective. Before aggregating or comparing checkpoints, inspect `meta.json` and require identical `forget_csv`, `retain_csv`, and label semantics. In particular, do not rank `checkpoints_rmu_pareto/*` against `checkpoints_lora_grid/*` as if they were the same unlearning experiment.
-- The internal probe AUROC and forget/retain PPL are **diagnostics**, not the final selective-unlearning claim. They are useful for debugging whether a method affects the host-tropism representation and whether the language-model objective is damaged, but final method selection should rely on external HVUE/GUE deltas.
-- The current training scripts save the final checkpoint for each run. They do **not** yet automatically save and evaluate intermediate checkpoints at fixed milestones such as 2k, 5k, 10k, or 25k steps. Therefore, the repository currently has final-checkpoint PPL/AUROC for multiple step settings, plus training-loss traces, but not a complete validation PPL/AUROC time series over training.
-- vGUE retain tasks are not yet present locally as task-ready `sequence,label,split` tables. The current retain-side external benchmark is GUE, with viral-retain integration left as a data-engineering follow-up.
+The central question is whether viral-sequence-related capabilities can be
+durably removed from an open-weight genomic foundation model while:
 
----
+1. producing a clear performance drop on target viral tasks (**Forget**);
+2. preserving GUE and non-target viral performance (**Retain**); and
+3. remaining difficult to recover through later fine-tuning (**Durability**).
 
-## Results Summary
+The experiments so far show that GD and RMU can change target viral
+capabilities, but they do not yet establish selective, durable, and
+recovery-resistant removal.
 
-### Phase 1 — Layer-wise Probe AUROC and Activation Patching
+### Localization
 
 ![Activation patching analysis](figures/patching_analysis.png)
 
-**Figure:** (a) Layer-wise probe AUROC. (b) Activation patching causal effect |Δprob| per layer. (c) PPL delta per layer (flat — single-layer patching is compensated downstream).
+- The original host-tropism run found high probe AUROC in early layers and a
+  broader causal region at layers 3–9.
+- The RefSeq Coronaviridae rerun selected the current sparse localized set
+  `[5, 6, 7, 8, 9]`, with layer 6 as the primary target.
+- Layers 0–2 can be linearly decodable while having little patching effect:
+  probe salience is not the same as intervention salience.
+- Single-layer patching produces nearly flat language-model loss changes,
+  suggesting downstream compensation.
 
-- Layers 0–10 achieve probe AUROC 0.975–0.997, far above the k-mer baseline (0.851)
-- First Phase 1 activation patching identified layers 3-9 as the original causal target region (layer 6: |Δprob| = 0.355, layer 8: 0.276)
-- The second RefSeq Coronaviridae Phase 1 rerun selected the current sparse localized set `[5, 6, 7, 8, 9]`; layer 6 remains the primary target layer
-- Layers 0–2 are linearly decodable but have near-zero patching effect — probe salience ≠ intervention salience
-- PPL delta is flat across all layers (std < 0.0001), confirming that unlearning must target multiple layers simultaneously
-
-### Phase 2 — Targeted Unlearning
+### Unlearning
 
 ![Phase 2 unlearning results](figures/phase2_results.png)
 
-**Figure:** (a) Probe AUROC by layer after unlearning. (b) Legacy forget/retain PPL diagnostic (log scale; no longer the main evaluation claim).
+Internal probe AUROC and forget/retain perplexity are useful optimization
+diagnostics, but they are not the primary selective-unlearning claim. Final
+selection uses downstream benchmark deltas:
 
-Primary selective-unlearning evaluation now uses external benchmarks:
-
-| Evaluation axis | Benchmark tasks | Desired outcome |
+| Axis | Tasks | Desired direction |
 |:---|:---|:---|
-| Forget: human-virus-relevant capability | HVUE human host tropism; HVUE human-virus pathogenicity; HVUE transmissibility for Coronaviridae, Orthomyxoviridae, and Caliciviridae | Large post-unlearning drop relative to the base model |
-| Retain: general genomics | GUE promoter, splice-site, TF-binding, and chromatin-accessibility tasks | Minimal drop relative to the base model |
+| Forget | HVUE host tropism, pathogenicity, and transmissibility | Score decreases relative to base Evo |
+| Retain | GUE promoter, splice-site, TF-binding, and chromatin tasks | Minimal change relative to base Evo |
+| Optional viral retain | ViroBench/vGUE-style non-overlapping taxon tasks | Minimal change relative to base Evo |
 
-The original host-tropism probe AUROC and forget/retain perplexity table is kept as a legacy internal diagnostic for comparing unlearning methods before running the external benchmarks. These rows come from the first Phase 1 localization, where `localized` meant layers 3-9:
+In the completed external evaluation of four earlier full-model candidates:
 
-| Method | Updated layers | Probe AUROC L3–9 | Δ AUROC | Forget PPL diagnostic | Retain PPL diagnostic |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| Baseline | — | 0.844 | — | ~4.2 | ~4.2 |
-| GD full | all 32 | 0.524 | −0.320 | 31.2 | 37.9 |
-| GD localized | 3–9 (patching) | 0.555 | −0.289 | 20.4 | 15.7 |
-| GD probe | 0–10 (probe curve) | 0.524 | −0.320 | 137.5 | 63.3 |
-| GD random | 7 random (11–30) | 0.847 | +0.003 | 4.2 | 4.2 |
-| RMU full | all 32 | 0.700 | −0.144 | 4.5 | 4.48 |
-| RMU localized | 3–9 | 0.765 | −0.079 | 4.4 | 4.42 |
-| RMU random | 7 random (11–30) | 0.847 | +0.003 | 4.2 | 4.3 |
+- `lora_gd_full_ar3_s200` produced the largest mean HVUE decrease, but also a
+  substantial GUE decrease.
+- `lora_rmu_full_sc50_s200` preserved GUE most closely, but produced almost no
+  HVUE decrease.
+- These results expose the current forgetting–retention trade-off; they do not
+  establish a final winner.
+- The newer RMU layer-6/layer-8 Pareto candidates still require completed
+  downstream LoRA evaluation before comparison with the earlier grid.
 
-The completed RefSeq sweep from `bash phase2/run_sweep.sh all` uses the second Phase 1 localized set `[5, 6, 7, 8, 9]`. The table below is a legacy internal diagnostic table: it reports AUROC recomputed over those current L5-9 layers, not the legacy aggregate column name `internal_auroc_3_9` used by older summary files. These rows can guide debugging, but the strong rows here were identified with probe/PPL criteria and must be re-ranked under the supervised LoRA benchmark protocol before being used for primary claims.
+See
+`data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv` for exact
+paired scores and confidence intervals.
 
-| Current RefSeq run | Method / condition | Updated layers | Probe AUROC L5-9 | Drop vs random | Forget PPL | Retain PPL | Interpretation |
-|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
-| `refseq_gd_full_ar5_s200` | GD full | all 32 | 0.547 | 0.447 | 4.21 | 4.13 | Strong legacy probe/PPL diagnostic; needs LoRA benchmark re-ranking |
-| `refseq_rmu_full_sc50_s200` | RMU full | all 32 | 0.604 | 0.390 | 4.62 | 4.43 | Strong legacy probe/PPL diagnostic; needs LoRA benchmark re-ranking |
-| `refseq_gd_loc_af1_ar3_s200` | GD localized | 5-9 | 0.897 | 0.097 | 4.83 | 4.12 | Best stable localized GD trade-off |
-| `refseq_gd_loc_af1_ar5_s200` | GD localized | 5-9 | 0.951 | 0.043 | 4.50 | 3.97 | More retain-preserving, weaker forgetting |
-| `refseq_gd_loc_ar5_lr2e-5_s200` | GD localized | 5-9 | 0.913 | 0.081 | 14.89 | 5.46 | Some forgetting, but retain/forget PPL damage |
-| `refseq_gd_loc_ar5_s500` | GD localized | 5-9 | 0.859 | 0.135 | 5.1e6 | 30.54 | Longer GD lowers AUROC but becomes unstable |
-| `refseq_gd_loc_ar5_s1000` | GD localized | 5-9 | 0.809 | 0.185 | 5.0e16 | 1232.17 | Catastrophic LM damage despite lower probe AUROC |
-| `refseq_rmu_loc_sc50_s1000` | RMU localized | 5-9 | 0.988 | 0.006 | 4.14 | 4.25 | Localized RMU preserves LM behavior but barely reduces probe signal |
-| `refseq_gd_random_ar5_s1000` | GD random | 11,14,18,19,27 | 0.994 | 0.000 | 3.89 | 3.95 | Negative control: no forgetting |
-| `refseq_rmu_random_sc50_s1000` | RMU random | 11,14,18,19,27 | 0.994 | 0.000 | 4.24 | 4.37 | Negative control: no forgetting |
+## Completed 44-task full benchmark
 
-### Phase 3 — Recovery Attacks
+The earlier lightweight benchmark was used to screen candidates. The completed
+full benchmark evaluates four selected checkpoints on a common set of 44
+downstream tasks:
+
+| Group | Tasks | Role |
+|:---|---:|:---|
+| HVUE forget | 5 | Measure target viral-task forgetting |
+| GUE retain | 33 | Measure preservation of general genomic capability |
+| ViroBench viral retain | 6 | Measure collateral damage to other viral capabilities |
+
+Two Calici-related tasks were excluded from the final ranking because of their
+high taxonomy-shortcut risk.
+
+### Metrics
+
+- **Forget drop:** `base - unlearned`; larger is stronger forgetting.
+- **Retain delta:** `unlearned - base`; values near zero are preferred.
+- **Balanced Forget:** equal-weight mean of the primary and secondary
+  forget-task groups.
+- **Selection Score:** `Balanced Forget - GUE penalty - viral-retain penalty`.
+
+Selection Score is a screening heuristic, not a substitute for inspecting the
+paired forget and retain deltas.
+
+### Overall results
+
+| Checkpoint | Setting | Balanced Forget | HVUE mean drop | GUE delta | Viral delta | Selection Score |
+|:---|:---|---:|---:|---:|---:|---:|
+| `lora_gd_full_ar3_s200` | Stronger GD | **0.207** | **0.198** | -0.144 | -0.0266 | **0.0357** |
+| `lora_gd_full_ar5_s500` | Higher-retain, longer GD | 0.086 | 0.084 | -0.105 | -0.0218 | -0.0402 |
+| `lora_rmu_full_sc50_s200` | Weaker RMU steering | 0.0045 | 0.0057 | **+0.0012** | -0.0066 | -0.0021 |
+| `lora_rmu_full_sc200_s200` | Stronger RMU steering | 0.031 | 0.036 | -0.044 | -0.0058 | -0.0189 |
+
+The four checkpoints expose two different failure modes:
+
+- **GD can forget, but lacks selectivity.** `lora_gd_full_ar3_s200`
+  produces the clearest external forgetting signal, but also causes the
+  largest GUE decrease. Increasing the retain weight and training longer in
+  `lora_gd_full_ar5_s500` weakens forgetting without reducing retain damage
+  enough to improve the trade-off.
+- **RMU can retain, but the earlier steering settings do not forget enough.**
+  `lora_rmu_full_sc50_s200` preserves GUE almost exactly but produces almost
+  no useful forgetting. Increasing the absolute steering norm in
+  `lora_rmu_full_sc200_s200` increases forgetting only modestly while GUE
+  also begins to fall.
+
+The current conclusion is therefore not that one method has solved selective
+unlearning. GD is the strongest-forgetting baseline, while the earlier RMU
+settings motivate a more careful search over steering scale, loss layer, and
+retain constraints.
+
+## Next-stage RMU experiments
+
+The new RMU design addresses four limitations exposed by the completed full
+benchmark:
+
+1. absolute target norms do not account for layer-specific activation scale;
+2. layer 6 alone is insufficient to identify the best loss layer;
+3. broad parameter updates may alter shared general representations; and
+4. retain loss on random training batches does not establish held-out retain
+   preservation.
+
+The revised implementation therefore:
+
+- calibrates the steering target to the reference activation RMS, so ratios
+  such as `0.5`, `1.0`, and `1.5` have a comparable meaning across layers;
+- explicitly separates the trainable parameter range from the RMU loss layer;
+- creates an independent hook, steering direction, scale, and loss record for
+  each loss layer; and
+- evaluates held-out forget and retain representation MSE and
+  original-modified cosine similarity.
+
+Three representative configurations test complementary questions:
+
+| Checkpoint | Core setting | Question |
+|:---|:---|:---|
+| `rmu_pareto_l8_ratio050` | Layer 8, ratio 0.5, retain weight 1, LR `5e-6` | Can conservative calibrated steering produce useful forgetting with low retain cost? |
+| `rmu_pareto_l8_ratio150` | Layer 8, ratio 1.5, retain weight 1, LR `5e-6` | Does stronger layer-8 steering add more forgetting than retain damage? |
+| `rmu_pareto_l6_ar2_lr1e5` | Layer 6, ratio 1.0, retain weight 2, LR `1e-5` | Can layer 6 with stronger retain protection provide a better balance? |
+
+These configurations are intended to identify whether the main RMU bottleneck
+is insufficient steering strength, loss-layer choice, retain protection, or an
+overly broad update range. They should not be treated as final results until
+their downstream evaluations are complete and validated.
+
+### Recovery attacks
 
 ![Phase 3 recovery attack results](figures/phase3_results.png)
 
-**Figure:** (a) Full method × attack matrix heatmap. (b) Tuned comparison: GD localized (α_retain=5.0) vs RMU full under SFT and LoRA attacks.
+The implemented Phase 3 pipeline applies SFT and LoRA recovery attacks. In the
+current preliminary setting, LoRA recovery is weak and SFT often degrades even
+the control checkpoints. The present result should therefore be interpreted as
+an underpowered attack configuration, not evidence of definitive robustness.
 
-Controlled comparison after hyperparameter tuning (both methods with retain diagnostic PPL ≈ baseline):
-
-| Method | After unlearning diagnostic AUROC | Retain diagnostic PPL | After SFT | SFT Δ | After LoRA | LoRA Δ |
-|:---|:---:|:---:|:---:|:---:|:---:|:---:|
-| GD localized (α_retain=5.0) | 0.624 | 3.88 | 0.448 | −0.175 | 0.656 | +0.033 |
-| RMU full | 0.700 | 4.48 | 0.651 | −0.049 | 0.665 | −0.036 |
-
----
-
-## Repository Structure
+## Repository layout
 
 ```text
-project1/
-├── phase1/
-│   ├── utils.py                    # Shared utilities: model loading, manifest I/O, feature writing
-│   ├── extract_features.py         # Layer-wise mean-pooled activation extraction
-│   ├── train_probes.py             # Layer-wise logistic probe training with C-grid search
-│   ├── baseline_gc_1gram.py        # GC + k-mer sequence-level baselines
-│   ├── activation_patching.py      # Causal layer identification via hidden-state patching
-│   ├── plot_metrics.py             # Probe AUROC visualization
-│   ├── plot_patching.py            # Patching analysis visualization
-│   └── run.sh                      # Phase 1 end-to-end script
-├── phase2/
-│   ├── utils.py                    # Shared constants (LOCALIZED_LAYERS, PROBE_LAYERS), loss functions
-│   ├── build_unlearn_splits.py     # Construct forget / retain / eval splits
-│   ├── unlearn_gd.py               # Gradient Difference unlearning (4 conditions)
-│   ├── unlearn_rmu.py              # RMU representation misdirection (3 conditions)
-│   ├── eval_unlearn.py             # Internal post-unlearning probe AUROC and PPL diagnostics
-│   ├── eval_benchmarks.py          # Primary LoRA finetuning benchmark evaluation
-│   ├── eval_benchmarks_probe_legacy.py # Legacy frozen-representation probe benchmark
-│   ├── prepare_hiyata_lora_manifest.py # Hiyata Host Tropism canonical LoRA split
-│   ├── eval_kmer_baseline.py       # k-mer baseline on benchmark-style manifests
-│   ├── plot_results.py             # Phase 2 results visualization
-│   └── run.sh                      # Phase 2 end-to-end script
-├── phase3/
-│   ├── utils.py                    # Shared utilities: checkpoint loading, feature extraction, probe scoring
-│   ├── attack_sft.py               # Full-parameter SFT recovery attack
-│   ├── attack_lora.py              # LoRA adapter recovery attack
-│   ├── plot_results.py             # Phase 3 method × attack matrix visualization
-│   └── run.sh                      # Phase 3 end-to-end script
-└── data/
-    ├── host_tropism/               # Phase 1 dataset, probes, patching results
-    ├── phase2/                     # Unlearning splits and checkpoints
-    └── phase3/                     # Attack results
+.
+├── phase1/                         # dataset construction, probes, patching
+│   ├── build_refseq_family_target_dataset.py
+│   ├── extract_features.py
+│   ├── train_probes.py
+│   ├── activation_patching.py
+│   ├── select_localized_layers.py
+│   └── run.sh
+├── phase2/                         # unlearning and downstream evaluation
+│   ├── unlearn_gd.py
+│   ├── unlearn_rmu.py
+│   ├── eval_unlearn.py
+│   ├── eval_benchmarks.py
+│   ├── run_task2_sweeps.py
+│   ├── run_benchmark_pilot.py
+│   ├── prepare_benchmarks.py
+│   ├── run.sh
+│   └── sweep_configs/
+├── phase3/                         # SFT/LoRA recovery attacks
+│   ├── attack_sft.py
+│   ├── attack_lora.py
+│   └── run_attacks.sh
+├── data/                           # manifests and checked-in lightweight results
+├── figures/                        # report figures
+├── docs/                           # environment and experiment notes
+└── final_benchmark_plan.md         # detailed external-evaluation protocol
 ```
 
----
+Model weights, raw sequence corpora, large activation matrices, and generated
+checkpoints are intentionally excluded by `.gitignore`.
 
-## Dataset
+## Requirements
 
-| Property | Value |
-|:---|:---|
-| Source | NCBI Virus (host-tropism subset) |
-| Total sequences | 9,521 |
-| Label definition | human-tropic = 1, non-human-tropic = 0 |
-| Label basis | Taxonomy and host annotation only; no virulence labels |
-| Train / Val / Test | 7,614 / 923 / 984 |
-| Positive rate | 49.9% / 45.1% / 46.0% |
-| Max sequence length | 512 bp (unlearning) / 2,048 bp (feature extraction) |
+The experiments require:
 
----
+- Linux with a CUDA-capable GPU;
+- Python with PyTorch, Evo/StripedHyena, `safetensors`, NumPy, pandas,
+  scikit-learn, matplotlib, and the Hugging Face data stack;
+- a local Evo-1 model directory at `./evo-1-8k-base`; and
+- the corresponding Evo inference configuration, typically
+  `configs/evo-1-8k-base_inference.yml`.
 
-## Phase 1 — Probing and Causal Analysis
-
-### Feature Extraction
-
-For each sequence and each of the 32 Evo-1 blocks, the hidden state is captured via a forward hook. The `next_norm` representation is used: each layer's output is passed through the subsequent block's `pre_norm` (or the final `model.norm` for the last layer) before mask-aware mean pooling:
-
-$$h_l = \frac{\sum_{t=1}^{T} m_t \cdot H_{l,t}}{\sum_{t=1}^{T} m_t}$$
-
-where $m_t \in \{0,1\}$ is the padding mask. This produces one 4096-dimensional vector per sequence per layer.
-
-### Probe Training
-
-For each layer, a balanced L2-regularized logistic regression is trained on the train split with C-grid search over {0.001, 0.01, 0.1, 1.0}, selecting the best C by validation AUROC. Probe weights (coef, intercept, scaler parameters) are saved as `.npz` files for reuse in Phase 2 and Phase 3 evaluation.
-
-### Activation Patching
-
-For each layer $l$, the hidden state of a target sequence is replaced with the corresponding activation from a paired source sequence. Two readouts are measured:
-
-- **|Δprob|**: change in probe prediction probability (causal effect on representation)
-- **Δloss**: change in final-output perplexity (causal effect on model output)
-
-The PPL delta is flat across all layers (mean Δloss ≈ 0.048, std < 0.0001), indicating that single-layer patching is compensated by downstream layers. The probe-level |Δprob| is therefore used as the causal localization signal.
-
-**Key result:** There are two Phase 1 localization snapshots in this repository. The first host-tropism run identified layers 3-9 as the broader causal target region. The second RefSeq Coronaviridae rerun selected `[5, 6, 7, 8, 9]` as the current sparse localized set, with layer 6 as the primary target layer. Layers 0-2 have high probe AUROC but near-zero patching effect, so probe salience alone is not treated as intervention salience. Layers 11+ are excluded from localized targets because they are outside the causal region and can show numerically unstable bfloat16 activations.
-
----
-
-## Phase 2 — Targeted Unlearning
-
-### Data Construction
-
-There are two distinct experiment families:
-
-| Objective ID | Forget / retain semantics | Explicit split paths | Checkpoint families |
-|:---|:---|:---|:---|
-| `global_host_tropism` | Human-tropic viruses / non-human-tropic viruses; 3,800 / 3,814 training sequences | `data/phase2/splits/forget.csv`, `data/phase2/splits/retain.csv` | `checkpoints_lora_grid/*`, earlier `checkpoints_tuned/*` host-tropism runs |
-| `coronaviridae_family` | Coronaviridae / non-Coronaviridae; balanced 1,888 / 1,888 training windows | `data/phase2/coronaviridae_splits/forget.csv`, `data/phase2/coronaviridae_splits/retain.csv` | `checkpoints_layer_scan/*`, `checkpoints_rmu_tuning/*`, `checkpoints_rmu_pareto/*` |
-
-The Coronaviridae positive set includes non-human coronaviruses (for example bat coronaviruses), so it must not be described as a human-tropism forget set. Conversely, a score drop on a host-tropism benchmark does not by itself prove that a `coronaviridae_family` checkpoint was trained to forget host tropism.
-
-- **Internal diagnostic**: use validation/test rows, probes, and forget/retain perplexity that match the checkpoint's objective
-- **Primary evaluation**: downstream benchmark rows evaluated with supervised LoRA finetuning, fixed manifest splits, validation early stopping, and test metrics from the best validation checkpoint
-
-Every new sweep must specify `forget_csv` and `retain_csv` explicitly in `train_defaults` or per-run arguments. Do not rely on the training script defaults. Before combining results, verify the checkpoint's `meta.json`; benchmark scope (`--benchmark-scope all`) changes evaluation coverage but does not change what the checkpoint learned to forget.
-
-### Gradient Difference (GD)
-
-At each training step, one forget batch and one retain batch are sampled. The loss is:
-
-$$\mathcal{L} = -\alpha_{\text{forget}} \cdot \mathcal{L}_{\text{forget}} + \alpha_{\text{retain}} \cdot \mathcal{L}_{\text{retain}}$$
-
-where $\mathcal{L}_{\text{forget}}$ and $\mathcal{L}_{\text{retain}}$ are next-token cross-entropy losses. Maximizing $\mathcal{L}_{\text{forget}}$ degrades modeling of the configured forget set; minimizing $\mathcal{L}_{\text{retain}}$ preserves modeling of the configured retain set. Their biological meanings depend on the objective table above. Gradient updates are restricted to the selected layer condition via `requires_grad` masking. Checkpoints store only the weight deltas of modified layers.
-
-Four conditions are implemented:
-
-| Condition | Updated layers | Basis |
-|:---|:---|:---|
-| `full` | all 32 layers | full-model baseline |
-| `localized` | current RefSeq: layers 5-9; legacy first run: layers 3-9 | activation patching (causal) |
-| `probe` | layers 0–10 | probe curve (alternative target) |
-| `random` | current RefSeq: 5 layers from 11-30; legacy first run: 7 layers from 11-30 | matched negative control |
-
-### RMU (Li et al., ICML 2024)
-
-A frozen reference model is maintained. At each step:
-- **Forget**: push forget-set hidden activations at the configured `target_layer`/`loss_layers` toward a fixed random direction scaled by `steer_coef`
-- **Retain**: constrain retain-set activations at the same loss layer(s) to stay close to the frozen reference model via MSE
-
-The original global-host-tropism grid uses layer 6 and uncalibrated steering coefficients such as 25–200. The newer Coronaviridae tuning uses layers 6 or 8 with reference-RMS scale calibration and ratios such as 0.5–1.5. Those coefficient values are not numerically interchangeable.
-
-Three conditions: `full`, `localized` (current RefSeq: layers 5-9; legacy first run: layers 3-9), `random`.
-
-### Benchmark Evaluation Protocol
-
-Selective unlearning is judged by benchmark deltas, not by perplexity alone. After applying each checkpoint, `phase2/eval_benchmarks.py` freezes the Evo backbone, injects LoRA adapters into every `nn.Linear` module inside all 32 Evo blocks, trains a supervised task head plus LoRA adapters on each downstream task, selects the best checkpoint by validation metric, and reports test metrics from that best checkpoint.
-
-The benchmark manifest must contain `split,sequence,label` columns and may also include `benchmark,task,group,id`. The default LoRA evaluator filters to HVUE rows (`benchmark=hvue` or `group=hvue_forget`); pass `--benchmark-scope task --task-filter host_tropism_hiyata` for the Hiyata adaptation task. The retained legacy probe evaluator can still read the broader HVUE/GUE/viral-retain manifest for reference analyses. The intended task set is:
-
-- **Hiyata Host Tropism adaptation**: `data/host_tropism_hiyata/manifest_no_gemini.csv` is converted into `data/host_tropism_hiyata/eval_manifest_lora.csv` with a deterministic label-stratified validation split; k-mer and LoRA use this same derived split.
-- **HVUE forget tasks**: human host tropism; human-virus pathogenicity; transmissibility for human-relevant viral families (`Coronaviridae`, `Orthomyxoviridae`, `Caliciviridae`). The checked-in manifest has now been rebuilt from the local raw files and includes the `train/val/test` splits for `hvue_human_transmissibility_caliciviridae`; see `data/phase2/experiment_audit.json` for the current coverage audit.
-- **GUE retain tasks**: promoter, splice-site, TF-binding, and chromatin-accessibility tasks, preserving general DNA modeling competence.
-- **Viral retain tasks**: ViroBench CLS-Lite taxon tasks are the preferred viral-retain source because they ship metadata CSVs plus sequence JSONL splits. The default imported tasks are `virobench_all_taxon_genus`, `virobench_all_taxon_times`, `virobench_dna_taxon_genus`, `virobench_dna_taxon_times`, `virobench_rna_taxon_genus`, and `virobench_rna_taxon_times`, all evaluated as `group=viral_retain`. vGUE-style task-ready tables are also supported under `data/benchmarks/raw/viral_retain/<task>/<split>.csv|tsv|jsonl|json`, `data/benchmarks/raw/vgue/<task>/<split>...`, or a unified table under either root with `task,split,sequence,label` columns. Host-prediction viral tasks and `hiv1_tropism` are excluded from the default retain score because they overlap with the forget objective.
-
-A successful method should reduce HVUE human-virus benchmark scores relative to the base model while keeping GUE scores near the base-model scores. Forget/retain PPL remains useful for debugging optimization damage, but it is no longer sufficient evidence of selective unlearning.
-
-### Diagnostic Findings
-
-1. **Random condition validates causal layer analysis.** In the legacy first-run diagnostic, GD random and RMU random show internal host-tropism probe AUROC ≈ 0.847 and PPL unchanged. In the current RefSeq sweep, GD random and RMU random preserve the L5-9 probe AUROC at ≈ 0.995 with near-baseline PPL. Updating matched non-causal layers has no meaningful effect on the diagnostic probe.
-
-2. **Probe salience ≠ intervention salience.** GD probe (layers 0–10) achieves the same diagnostic AUROC reduction as GD localized (−0.320 vs −0.289) but causes 4× more PPL damage on the retain diagnostic (63.3 vs 15.7). Layers 0–2 are not effective intervention targets.
-
-3. **Full-model updates are the strongest RefSeq internal diagnostic runs so far, not final selections.** In the current RefSeq sweep, `refseq_gd_full_ar5_s200` reduces L5-9 probe AUROC from the random-control level ≈ 0.994 to 0.547 with retain PPL 4.13. `refseq_rmu_full_sc50_s200` reduces it to 0.604 with retain PPL 4.43. Because those candidates were surfaced by probe/PPL diagnostics, they must be treated as legacy references until the full candidate set is evaluated and ranked with supervised LoRA downstream metrics.
-
-4. **Current RefSeq localized updates are weak or unstable.** Among stable localized GD runs, `α_retain=3.0` gives the best internal forgetting trade-off (L5-9 AUROC 0.897, retain PPL 4.12). Stronger or longer GD can lower AUROC further, but the 500/1000-step runs show severe PPL damage. Localized RMU preserves PPL but leaves the diagnostic AUROC near 0.99 across `steer_coef`, retain-weight, direction, and step sweeps. Final method selection should still be based on HVUE/GUE forget-retain deltas once every RefSeq checkpoint has external benchmark coverage.
-
----
-
-## Phase 3 — Recovery Attacks
-
-### Attack Protocol
-
-Two attacks are applied to all unlearned checkpoints using 453 held-out human-tropic sequences (test split, not seen during unlearning):
-
-| Attack | Parameters | Trainable params |
-|:---|:---|:---|
-| SFT | all parameters, 200 steps, lr=1e-5 | ~7B (100%) |
-| LoRA | rank-8 adapters on layers 3-9 in the legacy first-run attack setting, 200 steps, lr=1e-4 | 3.9M (0.05%) |
-
-### Key Findings
-
-1. **LoRA attack is ineffective across all conditions.** All LoRA deltas are within ±0.04. The adapter capacity and training data are insufficient to recover disrupted representations.
-
-2. **SFT does not recover unlearning — it further degrades the model.** All SFT deltas are negative. The GD random and RMU random controls (never unlearned, AUROC=0.847) drop to 0.651 and 0.681 after SFT, confirming that the current SFT setup is destructive rather than restorative.
-
-3. **Under the internal diagnostic comparison, RMU full is more robust to SFT than GD localized.** With comparable diagnostic retain PPL (3.88 vs 4.48), RMU full shows SFT Δ = −0.049 versus −0.175 for GD localized. This robustness claim should be rechecked after HVUE/GUE benchmark evaluation.
-
-4. **Current attack setup is underpowered.** 453 sequences and 200 steps are insufficient for a definitive robustness claim. Planned improvements: expand to 869 sequences (test + val), extend to 500 steps at lr=1e-4, and inject LoRA across all layers at rank 16.
-
----
-
-## Reproducing the Results
-
-### Phase 1
+The development workspace uses the `UT-p1` Conda environment:
 
 ```bash
-# Build manifest, extract features, train probes, run patching
+conda activate UT-p1
+python env_test.py
+```
+
+The repository does not currently include a portable environment lock file.
+See `docs/project_environment.md` for the workspace-specific interpreter.
+Several launcher scripts default to that interpreter but accept
+`PHASE2_PYTHON` as an override:
+
+```bash
+export PHASE2_PYTHON="$(command -v python)"
+```
+
+## Data and checkpoint conventions
+
+### Unlearning objectives
+
+| Objective ID | Forget set | Retain set | Typical checkpoint roots |
+|:---|:---|:---|:---|
+| `global_host_tropism` | Human-tropic viruses | Non-human-tropic viruses | `checkpoints_lora_grid/`, earlier `checkpoints_tuned/` runs |
+| `coronaviridae_family` | Coronaviridae | Non-Coronaviridae | `checkpoints_layer_scan/`, `checkpoints_rmu_tuning/`, `checkpoints_rmu_pareto/` |
+
+The global host-tropism training split contains 3,800 forget and 3,814 retain
+sequences. The balanced Coronaviridae split contains 1,888 windows per class.
+The Coronaviridae positive set includes non-human coronaviruses, so it must not
+be described as a human-host-tropism forget set.
+
+Every new sweep should set `forget_csv` and `retain_csv` explicitly in its JSON
+configuration. Before aggregating runs, inspect each checkpoint's `meta.json`.
+
+### Checkpoint format
+
+Unlearning checkpoints store `weights.safetensors` plus metadata and evaluation
+artifacts in the run directory. Intermediate checkpoints can be requested with
+`--save-steps`; large layer scans can delete temporary weights after internal
+evaluation with `--delete-checkpoint-after-internal-eval`.
+
+## Quick start
+
+Run commands from the repository root.
+
+### 1. Audit available data
+
+```bash
+bash phase2/run.sh audit
+```
+
+The audit records local manifests, raw benchmark coverage, and checkpoint
+availability in `data/phase2/experiment_audit.json`.
+
+### 2. Run Phase 1 localization
+
+```bash
 bash phase1/run.sh all
 ```
 
-### Phase 2
+Phase 1 extracts all 32 layer representations, fits balanced logistic probes,
+runs GC/k-mer baselines, performs activation patching, and selects causal
+layers. Feature extraction is GPU- and storage-intensive.
+
+### 3. Build unlearning splits and run standard conditions
 
 ```bash
-# Build splits
 bash phase2/run.sh splits
-
-# Audit local dataset / benchmark / checkpoint availability
-bash phase2/run.sh audit
-
-# Run all GD conditions (full, localized, probe, random)
 bash phase2/run.sh gd
-
-# Run all RMU conditions
 bash phase2/run.sh rmu
-
-# Evaluate all checkpoints with internal diagnostics
 bash phase2/run.sh eval
+```
 
-# Rebuild benchmark manifest from raw HVUE/GUE/ViroBench/vGUE viral-retain directories
-# Set DOWNLOAD_GUE=1 if the raw GUE tree is not already present locally.
+Conditions are:
+
+| Method | Conditions | Layer behavior |
+|:---|:---|:---|
+| GD | `full`, `localized`, `probe`, `random` | next-token forget maximization plus retain minimization |
+| RMU | `full`, `localized`, `random` | activation steering plus reference-model retain MSE |
+
+For the current RefSeq setup, `localized` updates layers 5–9. The matched random
+control updates five non-causal layers.
+
+### 4. Run declarative sweeps
+
+The generic runner reads the selected aliases/groups from a JSON configuration:
+
+```bash
+python phase2/run_task2_sweeps.py all \
+  --config phase2/sweep_configs/task2_sweeps.json \
+  --out-dir data/phase2/checkpoints_tuned
+```
+
+Available checked-in configurations:
+
+| Config | Purpose |
+|:---|:---|
+| `task2_sweeps.json` | RefSeq GD/RMU localized and control grid |
+| `lora_full_grid.json` | Global host-tropism full-model candidate grid |
+| `rmu_full_layer_scan.json` | Full-depth RMU target-layer scan |
+| `rmu_full_multimetric.json` | Multi-metric RMU stage-1/stage-2 search |
+| `rmu_l6_l8_tuning.json` | Reference-RMS-calibrated layer 6/8 tuning |
+| `rmu_pareto_lora.json` | Selected Pareto candidates plus LoRA evaluation |
+
+Use `--dry-run` to inspect commands, `--resume` to reuse complete artifacts,
+and `--internal-layers 0-31` for full-depth diagnostics.
+
+Example layer scan:
+
+```bash
+python phase2/run_task2_sweeps.py layers \
+  --config phase2/sweep_configs/rmu_full_layer_scan.json \
+  --out-dir data/phase2/checkpoints_layer_scan \
+  --internal-layers 0-31 \
+  --delete-checkpoint-after-internal-eval
+```
+
+### 5. Prepare downstream benchmarks
+
+```bash
+# Rebuild the manifest from locally available raw data; HVUE downloads by default.
 bash phase2/run.sh prepare_benchmarks
 
-# Download and import ViroBench CLS-Lite taxon retain tasks
-DOWNLOAD_VIROBENCH=1 bash phase2/run.sh prepare_benchmarks
+# Optionally download/import GUE and ViroBench.
+DOWNLOAD_GUE=1 DOWNLOAD_VIROBENCH=1 \
+  bash phase2/run.sh prepare_benchmarks
 
-# Optional: point to a vGUE-style root with either per-task split files or a unified task/split table
-VIRAL_RETAIN_ROOT=data/benchmarks/raw/vgue bash phase2/run.sh prepare_benchmarks
+# Inspect resulting coverage.
+bash phase2/run.sh audit
+```
 
-# Build Hiyata Host Tropism LoRA adaptation manifest and k-mer baseline
+Benchmark tables use `split,sequence,label` and may also include
+`benchmark,task,group,id`. Optional vGUE-style data can be supplied with:
+
+```bash
+VIRAL_RETAIN_ROOT=/path/to/vgue \
+  bash phase2/run.sh prepare_benchmarks
+```
+
+### 6. Evaluate Hiyata and HVUE/GUE tasks
+
+```bash
+# Build the deterministic Hiyata train/validation/test split and k-mer baseline.
 bash phase2/run.sh prepare_hiyata_lora
 bash phase2/run.sh kmer_hiyata
 
-# LoRA finetune Base Evo on Hiyata Host Tropism adaptation split
-python -u phase2/eval_benchmarks.py \
-  --benchmark-manifest data/host_tropism_hiyata/eval_manifest_lora.csv \
-  --benchmark-scope task \
-  --task-filter host_tropism_hiyata \
-  --out-dir data/phase2/hiyata_lora/base
-
-# Evaluate primary HVUE LoRA benchmarks
-BENCHMARK_MANIFEST=data/benchmarks/hvue_gue_manifest.csv bash phase2/run.sh benchmarks
-
-# Tuned hyperparameter sweep summary
-bash phase2/run_sweep.sh summary
-
-# Audit what a cloned Vir2vec repo can provide for future vGUE integration
-python phase2/prepare_vgue_from_vir2vec.py --vir2vec-root /tmp/Vir2vec --out data/benchmarks/vgue_from_vir2vec_audit.json
+# LoRA downstream evaluation for base Evo and checkpoints.
+BENCHMARK_MANIFEST=data/benchmarks/hvue_gue_manifest.csv \
+  bash phase2/run.sh benchmarks
 ```
 
-Tuned GD localized (α_retain=5.0):
+`phase2/eval_benchmarks.py` freezes the Evo backbone, injects LoRA adapters
+into linear modules in all 32 blocks, trains a task head, selects the best
+checkpoint on validation data, and reports the held-out test metric.
+
+For a candidate pilot followed by full evaluation:
 
 ```bash
-python phase2/unlearn_gd.py \
-    --condition localized \
-    --alpha-retain 5.0 \
-    --run-name gd_localized_ar5.0 \
-    --out-dir data/phase2/checkpoints_tuned
+bash phase2/run_hvue_complete_selection_and_full.sh
 ```
 
-### Phase 3
+For the optimized 600-step full suite:
 
 ```bash
-# SFT and LoRA attacks on all Phase 2 checkpoints with the original fixed LR setting
+PHASE2_PYTHON="$(command -v python)" \
+  bash phase2/run_optimized_full_benchmark.sh
+```
+
+The optimized launcher can stop competing VLLM GPU processes and assumes the
+checked-in benchmark paths and candidate names; inspect it before using it on a
+shared machine.
+
+### 7. Run Phase 3 recovery attacks
+
+```bash
 bash phase3/run.sh all
 
-# LR-grid recovery attack sweep (preferred for the current experiment plan)
+# Preferred LR-grid attack runner for tuned checkpoints.
 bash phase3/run_attacks.sh data/phase2/checkpoints_tuned
 ```
 
----
+## Method details
 
-## Model
+### Gradient Difference
 
-| Property | Value |
-|:---|:---|
-| Model | Evo-1-8k-base |
-| Architecture | StripedHyena |
-| Layers | 32 (29 Hyena + 3 attention at layers 8, 16, 24) |
-| Hidden dimension | 4,096 |
-| Parameters | ~7B |
-| Tokenization | Character-level (byte values, vocab size 512) |
-| Precision | bfloat16 (except poles and residues) |
+For forget loss \(L_f\) and retain loss \(L_r\):
 
----
+\[
+L = -\alpha_f L_f + \alpha_r L_r
+\]
 
-## Data and Safety Note
+The forget term raises next-token loss on the configured forget set, while the
+retain term preserves likelihood on the configured retain set. Trainable layers
+are selected with `requires_grad` masking.
 
-This repository contains code and aggregate metrics only. The following are excluded:
+### RMU
 
-- Raw genomic sequence data or FASTA files
-- Model weight checkpoints
-- Large activation feature matrices
-- Recovery attack checkpoints
+RMU keeps a frozen reference model. Forget activations at the configured target
+layer(s) are pushed toward a fixed random direction, while retain activations
+are constrained to remain near the reference representation with MSE.
 
-Phase 1 localization uses taxonomy and host annotation labels. The upgraded external evaluation may include public HVUE pathogenicity and transmissibility labels only as benchmark readouts; they are not used to train the unlearning objective.
+Older global-host-tropism runs use absolute steering coefficients such as
+25–200. Newer Coronaviridae tuning calibrates steering to reference activation
+RMS and uses ratios such as 0.5–1.5. These values are not interchangeable.
 
----
+### Evaluation hierarchy
+
+1. Training loss traces diagnose optimization.
+2. Probe AUROC, representation metrics, and forget/retain perplexity diagnose
+   internal effects.
+3. Taxonomy-held-out checks probe shortcut sensitivity.
+4. Supervised LoRA benchmark deltas determine the primary
+   forgetting–retention trade-off.
+5. SFT/LoRA attacks test recoverability after candidate selection.
+
+## Known limitations
+
+- Internal probe/PPL metrics can surface candidates but cannot establish
+  selective downstream unlearning.
+- The two biological objectives must not be pooled in one ranking.
+- Public HVUE Caliciviridae tables do not include enough taxonomy metadata for
+  a literal family-held-out shortcut audit.
+- Viral-retain coverage depends on optional external datasets and should be
+  reported task by task.
+- Current Phase 3 attacks are underpowered and need stronger, better-controlled
+  recovery settings.
+- The repository lacks a fully portable dependency lock and automated CI.
+- Full-model Evo experiments require substantial GPU memory, time, and disk.
+
+## Safety and data note
+
+This repository tracks code, manifests, aggregate metrics, and lightweight
+evaluation artifacts. It excludes raw genomic FASTA data, model weights, large
+activation matrices, and recovery checkpoints.
+
+Phase 1 labels come from taxonomy and host annotation. Public pathogenicity and
+transmissibility labels are used only as downstream benchmark readouts, not as
+unlearning-training targets.
 
 ## References
 
-- Nguyen et al. 2024. *Sequence modeling and design from molecular to genome scale with Evo*. Science.
-- Brixi et al. 2025. *Genome modeling and design across all domains of life with Evo 2*. bioRxiv.
-- Li et al. 2024. *The WMDP Benchmark: Measuring and Reducing Malicious Use with Unlearning*. ICML.
+- Nguyen et al. (2024), *Sequence modeling and design from molecular to genome
+  scale with Evo*, Science.
+- Brixi et al. (2025), *Genome modeling and design across all domains of life
+  with Evo 2*, bioRxiv.
+- Li et al. (2024), *The WMDP Benchmark: Measuring and Reducing Malicious Use
+  with Unlearning*, ICML.
