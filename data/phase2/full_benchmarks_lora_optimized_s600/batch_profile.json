@@ -1,0 +1,9 @@
+{
+  "train_batch_size": 8,
+  "eval_batch_size": 32,
+  "validation_max_rows": 2000,
+  "eval_every_optimizer_steps": 200,
+  "max_steps": 600,
+  "seed": 42,
+  "max_length": 512
+}

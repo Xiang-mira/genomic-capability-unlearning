@@ -1,0 +1,65 @@
+[pilot] using existing pilot manifest data/benchmarks/hvue_gue_pilot_manifest.csv
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/base --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 6 completed task rows
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 957, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 849, in main
+    model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase1/utils.py", line 56, in load_local_checkpoint
+    model = StripedHyena(global_config)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/stripedhyena/model.py", line 354, in __init__
+    self.blocks = nn.ModuleList(
+                  ^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/nn/modules/container.py", line 300, in __init__
+    self += modules
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/nn/modules/container.py", line 349, in __iadd__
+    return self.extend(modules)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/nn/modules/container.py", line 432, in extend
+    for i, module in enumerate(modules):
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/stripedhyena/model.py", line 355, in <genexpr>
+    get_block(config, layer_idx, flash_fft=self.flash_fft) for layer_idx in range(config.num_layers)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/stripedhyena/model.py", line 328, in get_block
+    block = ParallelGatedConvBlock(config, layer_idx)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/stripedhyena/model.py", line 287, in __init__
+    self.projections = nn.Linear(config.hidden_size, 3 * config.hidden_size)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 112, in __init__
+    self.reset_parameters()
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 118, in reset_parameters
+    init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/nn/init.py", line 518, in kaiming_uniform_
+    return tensor.uniform_(-bound, bound, generator=generator)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 360, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 354, in main
+    run_pilot(args)
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 126, in run_pilot
+    run_command(
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 22, in run_command
+    subprocess.run(cmd, check=True)
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 1201, in communicate
+    self.wait()
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 2053, in _wait
+    (pid, sts) = self._try_wait(0)
+                 ^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 2011, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

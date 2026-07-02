@@ -1,0 +1,683 @@
+[pilot] using existing pilot manifest data/benchmarks/hvue_gue_pilot_manifest.csv
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/base --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.4998 val_loss=0.7145 auroc=0.508568
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.5148 val_loss=1.2642 auroc=0.5472899999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0123 val_loss=2.2046 auroc=0.5786
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.2445 val_loss=0.9107 auroc=0.504568
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0588 val_loss=1.4386 auroc=0.49997400000000003
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.3729 val_loss=0.8269 auroc=0.49079399999999995
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=600
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=300 test_auroc=0.5939451111111111 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5423 val_loss=0.7126 auroc=0.525544
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0158 val_loss=2.0925 auroc=0.483148
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3117 val_loss=0.8159 auroc=0.588336
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.8156 val_loss=0.7004 auroc=0.471268
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.1170 val_loss=1.1400 auroc=0.624608
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=600 train_loss=0.3944 val_loss=0.7952 auroc=0.4658880000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=700 train_loss=1.9032 val_loss=1.0239 auroc=0.519014
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=800 train_loss=1.4334 val_loss=0.8265 auroc=0.5466300000000001
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=800
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=500 test_auroc=0.6082431111111112 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.5291 val_loss=0.8766 auroc=0.519458
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3652 val_loss=0.8299 auroc=0.553568
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0068 val_loss=2.4640 auroc=0.5258479999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.6717 val_loss=1.3134 auroc=0.518842
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.2829 val_loss=0.8793 auroc=0.519908
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=200 test_auroc=0.5449222222222222 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0397 val_loss=1.3605 auroc=0.6479287443012327
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0083 val_loss=1.9338 auroc=0.6427576405695953
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0168 val_loss=1.6675 auroc=0.6168317667585974
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0167 val_loss=1.6749 auroc=0.5726276242471999
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=400
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=100 test_auroc=0.5916079436258808 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/base/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/base/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.5528 val_loss=0.6942 auroc=0.571492
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=1.0825 val_loss=0.9362 auroc=0.549664
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0049 val_loss=2.4091 auroc=0.575346
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.2714 val_loss=0.7728 auroc=0.588696
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0868 val_loss=1.1918 auroc=0.5857220000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=0.8913 val_loss=0.7157 auroc=0.41705800000000004
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=700 train_loss=1.1369 val_loss=0.7549 auroc=0.47696000000000005
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=700
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=400 test_auroc=0.5880288888888888 test_f1=0.33481310527714936 test_acc=0.5006666666666667
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.0350 val_loss=1.2156 auroc=0.6466000000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0875 val_loss=1.2551 auroc=0.6348280000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.7363 val_loss=0.8144 auroc=0.6701280000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.5955 val_loss=1.3151 auroc=0.648976
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.0037 val_loss=2.1444 auroc=0.601372
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=600 train_loss=0.0173 val_loss=1.1881 auroc=0.6602079999999999
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=600
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=300 test_auroc=0.697305111111111 test_f1=0.4120839552480817 test_acc=0.5316666666666666
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=0.5038 val_loss=0.7450 auroc=0.535328
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.9107 val_loss=0.7929 auroc=0.553536
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0032 val_loss=2.4421 auroc=0.581024
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=0.6350 val_loss=0.7607 auroc=0.524492
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=1.3302 val_loss=0.7486 auroc=0.45891999999999994
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=1.7190 val_loss=0.9102 auroc=0.5160859999999999
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=600
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=300 test_auroc=0.5493264444444443 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0676 val_loss=1.3127 auroc=0.4446445657679968
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0087 val_loss=1.9252 auroc=0.5615748297405302
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0160 val_loss=1.6534 auroc=0.6153824506106828
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.1307 val_loss=0.8610 auroc=0.5925733100692294
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=1.2112 val_loss=0.8622 auroc=0.6028310913491304
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=1.0798 val_loss=1.2586 auroc=0.589871672201272
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=600
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=300 test_auroc=0.6080689635963568 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s500/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.5083 val_loss=0.7096 auroc=0.50824
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.3210 val_loss=1.2701 auroc=0.48527999999999993
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0125 val_loss=2.2002 auroc=0.570046
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.3188 val_loss=0.8201 auroc=0.4347519999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0635 val_loss=1.4139 auroc=0.448278
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.4628 val_loss=0.8568 auroc=0.43443
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=600
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=300 test_auroc=0.581077111111111 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5436 val_loss=0.7124 auroc=0.506136
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0157 val_loss=2.0824 auroc=0.5880239999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.2854 val_loss=0.7940 auroc=0.507116
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.8737 val_loss=0.7013 auroc=0.524382
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.0866 val_loss=1.2621 auroc=0.580706
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=500
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=200 test_auroc=0.6132693333333333 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.8358 val_loss=0.9553 auroc=0.48348599999999997
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.4385 val_loss=0.8805 auroc=0.4908779999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0061 val_loss=2.4455 auroc=0.53754
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.6723 val_loss=1.3345 auroc=0.552018
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.2911 val_loss=0.8834 auroc=0.550222
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=3.2236 val_loss=1.5513 auroc=0.5457479999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=700 train_loss=2.9432 val_loss=1.5016 auroc=0.584886
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=800 train_loss=1.2364 val_loss=0.8054 auroc=0.5049159999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=900 train_loss=2.3163 val_loss=1.1870 auroc=0.5577880000000001
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=1000 train_loss=0.3438 val_loss=0.8770 auroc=0.5443
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=1000
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=700 test_auroc=0.5608964444444444 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0198 val_loss=1.5616 auroc=0.5570298868689142
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0086 val_loss=1.9468 auroc=0.607959981989081
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0166 val_loss=1.6625 auroc=0.6174931051950244
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0147 val_loss=1.7209 auroc=0.6110767152586255
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0144 val_loss=1.7460 auroc=0.6385644734620364
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=4.4748 val_loss=1.7975 auroc=0.6459447289919513
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=700 train_loss=0.0162 val_loss=1.6537 auroc=0.6591574266899307
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=800 train_loss=0.0171 val_loss=1.6381 auroc=0.660029830584792
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=900 train_loss=0.0169 val_loss=1.6728 auroc=0.6638149378060448
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1000 train_loss=0.0219 val_loss=1.5221 auroc=0.6724545505712838
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1100 train_loss=0.0504 val_loss=1.2453 auroc=0.6724686216018461
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1200 train_loss=3.8554 val_loss=1.3526 auroc=0.6782940282546294
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1300 train_loss=5.7095 val_loss=2.0336 auroc=0.6903388304159396
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1400 train_loss=5.2735 val_loss=1.9439 auroc=0.6948415601958687
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1500 train_loss=0.0413 val_loss=1.2593 auroc=0.6743822817583159
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1600 train_loss=0.1121 val_loss=0.7382 auroc=0.5955704395789948
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1700 train_loss=0.0639 val_loss=1.4110 auroc=0.7006880733944955
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1800 train_loss=0.0151 val_loss=1.2297 auroc=0.7066893679293071
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1900 train_loss=0.6187 val_loss=1.2964 auroc=0.7008921033376485
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2000 train_loss=0.0052 val_loss=1.5611 auroc=0.7084482467495918
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2100 train_loss=0.0071 val_loss=1.1936 auroc=0.7111920977092361
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2200 train_loss=0.0016 val_loss=1.3480 auroc=0.7167079416896494
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2300 train_loss=0.0023 val_loss=1.3652 auroc=0.7194940057409804
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2400 train_loss=0.0520 val_loss=1.2259 auroc=0.7191351944616424
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2500 train_loss=0.0084 val_loss=1.1031 auroc=0.7188326673045533
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2600 train_loss=0.0058 val_loss=1.4761 auroc=0.7206478302470873
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2700 train_loss=0.0184 val_loss=1.3068 auroc=0.7228710530759274
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2800 train_loss=0.0044 val_loss=1.2746 auroc=0.7350987786345473
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=2900 train_loss=0.0000 val_loss=1.2387 auroc=0.7341560195868746
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=3000 train_loss=5.1594 val_loss=1.3080 auroc=0.7299136038723476
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=3100 train_loss=0.0133 val_loss=1.0051 auroc=0.7278240558338491
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=3100
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=2800 test_auroc=0.7152744895969694 test_f1=0.6660077097953938 test_acc=0.7155963302752294
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar1_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.5235 val_loss=0.7090 auroc=0.525748
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.5419 val_loss=1.2749 auroc=0.46873200000000004
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0116 val_loss=2.2317 auroc=0.5244920000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.3328 val_loss=0.8082 auroc=0.5765899999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0705 val_loss=1.3648 auroc=0.58575
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.3621 val_loss=0.8352 auroc=0.5901259999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=700 train_loss=0.4537 val_loss=0.7176 auroc=0.5887479999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=800 train_loss=6.0254 val_loss=1.5007 auroc=0.633092
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=900 train_loss=0.0491 val_loss=1.6502 auroc=0.566824
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1000 train_loss=0.7317 val_loss=0.7370 auroc=0.644512
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1100 train_loss=0.3241 val_loss=0.7678 auroc=0.651852
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1200 train_loss=0.1875 val_loss=0.7242 auroc=0.64634
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1300 train_loss=0.5529 val_loss=1.0489 auroc=0.6624920000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1400 train_loss=0.0120 val_loss=1.2979 auroc=0.655284
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1500 train_loss=0.0797 val_loss=1.2646 auroc=0.662712
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1600 train_loss=5.1099 val_loss=2.0148 auroc=0.6578439999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1700 train_loss=0.0207 val_loss=1.2049 auroc=0.663964
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1800 train_loss=0.0546 val_loss=1.3197 auroc=0.6671539999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1900 train_loss=0.0015 val_loss=1.3919 auroc=0.669606
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=2000 train_loss=0.0408 val_loss=1.3265 auroc=0.6690360000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=2100 train_loss=0.0017 val_loss=1.2159 auroc=0.6686920000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=2200 train_loss=0.0031 val_loss=1.4037 auroc=0.6618819999999999
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=2200
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=1900 test_auroc=0.6588320000000001 test_f1=0.6158094789509403 test_acc=0.617
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5335 val_loss=0.7154 auroc=0.545644
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0159 val_loss=2.0978 auroc=0.552696
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3175 val_loss=0.8100 auroc=0.5414920000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.8023 val_loss=0.6983 auroc=0.56877
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.1195 val_loss=1.1621 auroc=0.5876
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=600 train_loss=0.1783 val_loss=0.9834 auroc=0.5889679999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=700 train_loss=0.0902 val_loss=1.2753 auroc=0.510426
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=800 train_loss=0.0576 val_loss=1.5115 auroc=0.524908
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=900 train_loss=0.0663 val_loss=1.4182 auroc=0.5760860000000001
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=900
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=600 test_auroc=0.5926648888888889 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.5767 val_loss=0.8965 auroc=0.501552
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3768 val_loss=0.8454 auroc=0.467118
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0062 val_loss=2.5191 auroc=0.48306
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.7652 val_loss=1.3662 auroc=0.487198
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=400
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=100 test_auroc=0.48005844444444445 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0189 val_loss=1.5972 auroc=0.5257007373220015
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0085 val_loss=1.9340 auroc=0.532349299262678
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0162 val_loss=1.6771 auroc=0.5236885799515957
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0169 val_loss=1.6733 auroc=0.5172932965610402
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0136 val_loss=1.7606 auroc=0.5167585973996736
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=200 test_auroc=0.5175333537587388 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s500/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.0104 val_loss=1.1775 auroc=0.63226
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=0.1593 val_loss=0.8118 auroc=0.661788
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.1400 val_loss=1.7103 auroc=0.622576
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.0078 val_loss=1.8141 auroc=0.649308
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0303 val_loss=1.6980 auroc=0.644784
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=500
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=200 test_auroc=0.639732 test_f1=0.6016556286896619 test_acc=0.6086666666666667
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5218 val_loss=0.7155 auroc=0.577274
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0219 val_loss=1.9273 auroc=0.48208
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.5949 val_loss=0.6994 auroc=0.43517
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.4545 val_loss=0.7316 auroc=0.448758
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=100 test_auroc=0.6080475555555556 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.2434 val_loss=0.7755 auroc=0.532772
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.1485 val_loss=0.7564 auroc=0.543954
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0070 val_loss=2.3817 auroc=0.5485819999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=1.7139 val_loss=0.9688 auroc=0.554684
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.0712 val_loss=1.1442 auroc=0.5499080000000001
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=3.5366 val_loss=1.3774 auroc=0.553232
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=700 train_loss=0.0071 val_loss=1.4183 auroc=0.55084
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=700
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=400 test_auroc=0.5193431111111111 test_f1=0.515482525342331 test_acc=0.526
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0185 val_loss=1.6106 auroc=0.5955000844261833
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0080 val_loss=1.9357 auroc=0.6173805369505263
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.7285 val_loss=1.1137 auroc=0.6122868238869814
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0217 val_loss=1.5917 auroc=0.5291622108403219
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0137 val_loss=1.7596 auroc=0.47987139078066077
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=200 test_auroc=0.5908837701584826 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar3_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.5127 val_loss=0.7120 auroc=0.4202699999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.8605 val_loss=1.4223 auroc=0.58981
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0133 val_loss=2.1810 auroc=0.476422
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.2575 val_loss=0.8766 auroc=0.423588
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0518 val_loss=1.4934 auroc=0.515248
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=500
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=200 test_auroc=0.5756235555555556 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5414 val_loss=0.7141 auroc=0.538884
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0175 val_loss=2.0701 auroc=0.45583399999999996
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.2769 val_loss=0.8494 auroc=0.428254
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.9114 val_loss=0.7123 auroc=0.504154
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=100 test_auroc=0.5280644444444444 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.1860 val_loss=0.7823 auroc=0.48782400000000004
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.4454 val_loss=0.9167 auroc=0.510596
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0090 val_loss=2.3457 auroc=0.551648
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.6440 val_loss=1.2550 auroc=0.505636
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.1624 val_loss=1.1707 auroc=0.554492
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=2.1219 val_loss=1.0945 auroc=0.49028800000000006
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=700 train_loss=2.7887 val_loss=1.3956 auroc=0.521546
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=800 train_loss=0.9645 val_loss=0.7247 auroc=0.5145080000000001
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=800
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=500 test_auroc=0.5362357777777778 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0204 val_loss=1.5672 auroc=0.638543366916193
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0076 val_loss=1.9360 auroc=0.6227275285641919
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0184 val_loss=1.5910 auroc=0.6514042888501154
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0161 val_loss=1.6934 auroc=0.6169021219114088
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0134 val_loss=1.7589 auroc=0.5741121179715203
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=4.3327 val_loss=1.7854 auroc=0.6628440366972476
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=700 train_loss=0.0185 val_loss=1.6698 auroc=0.5978499465300839
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=800 train_loss=0.0157 val_loss=1.6706 auroc=0.5552850790791917
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=900 train_loss=0.0168 val_loss=1.6803 auroc=0.5788681263015704
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=900
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.6045595075620422 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s500/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.4909 val_loss=0.7132 auroc=0.597362
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.6087 val_loss=1.3044 auroc=0.58285
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0136 val_loss=2.1942 auroc=0.605526
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.3321 val_loss=0.8517 auroc=0.6291359999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0694 val_loss=1.5386 auroc=0.566392
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.4574 val_loss=0.8499 auroc=0.46893
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=700 train_loss=0.4386 val_loss=0.7257 auroc=0.49070400000000003
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=700
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=400 test_auroc=0.5916504444444445 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5296 val_loss=0.7129 auroc=0.5029399999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0148 val_loss=2.1379 auroc=0.5175259999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3159 val_loss=0.8170 auroc=0.49888600000000005
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.8186 val_loss=0.6997 auroc=0.54806
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.1189 val_loss=1.1659 auroc=0.5225599999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=600 train_loss=0.2866 val_loss=0.8233 auroc=0.510028
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=700 train_loss=0.0094 val_loss=2.1773 auroc=0.506184
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=700
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=400 test_auroc=0.5482422222222222 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.6306 val_loss=0.9074 auroc=0.589964
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.4273 val_loss=0.8536 auroc=0.598412
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0063 val_loss=2.5166 auroc=0.5121199999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.7373 val_loss=1.3311 auroc=0.582008
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.2747 val_loss=0.9116 auroc=0.58095
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=200 test_auroc=0.5843911111111111 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0190 val_loss=1.5930 auroc=0.4589688748803962
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0084 val_loss=1.9319 auroc=0.4658214667642258
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0160 val_loss=1.6768 auroc=0.48834215117915236
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0167 val_loss=1.6769 auroc=0.49661591714977205
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0136 val_loss=1.7608 auroc=0.5028001350818934
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=4.4765 val_loss=1.7991 auroc=0.5233860527945067
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=700 train_loss=0.0158 val_loss=1.6644 auroc=0.5746186750717622
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=800 train_loss=0.0157 val_loss=1.6698 auroc=0.45554961445376263
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=900 train_loss=0.0165 val_loss=1.6729 auroc=0.55484184161648
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1000 train_loss=0.0225 val_loss=1.5554 auroc=0.5922778184274216
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1100 train_loss=0.0276 val_loss=1.4728 auroc=0.5926295941914785
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1200 train_loss=3.4284 val_loss=1.3903 auroc=0.6742767490290988
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1300 train_loss=4.9976 val_loss=2.0035 auroc=0.5076194630494738
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1400 train_loss=4.8904 val_loss=1.9739 auroc=0.6607615241740306
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=1500 train_loss=0.0211 val_loss=1.5943 auroc=0.6471266955591828
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=1500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=1200 test_auroc=0.6677436425925412 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_gd_full_ar5_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.4918 val_loss=0.7138 auroc=0.598596
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.5009 val_loss=1.2598 auroc=0.597284
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0120 val_loss=2.2053 auroc=0.646498
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.2688 val_loss=0.8735 auroc=0.4743699999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0424 val_loss=1.5838 auroc=0.560006
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.5689 val_loss=0.9281 auroc=0.5696399999999999
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=600
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=300 test_auroc=0.646403111111111 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5405 val_loss=0.7124 auroc=0.556452
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0152 val_loss=2.1198 auroc=0.481002
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3219 val_loss=0.8080 auroc=0.543454
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.8024 val_loss=0.6982 auroc=0.523048
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=100 test_auroc=0.5207635555555555 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.5792 val_loss=0.9021 auroc=0.54268
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3638 val_loss=0.8377 auroc=0.57719
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0065 val_loss=2.4966 auroc=0.509312
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.5312 val_loss=1.2480 auroc=0.507686
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.2514 val_loss=0.9176 auroc=0.512082
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=200 test_auroc=0.5588442222222222 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0279 val_loss=1.4816 auroc=0.5647548826476052
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0083 val_loss=1.9403 auroc=0.46673608375077397
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0163 val_loss=1.7026 auroc=0.5118618787640007
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0159 val_loss=1.6799 auroc=0.5527874711543873
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=400
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=100 test_auroc=0.5720970392446314 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s500/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.4909 val_loss=0.7135 auroc=0.5302020000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.4888 val_loss=1.2532 auroc=0.528864
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0112 val_loss=2.2446 auroc=0.501414
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.3157 val_loss=0.8231 auroc=0.5338080000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0628 val_loss=1.4137 auroc=0.5060819999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.3142 val_loss=0.8166 auroc=0.533826
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=700 train_loss=0.4890 val_loss=0.7083 auroc=0.510594
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=800 train_loss=1.4907 val_loss=0.8540 auroc=0.528344
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=900 train_loss=0.0686 val_loss=1.4331 auroc=0.5597080000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1000 train_loss=2.2145 val_loss=1.1568 auroc=0.459484
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1100 train_loss=0.2932 val_loss=0.8406 auroc=0.52427
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=1200 train_loss=0.0736 val_loss=1.3652 auroc=0.541376
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=1200
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=900 test_auroc=0.5415826666666667 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5111 val_loss=0.7237 auroc=0.53672
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0210 val_loss=2.0448 auroc=0.463992
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3413 val_loss=0.7929 auroc=0.572348
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.7686 val_loss=0.6955 auroc=0.572672
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.1263 val_loss=1.1388 auroc=0.586038
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=600 train_loss=0.1747 val_loss=0.9912 auroc=0.5939
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=700 train_loss=0.0904 val_loss=1.2790 auroc=0.508828
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=800 train_loss=0.0573 val_loss=1.5218 auroc=0.48228400000000005
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=900 train_loss=0.0719 val_loss=1.3854 auroc=0.47038599999999997
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=900
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=600 test_auroc=0.576094 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.6396 val_loss=0.9331 auroc=0.48638000000000003
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3989 val_loss=0.8480 auroc=0.531432
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0075 val_loss=2.4405 auroc=0.548504
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.6803 val_loss=1.2953 auroc=0.492926
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.2122 val_loss=1.0473 auroc=0.483236
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=2.4655 val_loss=1.2659 auroc=0.502716
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=600
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=300 test_auroc=0.5612142222222223 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0930 val_loss=1.0531 auroc=0.4901080655147183
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0055 val_loss=2.0855 auroc=0.5160409748409973
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0196 val_loss=1.6191 auroc=0.5197275848483143
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0166 val_loss=1.5792 auroc=0.5850734507795351
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0128 val_loss=1.7894 auroc=0.6708082399954972
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=4.6923 val_loss=1.8672 auroc=0.66952777621433
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=700 train_loss=0.0365 val_loss=1.3646 auroc=0.46870602802949285
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=800 train_loss=0.0208 val_loss=1.2973 auroc=0.6237265717341138
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=800
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=500 test_auroc=0.6450992953235106 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc100_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc200_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc200_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc200_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.5132 val_loss=0.7113 auroc=0.517748
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.4973 val_loss=1.2563 auroc=0.463398
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0111 val_loss=2.2507 auroc=0.5065219999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.3243 val_loss=0.8187 auroc=0.539678
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.0709 val_loss=1.3619 auroc=0.515192
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=1.3124 val_loss=0.8098 auroc=0.508222
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=700 train_loss=0.4974 val_loss=0.7111 auroc=0.533594
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=700
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=400 test_auroc=0.5270182222222222 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5458 val_loss=0.7117 auroc=0.573736
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0180 val_loss=1.8863 auroc=0.44309200000000004
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.5170 val_loss=0.7120 auroc=0.56234
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.5390 val_loss=0.7067 auroc=0.5735540000000001
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=100 test_auroc=0.5667791111111111 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.5517 val_loss=0.8808 auroc=0.502626
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.2690 val_loss=0.7988 auroc=0.553768
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0066 val_loss=2.4772 auroc=0.5028659999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.0444 val_loss=1.0252 auroc=0.531288
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.5081 val_loss=0.7431 auroc=0.47673200000000004
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=200 test_auroc=0.5204168888888889 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0217 val_loss=1.5474 auroc=0.58238588394214
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0079 val_loss=1.9490 auroc=0.6356236280745201
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0175 val_loss=1.6491 auroc=0.5689199076940396
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0191 val_loss=1.6288 auroc=0.4664335565936849
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0136 val_loss=1.7601 auroc=0.5948528170203186
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=200 test_auroc=0.6160209453249033 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc200_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc200_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc25_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc25_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc25_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.5041 val_loss=0.7128 auroc=0.64255
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.6626 val_loss=1.3052 auroc=0.415766
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0130 val_loss=2.1817 auroc=0.633464
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.2510 val_loss=0.8999 auroc=0.44949199999999995
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=100 test_auroc=0.6400524444444444 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5458 val_loss=0.7122 auroc=0.523208
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0180 val_loss=2.0463 auroc=0.524212
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.2581 val_loss=0.8758 auroc=0.5128240000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.9629 val_loss=0.7219 auroc=0.537108
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=500 train_loss=0.0909 val_loss=1.3022 auroc=0.6229959999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=600 train_loss=0.0619 val_loss=1.4132 auroc=0.48885600000000007
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=700 train_loss=0.0210 val_loss=1.9793 auroc=0.5069119999999999
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=800 train_loss=0.6614 val_loss=0.6987 auroc=0.536248
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=800
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=500 test_auroc=0.6172688888888889 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.5938 val_loss=0.9087 auroc=0.504464
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3477 val_loss=0.8328 auroc=0.52832
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0065 val_loss=2.4926 auroc=0.513754
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.7540 val_loss=1.3630 auroc=0.539152
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.2589 val_loss=0.9026 auroc=0.552564
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=3.2988 val_loss=1.6375 auroc=0.5478540000000001
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=700 train_loss=3.1785 val_loss=1.5680 auroc=0.5717019999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=800 train_loss=1.5102 val_loss=0.9000 auroc=0.51756
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=900 train_loss=2.5244 val_loss=1.3131 auroc=0.517498
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=1000 train_loss=0.1727 val_loss=1.0260 auroc=0.551598
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=1000
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=700 test_auroc=0.5957502222222223 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0192 val_loss=1.5943 auroc=0.5411999774863511
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0082 val_loss=1.9421 auroc=0.6336818258569258
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0165 val_loss=1.6744 auroc=0.5755051499971857
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0160 val_loss=1.6946 auroc=0.5385898013170485
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0136 val_loss=1.7628 auroc=0.5609134913041031
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=500
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=200 test_auroc=0.6309361334707406 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc25_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc25_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s200 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s200/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s200/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.4871 val_loss=0.7161 auroc=0.6097
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.5132 val_loss=1.2572 auroc=0.51888
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0094 val_loss=2.3254 auroc=0.498606
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.2894 val_loss=0.8541 auroc=0.5457960000000001
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=100 test_auroc=0.5884208888888889 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5467 val_loss=0.7127 auroc=0.568586
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0171 val_loss=2.0644 auroc=0.5112680000000001
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3175 val_loss=0.8113 auroc=0.556808
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.8321 val_loss=0.7011 auroc=0.467046
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=100 test_auroc=0.5455144444444444 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.6354 val_loss=0.9154 auroc=0.47791000000000006
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3997 val_loss=0.8504 auroc=0.5136999999999999
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0076 val_loss=2.3984 auroc=0.52486
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.5618 val_loss=1.2692 auroc=0.5169
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=500 train_loss=0.1201 val_loss=1.2893 auroc=0.481794
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=600 train_loss=2.1738 val_loss=1.1323 auroc=0.5064
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=600
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=300 test_auroc=0.5281737777777777 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0444 val_loss=1.2737 auroc=0.5443941014239884
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0054 val_loss=2.1152 auroc=0.6031547250520628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0216 val_loss=1.5898 auroc=0.6465779253672539
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0121 val_loss=1.7863 auroc=0.5628552935216976
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=500 train_loss=0.0169 val_loss=1.6914 auroc=0.6183373670287612
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=4.5208 val_loss=1.8192 auroc=0.6330767715427478
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=600
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=300 test_auroc=0.6551123861515751 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s200/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s200/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_pilot_manifest.csv --benchmark-scope task --out-dir data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s500 --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0 --ckpt data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s500/weights.safetensors
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=41611 tasks=6 scope=task
+[bench-lora] resume enabled: loaded 2 completed task rows
+[bench-lora] applied 439 checkpoint tensors from data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s500/weights.safetensors
+[bench-lora] skip task 1/6 task=gue_human_tf_0: already complete
+[bench-lora] skip task 2/6 task=hvue_human_host_tropism: already complete
+[bench-lora] task 3/6 task=hvue_human_transmissibility_coronaviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=100 train_loss=0.4887 val_loss=0.7148 auroc=0.5623499999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=200 train_loss=2.5338 val_loss=1.2759 auroc=0.6070819999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=300 train_loss=0.0136 val_loss=2.1438 auroc=0.6729559999999999
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=400 train_loss=0.3063 val_loss=1.3747 auroc=0.551144
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=500 train_loss=0.1337 val_loss=1.0756 auroc=0.5489040000000001
+[bench-lora] task=hvue_human_transmissibility_coronaviridae step=600 train_loss=0.4782 val_loss=0.7257 auroc=0.428204
+[bench-lora] early stop task=hvue_human_transmissibility_coronaviridae step=600
+[bench-lora] finished task=hvue_human_transmissibility_coronaviridae best_step=300 test_auroc=0.6621862222222221 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 4/6 task=hvue_human_transmissibility_orthomyxoviridae rows=8000
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=100 train_loss=0.5295 val_loss=0.7146 auroc=0.558728
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=200 train_loss=0.0153 val_loss=2.1140 auroc=0.502322
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=300 train_loss=0.3619 val_loss=0.7818 auroc=0.538636
+[bench-lora] task=hvue_human_transmissibility_orthomyxoviridae step=400 train_loss=0.7664 val_loss=0.6957 auroc=0.440522
+[bench-lora] early stop task=hvue_human_transmissibility_orthomyxoviridae step=400
+[bench-lora] finished task=hvue_human_transmissibility_orthomyxoviridae best_step=100 test_auroc=0.5358026666666666 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 5/6 task=hvue_human_virus_pathogenicity_bvbrc_cov rows=8000
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=100 train_loss=1.5221 val_loss=0.8803 auroc=0.550732
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=200 train_loss=1.3035 val_loss=0.8191 auroc=0.5287580000000001
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=300 train_loss=0.0071 val_loss=2.4876 auroc=0.4756520000000001
+[bench-lora] task=hvue_human_virus_pathogenicity_bvbrc_cov step=400 train_loss=2.8058 val_loss=1.3846 auroc=0.516948
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_bvbrc_cov step=400
+[bench-lora] finished task=hvue_human_virus_pathogenicity_bvbrc_cov best_step=100 test_auroc=0.5505166666666667 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] task 6/6 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=100 train_loss=0.0198 val_loss=1.5984 auroc=0.6405977373782856
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0072 val_loss=1.9150 auroc=0.5037710361906906
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=300 train_loss=0.0212 val_loss=1.6315 auroc=0.508133055664997
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0164 val_loss=1.6821 auroc=0.5753011200540328
+[bench-lora] early stop task=hvue_human_virus_pathogenicity_cini step=400
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=100 test_auroc=0.6127064590702727 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] wrote benchmark results to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s500/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/benchmark_pilot_lora/lora_rmu_full_sc50_s500/eval_benchmarks_summary.json
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python phase2/rank_benchmark_pilot.py --pilot-root data/phase2/benchmark_pilot_lora --out-csv data/phase2/benchmark_pilot_lora/pilot_rankings.csv --out-json data/phase2/benchmark_pilot_lora/pilot_rankings.json --top-k 12 --n-bootstrap 2000 --seed 42 --print-table
+run                             primary  secondary  gue_delta  viral_delta      score   p_n   s_n   g_n   v_n
+--------------------------------------------------------------------------------------------------------------
+lora_rmu_full_sc200_s200       0.139394  0.0442987    0.02725               0.0918463     2     3     1     0
+lora_gd_full_ar5_s500          0.128365 0.00760889   0.054408               0.0679867     2     3     1     0
+lora_gd_full_ar3_s200          0.191272 0.00518504   -0.03179               0.0664387     2     3     1     0
+lora_rmu_full_sc50_s200       0.0969449  0.0283338   0.229608               0.0626393     2     3     1     0
+lora_gd_full_ar3_s500          0.257261 -0.00667074  -0.072394               0.0529013     2     3     1     0
+lora_rmu_full_sc100_s200      0.0784503 0.00703319    0.00376               0.0427418     2     3     1     0
+lora_gd_full_ar5_s200        0.00518566  0.0357289   0.046046               0.0204573     2     3     1     0
+lora_gd_full_ar1_s200         0.0601722 -0.0291833     0.0808               0.0154944     2     3     1     0
+lora_rmu_full_sc50_s500      -0.0116503 -0.000465037   0.180736              -0.00605765     2     3     1     0
+lora_rmu_full_sc25_s200      0.000883461 -0.0353204   0.042924              -0.0172185     2     3     1     0
+lora_gd_full_ar1_s500         0.0359805 -0.00271081  -0.058128              -0.0414932     2     3     1     0
+lora_rmu_full_sc100_s500      0.0215884  0.0227399  -0.072556              -0.0503919     2     3     1     0
+[rank] wrote data/phase2/benchmark_pilot_lora/pilot_rankings.csv
+[rank] wrote data/phase2/benchmark_pilot_lora/pilot_rankings.json
+[pilot] selected full benchmark runs: lora_rmu_full_sc200_s200, lora_gd_full_ar5_s500, lora_gd_full_ar3_s200, lora_rmu_full_sc50_s200
+[pilot] /home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest data/benchmarks/hvue_gue_manifest.csv --benchmark-scope all --out-dir data/phase2/full_benchmarks_lora_selected/base --resume --device cuda:0 --batch-size 1 --cpu-threads 16 --epochs 3 --max-steps 0 --eval-every 100 --patience 3 --lr 0.0001 --weight-decay 0.0 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --metric-for-best auto --max-length 512 --seed 42 --task-filter gue_emp_h3,gue_emp_h3k14ac,gue_emp_h3k36me3,gue_emp_h3k4me1,gue_emp_h3k4me2,gue_emp_h3k4me3,gue_emp_h3k79me3,gue_emp_h3k9ac,gue_emp_h4,gue_emp_h4ac,gue_epi_gm12878,gue_epi_hela_s3,gue_epi_huvec,gue_epi_imr90,gue_epi_k562,gue_epi_nhek,gue_human_tf_0,gue_human_tf_1,gue_human_tf_2,gue_human_tf_3,gue_human_tf_4,gue_mouse_0,gue_mouse_1,gue_mouse_2,gue_mouse_3,gue_mouse_4,gue_prom_300_all,gue_prom_300_notata,gue_prom_300_tata,gue_prom_core_all,gue_prom_core_notata,gue_prom_core_tata,gue_splice_reconstructed,hvue_human_host_tropism,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_virus_pathogenicity_cini,virobench_all_taxon_genus,virobench_all_taxon_times,virobench_dna_taxon_genus,virobench_dna_taxon_times,virobench_rna_taxon_genus,virobench_rna_taxon_times
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=1701660 tasks=44 scope=all
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/44 task=gue_emp_h3 rows=14965
+[bench-lora] task=gue_emp_h3 step=100 train_loss=0.0428 val_loss=1.2167 auroc=0.792641991179674
+[bench-lora] task=gue_emp_h3 step=200 train_loss=0.0014 val_loss=1.1971 auroc=0.804421768707483
+[bench-lora] task=gue_emp_h3 step=300 train_loss=0.0039 val_loss=1.0328 auroc=0.8144767618333422
+[bench-lora] task=gue_emp_h3 step=400 train_loss=0.0077 val_loss=0.9480 auroc=0.8255557341046654
+[bench-lora] task=gue_emp_h3 step=500 train_loss=2.8104 val_loss=1.5370 auroc=0.8222231149677719
+[bench-lora] task=gue_emp_h3 step=600 train_loss=0.0107 val_loss=1.1172 auroc=0.8222579320442087
+[bench-lora] task=gue_emp_h3 step=700 train_loss=0.0008 val_loss=1.3439 auroc=0.8172478440194976
+[bench-lora] early stop task=gue_emp_h3 step=700
+[bench-lora] finished task=gue_emp_h3 best_step=400 test_auroc=0.8444226272290748 test_f1=0.7751119946746308 test_acc=0.7768871075484302
+[bench-lora] task 2/44 task=gue_emp_h3k14ac rows=33048
+[bench-lora] task=gue_emp_h3k14ac step=100 train_loss=0.0189 val_loss=1.5423 auroc=0.7129842986738475
+[bench-lora] task=gue_emp_h3k14ac step=200 train_loss=0.1253 val_loss=1.7791 auroc=0.7407345910358387
+[bench-lora] task=gue_emp_h3k14ac step=300 train_loss=3.3419 val_loss=1.5447 auroc=0.7547896160852183
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 360, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 356, in main
+    run_full_top(args)
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 205, in run_full_top
+    run_command(
+  File "/home/teacher1/UT-project1/project1/phase2/run_benchmark_pilot.py", line 22, in run_command
+    subprocess.run(cmd, check=True)
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/teacher1/miniconda3/envs/UT-p1/bin/python', '-u', 'phase2/eval_benchmarks.py', '--benchmark-manifest', 'data/benchmarks/hvue_gue_manifest.csv', '--benchmark-scope', 'all', '--out-dir', 'data/phase2/full_benchmarks_lora_selected/base', '--resume', '--device', 'cuda:0', '--batch-size', '1', '--cpu-threads', '16', '--epochs', '3', '--max-steps', '0', '--eval-every', '100', '--patience', '3', '--lr', '0.0001', '--weight-decay', '0.0', '--lora-rank', '8', '--lora-alpha', '16', '--lora-dropout', '0.0', '--metric-for-best', 'auto', '--max-length', '512', '--seed', '42', '--task-filter', 'gue_emp_h3,gue_emp_h3k14ac,gue_emp_h3k36me3,gue_emp_h3k4me1,gue_emp_h3k4me2,gue_emp_h3k4me3,gue_emp_h3k79me3,gue_emp_h3k9ac,gue_emp_h4,gue_emp_h4ac,gue_epi_gm12878,gue_epi_hela_s3,gue_epi_huvec,gue_epi_imr90,gue_epi_k562,gue_epi_nhek,gue_human_tf_0,gue_human_tf_1,gue_human_tf_2,gue_human_tf_3,gue_human_tf_4,gue_mouse_0,gue_mouse_1,gue_mouse_2,gue_mouse_3,gue_mouse_4,gue_prom_300_all,gue_prom_300_notata,gue_prom_300_tata,gue_prom_core_all,gue_prom_core_notata,gue_prom_core_tata,gue_splice_reconstructed,hvue_human_host_tropism,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_virus_pathogenicity_cini,virobench_all_taxon_genus,virobench_all_taxon_times,virobench_dna_taxon_genus,virobench_dna_taxon_times,virobench_rna_taxon_genus,virobench_rna_taxon_times']' returned non-zero exit status 130.

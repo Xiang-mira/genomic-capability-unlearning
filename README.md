@@ -27,6 +27,13 @@ Machine-readable progress and results are stored under `data/phase2/`, notably:
 - `data/phase2/results/task2_runs.csv`
 - `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv`
 
+For the completed 44-task benchmark, the same directory also contains the
+per-task CSV, progress record, and summary JSON for the base model and all four
+checkpoints. The corresponding training configurations and loss histories are
+checked in as `meta.json` and `log.json` under
+`data/phase2/checkpoints_lora_grid/<checkpoint>/`. Full-run provenance is
+available in the dated files under `logs/`; model weights are not included.
+
 ## Main findings so far
 
 ### Research question

@@ -1,0 +1,3 @@
+2026-06-20T00:22:47Z [watchdog] watching existing pipeline pid=329721
+2026-06-20T14:01:50Z [watchdog] existing pipeline exited before verified completion; switching to auto-resume
+2026-06-20T14:01:50Z [watchdog] starting/resuming pipeline attempt=1/10 run_log=logs/hvue_complete_selection_and_full_retry_1_20260620_140150.log

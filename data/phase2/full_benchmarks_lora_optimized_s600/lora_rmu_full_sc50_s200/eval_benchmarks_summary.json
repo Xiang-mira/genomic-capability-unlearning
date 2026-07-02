@@ -1,0 +1,194 @@
+{
+  "groups": {
+    "gue_retain": {
+      "mean_score": 0.764987540928419,
+      "n_tasks": 33
+    },
+    "hvue_forget": {
+      "mean_score": 0.7720172421932785,
+      "n_tasks": 5
+    },
+    "viral_retain": {
+      "mean_score": 0.03854055541147051,
+      "n_tasks": 6
+    }
+  },
+  "tasks": {
+    "gue_emp_h3": {
+      "mean_score": 0.9246389746702129,
+      "n_rows": 1
+    },
+    "gue_emp_h3k14ac": {
+      "mean_score": 0.7824002120185786,
+      "n_rows": 1
+    },
+    "gue_emp_h3k36me3": {
+      "mean_score": 0.8199639480244023,
+      "n_rows": 1
+    },
+    "gue_emp_h3k4me1": {
+      "mean_score": 0.7687677253196791,
+      "n_rows": 1
+    },
+    "gue_emp_h3k4me2": {
+      "mean_score": 0.6881884530113738,
+      "n_rows": 1
+    },
+    "gue_emp_h3k4me3": {
+      "mean_score": 0.6736719922435745,
+      "n_rows": 1
+    },
+    "gue_emp_h3k79me3": {
+      "mean_score": 0.863585191004426,
+      "n_rows": 1
+    },
+    "gue_emp_h3k9ac": {
+      "mean_score": 0.8199367386909935,
+      "n_rows": 1
+    },
+    "gue_emp_h4": {
+      "mean_score": 0.9544220347929776,
+      "n_rows": 1
+    },
+    "gue_emp_h4ac": {
+      "mean_score": 0.6081580697254678,
+      "n_rows": 1
+    },
+    "gue_epi_gm12878": {
+      "mean_score": 0.5710509701332479,
+      "n_rows": 1
+    },
+    "gue_epi_hela_s3": {
+      "mean_score": 0.5522927444011235,
+      "n_rows": 1
+    },
+    "gue_epi_huvec": {
+      "mean_score": 0.5800317353599141,
+      "n_rows": 1
+    },
+    "gue_epi_imr90": {
+      "mean_score": 0.5438207369924096,
+      "n_rows": 1
+    },
+    "gue_epi_k562": {
+      "mean_score": 0.5137631612737545,
+      "n_rows": 1
+    },
+    "gue_epi_nhek": {
+      "mean_score": 0.5027441128537071,
+      "n_rows": 1
+    },
+    "gue_human_tf_0": {
+      "mean_score": 0.8842840000000001,
+      "n_rows": 1
+    },
+    "gue_human_tf_1": {
+      "mean_score": 0.8915,
+      "n_rows": 1
+    },
+    "gue_human_tf_2": {
+      "mean_score": 0.819236,
+      "n_rows": 1
+    },
+    "gue_human_tf_3": {
+      "mean_score": 0.6135820000000001,
+      "n_rows": 1
+    },
+    "gue_human_tf_4": {
+      "mean_score": 0.9047839999999999,
+      "n_rows": 1
+    },
+    "gue_mouse_0": {
+      "mean_score": 0.5454229538180155,
+      "n_rows": 1
+    },
+    "gue_mouse_1": {
+      "mean_score": 0.8954268932795815,
+      "n_rows": 1
+    },
+    "gue_mouse_2": {
+      "mean_score": 0.9038518738845924,
+      "n_rows": 1
+    },
+    "gue_mouse_3": {
+      "mean_score": 0.8700280112044818,
+      "n_rows": 1
+    },
+    "gue_mouse_4": {
+      "mean_score": 0.5467480500258342,
+      "n_rows": 1
+    },
+    "gue_prom_300_all": {
+      "mean_score": 0.949764244624024,
+      "n_rows": 1
+    },
+    "gue_prom_300_notata": {
+      "mean_score": 0.9810742516245873,
+      "n_rows": 1
+    },
+    "gue_prom_300_tata": {
+      "mean_score": 0.8563119207414509,
+      "n_rows": 1
+    },
+    "gue_prom_core_all": {
+      "mean_score": 0.8719745601684453,
+      "n_rows": 1
+    },
+    "gue_prom_core_notata": {
+      "mean_score": 0.8887817155212474,
+      "n_rows": 1
+    },
+    "gue_prom_core_tata": {
+      "mean_score": 0.9266575114971896,
+      "n_rows": 1
+    },
+    "gue_splice_reconstructed": {
+      "mean_score": 0.7277240637325383,
+      "n_rows": 1
+    },
+    "hvue_human_host_tropism": {
+      "mean_score": 0.8803330376506939,
+      "n_rows": 1
+    },
+    "hvue_human_transmissibility_coronaviridae": {
+      "mean_score": 0.7195902202184016,
+      "n_rows": 1
+    },
+    "hvue_human_transmissibility_orthomyxoviridae": {
+      "mean_score": 0.9518879206076859,
+      "n_rows": 1
+    },
+    "hvue_human_virus_pathogenicity_bvbrc_cov": {
+      "mean_score": 0.558142731567683,
+      "n_rows": 1
+    },
+    "hvue_human_virus_pathogenicity_cini": {
+      "mean_score": 0.7501323009219285,
+      "n_rows": 1
+    },
+    "virobench_all_taxon_genus": {
+      "mean_score": 0.027894595580651178,
+      "n_rows": 1
+    },
+    "virobench_all_taxon_times": {
+      "mean_score": 0.016188980540728586,
+      "n_rows": 1
+    },
+    "virobench_dna_taxon_genus": {
+      "mean_score": 0.060736292630815945,
+      "n_rows": 1
+    },
+    "virobench_dna_taxon_times": {
+      "mean_score": 0.07671538671538672,
+      "n_rows": 1
+    },
+    "virobench_rna_taxon_genus": {
+      "mean_score": 0.026312897267703476,
+      "n_rows": 1
+    },
+    "virobench_rna_taxon_times": {
+      "mean_score": 0.023395179733537157,
+      "n_rows": 1
+    }
+  }
+}
