@@ -69,6 +69,102 @@ downstream tasks:
 Two Calici-related tasks were excluded from the final ranking because of their
 high taxonomy-shortcut risk.
 
+### Full benchmark files and locations
+
+The table below is the entry point for reviewing or reproducing the completed
+full benchmark.
+
+#### 1. Programs
+
+| Stage | File | Purpose |
+|:---|:---|:---|
+| GD training | `phase2/unlearn_gd.py` | Train a GD unlearning checkpoint |
+| RMU training | `phase2/unlearn_rmu.py` | Train an RMU unlearning checkpoint |
+| Candidate sweep | `phase2/run_task2_sweeps.py` | Read the grid configuration and train/resume candidates |
+| Downstream evaluation | `phase2/eval_benchmarks.py` | Run the common downstream training and test protocol for one model |
+| Pilot orchestration | `phase2/run_benchmark_pilot.py` | Evaluate the candidate pilot and launch selected full runs |
+| Candidate/final ranking | `phase2/rank_benchmark_pilot.py` | Compute paired forget, retain, confidence-interval, and selection metrics |
+| Pilot launcher | `phase2/run_hvue_complete_selection_and_full.sh` | Run the six-task pilot over the candidate grid |
+| Final launcher | `phase2/run_optimized_full_benchmark.sh` | Run the optimized 600-step, 44-task benchmark |
+| Resume and verification | `phase2/run_optimized_full_watchdog.sh` | Resume failed runs and verify final task coverage |
+
+#### 2. Experiment configuration
+
+| Configuration | Location | Contents |
+|:---|:---|:---|
+| Candidate grid | `phase2/sweep_configs/lora_full_grid.json` | Six GD and six RMU training settings |
+| Sweep completion state | `data/phase2/checkpoints_lora_grid/sweep_progress.json` | Status of all 12 candidates |
+| Per-candidate training arguments | `data/phase2/checkpoints_lora_grid/<candidate>/meta.json` | Method, data paths, learning rate, steps, loss weights, update scope, and seed |
+| Per-candidate training history | `data/phase2/checkpoints_lora_grid/<candidate>/log.json` | Step-level GD or RMU losses |
+| Final downstream settings | `phase2/run_optimized_full_benchmark.sh` | Task filter, four selected runs, LoRA settings, batch settings, validation limit, steps, and seed |
+| Selected batch profile | `data/phase2/full_benchmarks_lora_optimized_s600/batch_profile.json` | Actual train/evaluation batch sizes and final runtime limits |
+| Batch preflight | `data/phase2/full_benchmarks_lora_optimized_s600/batch_preflight.log` | GPU batch-profile validation output |
+
+The four checkpoints evaluated in the final benchmark are:
+`lora_gd_full_ar3_s200`, `lora_gd_full_ar5_s500`,
+`lora_rmu_full_sc50_s200`, and `lora_rmu_full_sc200_s200`.
+
+#### 3. Benchmark data
+
+| Data item | Local path or record | Availability |
+|:---|:---|:---|
+| Unified full manifest | `data/benchmarks/hvue_gue_manifest.csv` | Local only; 2.4 GB and contains sequences |
+| Candidate pilot manifest | `data/benchmarks/hvue_gue_pilot_manifest.csv` | Local only; 339 MB and contains sequences |
+| Manifest schema, row counts, sizes, and SHA-256 hashes | `data/phase2/full_benchmarks_lora_optimized_s600/manifest_audit.json` | Checked in |
+| Manifest construction program | `phase2/prepare_benchmarks.py` | Checked in |
+| Manifest audit program | `phase2/audit_experiment_state.py` | Checked in |
+
+The full input manifest contains 46 tasks. The final launcher excludes the two
+Calici-related tasks and evaluates the remaining 44. The sequence-bearing
+manifests and raw downloaded corpora are not stored in ordinary Git; their
+hashes identify the exact local inputs used for the recorded experiment.
+
+#### 4. Candidate pilot and selection results
+
+| Artifact | Location |
+|:---|:---|
+| Pilot results for base plus 12 candidates | `data/phase2/benchmark_pilot_lora/<run>/eval_benchmarks.csv` |
+| Pilot progress and summary | `data/phase2/benchmark_pilot_lora/<run>/eval_benchmarks_progress.json` and `eval_benchmarks_summary.json` |
+| Pilot per-task training logs | `data/phase2/benchmark_pilot_lora/<run>/logs/<task>.jsonl` |
+| Candidate ranking | `data/phase2/benchmark_pilot_lora/pilot_rankings.csv` and `pilot_rankings.json` |
+
+Each pilot run contains the same six tasks: five HVUE forget tasks and one GUE
+retain task. The pilot ranking selected the four checkpoints listed above for
+the final benchmark.
+
+#### 5. Final 44-task results
+
+The canonical result root is
+`data/phase2/full_benchmarks_lora_optimized_s600/`.
+
+| Artifact | Location |
+|:---|:---|
+| Base result | `base/eval_benchmarks.csv` |
+| Result for each selected checkpoint | `<checkpoint>/eval_benchmarks.csv` |
+| Completion record | `<run>/eval_benchmarks_progress.json` |
+| Group and task summary | `<run>/eval_benchmarks_summary.json` |
+| Per-task training history | `<run>/logs/<task>.jsonl` |
+| Final paired ranking and confidence intervals | `full_rankings.csv` and `full_rankings.json` |
+| Short four-checkpoint summary | `results/full_benchmark_summary.csv` |
+| Human-readable result interpretation | `docs/full_benchmark_results.md` |
+| Full artifact inventory | `docs/full_benchmark_artifact_audit.md` |
+
+There are five complete final result sets: the base model and four unlearned
+checkpoints. Every set contains 44 result rows and 44 matching task logs,
+covering 33 GUE tasks, 5 HVUE tasks, and 6 ViroBench tasks.
+
+#### 6. Figures
+
+| Figure | Location |
+|:---|:---|
+| Target forgetting versus GUE retain cost | `figures/full_benchmark_target_vs_retain.png` |
+| Forget-retain trade-off | `figures/full_benchmark_tradeoff.png` |
+| Selection score | `figures/full_benchmark_selection_score.png` |
+| Figure-generation program | `tools/plot_full_benchmark_results.py` |
+
+Model weights, the Evo base model, raw sequence data, and discarded downstream
+task checkpoints are intentionally excluded from Git.
+
 ### Metrics
 
 - **Forget drop:** `base - unlearned`; larger is stronger forgetting.
