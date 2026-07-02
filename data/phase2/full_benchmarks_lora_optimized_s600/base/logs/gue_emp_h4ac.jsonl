@@ -1,0 +1,1 @@
+{"epoch": 3, "step": 111, "train_loss": 0.7851143479347229, "val_loss": 0.8516937007904053, "val_metrics": {"accuracy": 0.611, "f1": 0.5932319654843206, "auroc": 0.67907, "auprc": 0.6491473921080699}, "metric_for_best": "auroc", "selection_value": 0.67907, "best_step": 111, "bad_evals": 0, "elapsed_sec": 264.04051995277405}

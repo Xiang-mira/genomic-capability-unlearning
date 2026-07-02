@@ -1,0 +1,51 @@
+{
+  "full_manifest": {
+    "path": "data/benchmarks/hvue_gue_manifest.csv",
+    "bytes": 2485584996,
+    "sha256": "47524b909907c1374c38874b9c55c1ed97d8cd421d9290a3dade6ba1be00901a",
+    "rows": 1812731,
+    "all_task_count": 46,
+    "selected_task_count": 44,
+    "columns": [
+      "benchmark",
+      "task",
+      "split",
+      "sequence",
+      "label",
+      "family",
+      "group",
+      "id"
+    ],
+    "group_rows": {
+      "gue_retain": 865161,
+      "hvue_forget": 916086,
+      "viral_retain": 31484
+    },
+    "split_rows": {
+      "train": 1362360,
+      "val": 225197,
+      "test": 225174
+    },
+    "excluded_tasks": [
+      "hvue_human_transmissibility_caliciviridae",
+      "hvue_human_virus_pathogenicity_bvbrc_calici"
+    ]
+  },
+  "pilot_manifest": {
+    "path": "data/benchmarks/hvue_gue_pilot_manifest.csv",
+    "bytes": 339038352,
+    "sha256": "bc55aa20362e9651129ef7c2d54de17b2744fb33716e2cc07d3f88a6733f4afc",
+    "rows": 275640,
+    "task_count": 40,
+    "group_rows": {
+      "gue_retain": 224012,
+      "hvue_forget": 51628
+    },
+    "split_rows": {
+      "train": 153356,
+      "val": 37595,
+      "test": 84689
+    }
+  },
+  "note": "Sequence-bearing manifests are excluded from Git because of their size. These hashes identify the exact local inputs used by the recorded pipeline."
+}

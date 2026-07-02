@@ -1,0 +1,132 @@
+{
+  "runs": {
+    "lora_gd_full_ar1_s200": {
+      "group": "gd_full",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T05:26:11Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_gd_full_ar3_s200": {
+      "group": "gd_full",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T05:30:51Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_gd_full_ar5_s200": {
+      "group": "gd_full",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T05:35:32Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_gd_full_ar1_s500": {
+      "group": "gd_full",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_gd_full_ar1_s500",
+      "status": "complete",
+      "updated_at": "2026-06-17T05:45:27Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_gd_full_ar3_s500": {
+      "group": "gd_full",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_gd_full_ar3_s500",
+      "status": "complete",
+      "updated_at": "2026-06-17T05:55:20Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_gd_full_ar5_s500": {
+      "group": "gd_full",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_gd_full_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:05:19Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_rmu_full_sc25_s200": {
+      "group": "rmu_full",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_rmu_full_sc25_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:09:14Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_rmu_full_sc50_s200": {
+      "group": "rmu_full",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:13:07Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_rmu_full_sc100_s200": {
+      "group": "rmu_full",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:16:59Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_rmu_full_sc200_s200": {
+      "group": "rmu_full",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_rmu_full_sc200_s200",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:20:50Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_rmu_full_sc50_s500": {
+      "group": "rmu_full",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_rmu_full_sc50_s500",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:28:06Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    },
+    "lora_rmu_full_sc100_s500": {
+      "group": "rmu_full",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_lora_grid/lora_rmu_full_sc100_s500",
+      "status": "complete",
+      "updated_at": "2026-06-17T06:35:23Z",
+      "train": "complete",
+      "internal_eval": "skipped_disabled"
+    }
+  },
+  "config": "phase2/sweep_configs/lora_full_grid.json",
+  "selectors": [
+    "selection"
+  ],
+  "selected_runs": [
+    "lora_gd_full_ar1_s200",
+    "lora_gd_full_ar3_s200",
+    "lora_gd_full_ar5_s200",
+    "lora_gd_full_ar1_s500",
+    "lora_gd_full_ar3_s500",
+    "lora_gd_full_ar5_s500",
+    "lora_rmu_full_sc25_s200",
+    "lora_rmu_full_sc50_s200",
+    "lora_rmu_full_sc100_s200",
+    "lora_rmu_full_sc200_s200",
+    "lora_rmu_full_sc50_s500",
+    "lora_rmu_full_sc100_s500"
+  ],
+  "resume": true,
+  "updated_at": "2026-06-17T06:35:23Z"
+}

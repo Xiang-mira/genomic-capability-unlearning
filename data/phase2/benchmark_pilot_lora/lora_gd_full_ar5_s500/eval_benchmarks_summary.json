@@ -1,0 +1,38 @@
+{
+  "groups": {
+    "gue_retain": {
+      "mean_score": 0.635076,
+      "n_tasks": 1
+    },
+    "hvue_forget": {
+      "mean_score": 0.5855184174073971,
+      "n_tasks": 5
+    }
+  },
+  "tasks": {
+    "gue_human_tf_0": {
+      "mean_score": 0.635076,
+      "n_rows": 1
+    },
+    "hvue_human_host_tropism": {
+      "mean_score": 0.5355646666666667,
+      "n_rows": 1
+    },
+    "hvue_human_transmissibility_coronaviridae": {
+      "mean_score": 0.5916504444444445,
+      "n_rows": 1
+    },
+    "hvue_human_transmissibility_orthomyxoviridae": {
+      "mean_score": 0.5482422222222222,
+      "n_rows": 1
+    },
+    "hvue_human_virus_pathogenicity_bvbrc_cov": {
+      "mean_score": 0.5843911111111111,
+      "n_rows": 1
+    },
+    "hvue_human_virus_pathogenicity_cini": {
+      "mean_score": 0.6677436425925412,
+      "n_rows": 1
+    }
+  }
+}

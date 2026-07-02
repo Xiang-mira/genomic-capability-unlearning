@@ -1,0 +1,170 @@
+[
+  {
+    "step": 1,
+    "L_forget": 1.4192904233932495,
+    "L_retain": 1.4563006162643433,
+    "weighted_forget_term": -1.4192904233932495,
+    "weighted_retain_term": 1.4563006162643433,
+    "loss": 0.03701019287109375
+  },
+  {
+    "step": 10,
+    "L_forget": 1.906480312347412,
+    "L_retain": 1.713937759399414,
+    "weighted_forget_term": -1.906480312347412,
+    "weighted_retain_term": 1.713937759399414,
+    "loss": -0.19254255294799805
+  },
+  {
+    "step": 20,
+    "L_forget": 2.3458499908447266,
+    "L_retain": 1.754455804824829,
+    "weighted_forget_term": -2.3458499908447266,
+    "weighted_retain_term": 1.754455804824829,
+    "loss": -0.5913941860198975
+  },
+  {
+    "step": 30,
+    "L_forget": 2.1114819049835205,
+    "L_retain": 1.9531683921813965,
+    "weighted_forget_term": -2.1114819049835205,
+    "weighted_retain_term": 1.9531683921813965,
+    "loss": -0.15831351280212402
+  },
+  {
+    "step": 40,
+    "L_forget": 1.970573902130127,
+    "L_retain": 1.9841374158859253,
+    "weighted_forget_term": -1.970573902130127,
+    "weighted_retain_term": 1.9841374158859253,
+    "loss": 0.01356351375579834
+  },
+  {
+    "step": 50,
+    "L_forget": 2.3047752380371094,
+    "L_retain": 2.123584270477295,
+    "weighted_forget_term": -2.3047752380371094,
+    "weighted_retain_term": 2.123584270477295,
+    "loss": -0.18119096755981445
+  },
+  {
+    "step": 60,
+    "L_forget": 3.2022624015808105,
+    "L_retain": 2.156782627105713,
+    "weighted_forget_term": -3.2022624015808105,
+    "weighted_retain_term": 2.156782627105713,
+    "loss": -1.0454797744750977
+  },
+  {
+    "step": 70,
+    "L_forget": 1.6398553848266602,
+    "L_retain": 2.111250162124634,
+    "weighted_forget_term": -1.6398553848266602,
+    "weighted_retain_term": 2.111250162124634,
+    "loss": 0.47139477729797363
+  },
+  {
+    "step": 80,
+    "L_forget": 1.6578197479248047,
+    "L_retain": 1.7096545696258545,
+    "weighted_forget_term": -1.6578197479248047,
+    "weighted_retain_term": 1.7096545696258545,
+    "loss": 0.051834821701049805
+  },
+  {
+    "step": 90,
+    "L_forget": 3.417351722717285,
+    "L_retain": 1.7377662658691406,
+    "weighted_forget_term": -3.417351722717285,
+    "weighted_retain_term": 1.7377662658691406,
+    "loss": -1.6795854568481445
+  },
+  {
+    "step": 100,
+    "L_forget": 1.6799957752227783,
+    "L_retain": 1.7106633186340332,
+    "weighted_forget_term": -1.6799957752227783,
+    "weighted_retain_term": 1.7106633186340332,
+    "loss": 0.030667543411254883
+  },
+  {
+    "step": 110,
+    "L_forget": 2.2308101654052734,
+    "L_retain": 2.2536349296569824,
+    "weighted_forget_term": -2.2308101654052734,
+    "weighted_retain_term": 2.2536349296569824,
+    "loss": 0.022824764251708984
+  },
+  {
+    "step": 120,
+    "L_forget": 3.221230983734131,
+    "L_retain": 3.9763681888580322,
+    "weighted_forget_term": -3.221230983734131,
+    "weighted_retain_term": 3.9763681888580322,
+    "loss": 0.7551372051239014
+  },
+  {
+    "step": 130,
+    "L_forget": 2.409228801727295,
+    "L_retain": 3.125182867050171,
+    "weighted_forget_term": -2.409228801727295,
+    "weighted_retain_term": 3.125182867050171,
+    "loss": 0.715954065322876
+  },
+  {
+    "step": 140,
+    "L_forget": 3.4068312644958496,
+    "L_retain": 1.7802457809448242,
+    "weighted_forget_term": -3.4068312644958496,
+    "weighted_retain_term": 1.7802457809448242,
+    "loss": -1.6265854835510254
+  },
+  {
+    "step": 150,
+    "L_forget": 27.31805419921875,
+    "L_retain": 27.319469451904297,
+    "weighted_forget_term": -27.31805419921875,
+    "weighted_retain_term": 27.319469451904297,
+    "loss": 0.001415252685546875
+  },
+  {
+    "step": 160,
+    "L_forget": 5.164031028747559,
+    "L_retain": 9.587868690490723,
+    "weighted_forget_term": -5.164031028747559,
+    "weighted_retain_term": 9.587868690490723,
+    "loss": 4.423837661743164
+  },
+  {
+    "step": 170,
+    "L_forget": 2.7763116359710693,
+    "L_retain": 2.034130573272705,
+    "weighted_forget_term": -2.7763116359710693,
+    "weighted_retain_term": 2.034130573272705,
+    "loss": -0.7421810626983643
+  },
+  {
+    "step": 180,
+    "L_forget": 2.573943853378296,
+    "L_retain": 2.9613161087036133,
+    "weighted_forget_term": -2.573943853378296,
+    "weighted_retain_term": 2.9613161087036133,
+    "loss": 0.3873722553253174
+  },
+  {
+    "step": 190,
+    "L_forget": 3.2597365379333496,
+    "L_retain": 4.1673383712768555,
+    "weighted_forget_term": -3.2597365379333496,
+    "weighted_retain_term": 4.1673383712768555,
+    "loss": 0.9076018333435059
+  },
+  {
+    "step": 200,
+    "L_forget": 3.01411771774292,
+    "L_retain": 3.7610416412353516,
+    "weighted_forget_term": -3.01411771774292,
+    "weighted_retain_term": 3.7610416412353516,
+    "loss": 0.7469239234924316
+  }
+]

@@ -35,7 +35,9 @@ checked in as `meta.json` and `log.json` under
 `data/phase2/checkpoints_lora_grid/<checkpoint>/`. Full-run provenance is
 available in the dated files under `logs/`; model weights are not included.
 The concise result report is in `docs/full_benchmark_results.md`, and its three
-figures can be regenerated with `tools/plot_full_benchmark_results.py`.
+figures can be regenerated with `tools/plot_full_benchmark_results.py`. A
+file-by-file reproducibility inventory, including the deliberate large-file
+exclusions, is available in `docs/full_benchmark_artifact_audit.md`.
 
 ## Main findings so far
 
