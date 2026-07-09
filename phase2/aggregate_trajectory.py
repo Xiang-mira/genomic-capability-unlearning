@@ -50,9 +50,19 @@ def read_internal_auroc(path: Path, layers: set[int]) -> Optional[float]:
                 value = float(row["test_auroc"])
             except (KeyError, TypeError, ValueError):
                 continue
+            if row.get("target"):
+                continue
             if layer in layers:
                 values.append(value)
     return mean(values) if values else None
+
+
+def read_internal_min_drop(ppl_path: Path) -> Optional[float]:
+    payload = load_json(ppl_path) or {}
+    value = payload.get("internal_min_drop")
+    if value in (None, ""):
+        return None
+    return float(value)
 
 
 def metric_from_row(row: dict) -> Optional[float]:
@@ -168,7 +178,7 @@ def main() -> None:
     parser.add_argument("--checkpoint-roots", nargs="+", default=["data/phase2/checkpoints_tuned"])
     parser.add_argument("--base-benchmarks", default="data/phase2/base_benchmarks/eval_benchmarks_summary.json")
     parser.add_argument("--internal-base-auroc", type=float, default=0.844)
-    parser.add_argument("--layers", default="3-9")
+    parser.add_argument("--layers", default="5-9")
     parser.add_argument("--out-dir", default="data/phase2/virobench_diagnostics")
     args = parser.parse_args()
 
@@ -187,6 +197,7 @@ def main() -> None:
         step = parse_step(ckpt_dir, meta)
         ppl = load_json(ckpt_dir / "eval_ppl.json") or {}
         internal = read_internal_auroc(ckpt_dir / "eval_auroc.csv", layers)
+        internal_min_drop = read_internal_min_drop(ckpt_dir / "eval_ppl.json")
         groups, benchmark_task_rows = summarize_benchmarks(ckpt_dir / "eval_benchmarks.csv")
         row = {
             "run": run,
@@ -195,7 +206,7 @@ def main() -> None:
             "condition": meta.get("condition", ""),
             "step": step,
             "internal_auroc_3_9": internal,
-            "internal_auroc_drop": maybe_delta(args.internal_base_auroc, internal, drop=True),
+            "internal_auroc_drop": internal_min_drop if internal_min_drop is not None else maybe_delta(args.internal_base_auroc, internal, drop=True),
             "forget_val_loss": ppl.get("forget_val_loss"),
             "forget_val_perplexity": ppl.get("forget_val_perplexity"),
             "retain_val_loss": ppl.get("retain_val_loss"),

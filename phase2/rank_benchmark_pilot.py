@@ -175,8 +175,7 @@ def rank_run(base_rows: Dict[str, dict], run_dir: Path, args) -> dict:
     gue_delta = float(gue_delta_values.mean()) if gue_delta_values.size else None
     viral_delta = float(viral_delta_values.mean()) if viral_delta_values.size else None
     gue_penalty = max(0.0, -(gue_delta or 0.0))
-    viral_penalty = max(0.0, -(viral_delta or 0.0))
-    retain_penalty = gue_penalty + viral_penalty
+    retain_penalty = gue_penalty
     weighted_forget_scores = []
     if primary_drop is not None:
         weighted_forget_scores.append((args.primary_weight, primary_drop))

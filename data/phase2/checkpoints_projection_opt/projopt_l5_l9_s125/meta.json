@@ -1,0 +1,143 @@
+{
+  "method": "probe_nullspace",
+  "condition": "localized",
+  "layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "target_names": [
+    "host_tropism",
+    "coronaviridae"
+  ],
+  "internal_target_config": "phase2/internal_eval_targets.json",
+  "layer_override": "5-9",
+  "target_layer_overrides": {},
+  "projection_strength": 1.25,
+  "target_strengths": {},
+  "module_scope": "all",
+  "module_suffixes": [
+    "out_filter_dense",
+    "mlp.l3",
+    "inner_mha_cls.out_proj"
+  ],
+  "projection_ranks": {
+    "5": 2,
+    "6": 2,
+    "7": 2,
+    "8": 2,
+    "9": 2
+  },
+  "projection_modules": {
+    "5": [
+      "blocks.5.out_filter_dense",
+      "blocks.5.mlp.l3"
+    ],
+    "6": [
+      "blocks.6.out_filter_dense",
+      "blocks.6.mlp.l3"
+    ],
+    "7": [
+      "blocks.7.out_filter_dense",
+      "blocks.7.mlp.l3"
+    ],
+    "8": [
+      "blocks.8.inner_mha_cls.out_proj",
+      "blocks.8.mlp.l3"
+    ],
+    "9": [
+      "blocks.9.out_filter_dense",
+      "blocks.9.mlp.l3"
+    ]
+  },
+  "layer_basis_meta": {
+    "5": [
+      {
+        "target": "host_tropism",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 0.9999999403953552
+      }
+    ],
+    "6": [
+      {
+        "target": "host_tropism",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 0.9999999403953552
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ],
+    "7": [
+      {
+        "target": "host_tropism",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ],
+    "8": [
+      {
+        "target": "host_tropism",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 0.9999998807907104
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ],
+    "9": [
+      {
+        "target": "host_tropism",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 1.25,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ]
+  },
+  "layer_probe_paths": {
+    "5": {
+      "host_tropism": "data/host_tropism/probes/layer_5.npz",
+      "coronaviridae": "data/family_targets/coronaviridae/probes/layer_5.npz"
+    },
+    "6": {
+      "host_tropism": "data/host_tropism/probes/layer_6.npz",
+      "coronaviridae": "data/family_targets/coronaviridae/probes/layer_6.npz"
+    },
+    "7": {
+      "host_tropism": "data/host_tropism/probes/layer_7.npz",
+      "coronaviridae": "data/family_targets/coronaviridae/probes/layer_7.npz"
+    },
+    "8": {
+      "host_tropism": "data/host_tropism/probes/layer_8.npz",
+      "coronaviridae": "data/family_targets/coronaviridae/probes/layer_8.npz"
+    },
+    "9": {
+      "host_tropism": "data/host_tropism/probes/layer_9.npz",
+      "coronaviridae": "data/family_targets/coronaviridae/probes/layer_9.npz"
+    }
+  },
+  "forget_csv": "data/phase2/splits/forget.csv",
+  "retain_csv": "data/phase2/splits/retain.csv",
+  "init_source": "base_model",
+  "elapsed_sec": 43.32579970359802
+}

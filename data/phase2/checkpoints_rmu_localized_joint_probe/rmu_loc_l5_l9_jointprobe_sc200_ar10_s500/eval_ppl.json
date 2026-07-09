@@ -1,0 +1,37 @@
+{
+  "forget_val_perplexity": 4.077311213374829,
+  "forget_val_loss": 1.4054377548396588,
+  "n_forget": 640,
+  "retain_val_perplexity": 4.157488415425506,
+  "retain_val_loss": 1.4249111456530434,
+  "n_retain": 224,
+  "internal_targets": {
+    "host_tropism": {
+      "localized_layers": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "base_localized_test_mean_auroc": 0.84299,
+      "localized_test_mean_auroc": 0.63657625,
+      "localized_test_auroc_drop": 0.20641375000000006
+    },
+    "coronaviridae": {
+      "localized_layers": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "base_localized_test_mean_auroc": 0.9941127232142856,
+      "localized_test_mean_auroc": 0.7697165975765305,
+      "localized_test_auroc_drop": 0.22439612563775502
+    }
+  },
+  "internal_gate_pass": true,
+  "internal_min_drop": 0.20641375000000006,
+  "internal_mean_drop": 0.21540493781887754
+}

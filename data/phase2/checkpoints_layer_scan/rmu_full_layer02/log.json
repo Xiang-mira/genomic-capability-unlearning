@@ -1,0 +1,674 @@
+[
+  {
+    "step": 1,
+    "L_forget_mse": 2.038625717163086,
+    "L_retain_mse": 0.0,
+    "L_retain_cosine": 0.0,
+    "L_retain_total": 0.0,
+    "forget_to_target_mse": 2.038625717163086,
+    "forget_to_original_mse": 0.0,
+    "retain_rep_mse": 0.0,
+    "forget_original_modified_cosine": 1.0,
+    "weighted_forget_term": 2.038625717163086,
+    "weighted_retain_term": 0.0,
+    "loss": 2.038625717163086,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 2.038625717163086,
+        "forget_to_original_mse": 0.0,
+        "forget_original_modified_cosine": 1.0
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.0,
+        "retain_cosine_penalty": 0.0
+      }
+    }
+  },
+  {
+    "step": 10,
+    "L_forget_mse": 1.6538970470428467,
+    "L_retain_mse": 0.10794343799352646,
+    "L_retain_cosine": 0.053886592388153076,
+    "L_retain_total": 0.10794343799352646,
+    "forget_to_target_mse": 1.6538970470428467,
+    "forget_to_original_mse": 0.14694920182228088,
+    "retain_rep_mse": 0.10794343799352646,
+    "forget_original_modified_cosine": 0.9264405369758606,
+    "weighted_forget_term": 1.6538970470428467,
+    "weighted_retain_term": 0.10794343799352646,
+    "loss": 1.7618404626846313,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.6538970470428467,
+        "forget_to_original_mse": 0.14694920182228088,
+        "forget_original_modified_cosine": 0.9264405369758606
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.10794343799352646,
+        "retain_cosine_penalty": 0.053886592388153076
+      }
+    }
+  },
+  {
+    "step": 20,
+    "L_forget_mse": 1.559910535812378,
+    "L_retain_mse": 0.14660777151584625,
+    "L_retain_cosine": 0.05682992935180664,
+    "L_retain_total": 0.14660777151584625,
+    "forget_to_target_mse": 1.559910535812378,
+    "forget_to_original_mse": 0.17228147387504578,
+    "retain_rep_mse": 0.14660777151584625,
+    "forget_original_modified_cosine": 0.929924726486206,
+    "weighted_forget_term": 1.559910535812378,
+    "weighted_retain_term": 0.14660777151584625,
+    "loss": 1.706518292427063,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.559910535812378,
+        "forget_to_original_mse": 0.17228147387504578,
+        "forget_original_modified_cosine": 0.929924726486206
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.14660777151584625,
+        "retain_cosine_penalty": 0.05682992935180664
+      }
+    }
+  },
+  {
+    "step": 30,
+    "L_forget_mse": 1.4347405433654785,
+    "L_retain_mse": 0.16311995685100555,
+    "L_retain_cosine": 0.06560343503952026,
+    "L_retain_total": 0.16311995685100555,
+    "forget_to_target_mse": 1.4347405433654785,
+    "forget_to_original_mse": 0.2561103105545044,
+    "retain_rep_mse": 0.16311995685100555,
+    "forget_original_modified_cosine": 0.8858445286750793,
+    "weighted_forget_term": 1.4347405433654785,
+    "weighted_retain_term": 0.16311995685100555,
+    "loss": 1.5978604555130005,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.4347405433654785,
+        "forget_to_original_mse": 0.2561103105545044,
+        "forget_original_modified_cosine": 0.8858445286750793
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.16311995685100555,
+        "retain_cosine_penalty": 0.06560343503952026
+      }
+    }
+  },
+  {
+    "step": 40,
+    "L_forget_mse": 1.3516008853912354,
+    "L_retain_mse": 0.21134693920612335,
+    "L_retain_cosine": 0.09913182258605957,
+    "L_retain_total": 0.21134693920612335,
+    "forget_to_target_mse": 1.3516008853912354,
+    "forget_to_original_mse": 0.325550377368927,
+    "retain_rep_mse": 0.21134693920612335,
+    "forget_original_modified_cosine": 0.850426971912384,
+    "weighted_forget_term": 1.3516008853912354,
+    "weighted_retain_term": 0.21134693920612335,
+    "loss": 1.5629478693008423,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.3516008853912354,
+        "forget_to_original_mse": 0.325550377368927,
+        "forget_original_modified_cosine": 0.850426971912384
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.21134693920612335,
+        "retain_cosine_penalty": 0.09913182258605957
+      }
+    }
+  },
+  {
+    "step": 50,
+    "L_forget_mse": 1.3024158477783203,
+    "L_retain_mse": 0.25017452239990234,
+    "L_retain_cosine": 0.10646212100982666,
+    "L_retain_total": 0.25017452239990234,
+    "forget_to_target_mse": 1.3024158477783203,
+    "forget_to_original_mse": 0.39162540435791016,
+    "retain_rep_mse": 0.25017452239990234,
+    "forget_original_modified_cosine": 0.8014780282974243,
+    "weighted_forget_term": 1.3024158477783203,
+    "weighted_retain_term": 0.25017452239990234,
+    "loss": 1.5525903701782227,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.3024158477783203,
+        "forget_to_original_mse": 0.39162540435791016,
+        "forget_original_modified_cosine": 0.8014780282974243
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.25017452239990234,
+        "retain_cosine_penalty": 0.10646212100982666
+      }
+    }
+  },
+  {
+    "step": 60,
+    "L_forget_mse": 1.3627259731292725,
+    "L_retain_mse": 0.13772059977054596,
+    "L_retain_cosine": 0.044249773025512695,
+    "L_retain_total": 0.13772059977054596,
+    "forget_to_target_mse": 1.3627259731292725,
+    "forget_to_original_mse": 0.26963865756988525,
+    "retain_rep_mse": 0.13772059977054596,
+    "forget_original_modified_cosine": 0.8993075489997864,
+    "weighted_forget_term": 1.3627259731292725,
+    "weighted_retain_term": 0.13772059977054596,
+    "loss": 1.5004465579986572,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.3627259731292725,
+        "forget_to_original_mse": 0.26963865756988525,
+        "forget_original_modified_cosine": 0.8993075489997864
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.13772059977054596,
+        "retain_cosine_penalty": 0.044249773025512695
+      }
+    }
+  },
+  {
+    "step": 70,
+    "L_forget_mse": 1.344165563583374,
+    "L_retain_mse": 0.2447318136692047,
+    "L_retain_cosine": 0.09723532199859619,
+    "L_retain_total": 0.2447318136692047,
+    "forget_to_target_mse": 1.344165563583374,
+    "forget_to_original_mse": 0.3543609380722046,
+    "retain_rep_mse": 0.2447318136692047,
+    "forget_original_modified_cosine": 0.814263641834259,
+    "weighted_forget_term": 1.344165563583374,
+    "weighted_retain_term": 0.2447318136692047,
+    "loss": 1.5888973474502563,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.344165563583374,
+        "forget_to_original_mse": 0.3543609380722046,
+        "forget_original_modified_cosine": 0.814263641834259
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.2447318136692047,
+        "retain_cosine_penalty": 0.09723532199859619
+      }
+    }
+  },
+  {
+    "step": 80,
+    "L_forget_mse": 1.2513909339904785,
+    "L_retain_mse": 0.1717945635318756,
+    "L_retain_cosine": 0.06872045993804932,
+    "L_retain_total": 0.1717945635318756,
+    "forget_to_target_mse": 1.2513909339904785,
+    "forget_to_original_mse": 0.4458388686180115,
+    "retain_rep_mse": 0.1717945635318756,
+    "forget_original_modified_cosine": 0.7473453879356384,
+    "weighted_forget_term": 1.2513909339904785,
+    "weighted_retain_term": 0.1717945635318756,
+    "loss": 1.4231854677200317,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.2513909339904785,
+        "forget_to_original_mse": 0.4458388686180115,
+        "forget_original_modified_cosine": 0.7473453879356384
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.1717945635318756,
+        "retain_cosine_penalty": 0.06872045993804932
+      }
+    }
+  },
+  {
+    "step": 90,
+    "L_forget_mse": 1.3497745990753174,
+    "L_retain_mse": 0.10098909586668015,
+    "L_retain_cosine": 0.03901010751724243,
+    "L_retain_total": 0.10098909586668015,
+    "forget_to_target_mse": 1.3497745990753174,
+    "forget_to_original_mse": 0.2779133915901184,
+    "retain_rep_mse": 0.10098909586668015,
+    "forget_original_modified_cosine": 0.8903235197067261,
+    "weighted_forget_term": 1.3497745990753174,
+    "weighted_retain_term": 0.10098909586668015,
+    "loss": 1.4507637023925781,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.3497745990753174,
+        "forget_to_original_mse": 0.2779133915901184,
+        "forget_original_modified_cosine": 0.8903235197067261
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.10098909586668015,
+        "retain_cosine_penalty": 0.03901010751724243
+      }
+    }
+  },
+  {
+    "step": 100,
+    "L_forget_mse": 1.266257405281067,
+    "L_retain_mse": 0.2478831708431244,
+    "L_retain_cosine": 0.09073299169540405,
+    "L_retain_total": 0.2478831708431244,
+    "forget_to_target_mse": 1.266257405281067,
+    "forget_to_original_mse": 0.3904586434364319,
+    "retain_rep_mse": 0.2478831708431244,
+    "forget_original_modified_cosine": 0.8129489421844482,
+    "weighted_forget_term": 1.266257405281067,
+    "weighted_retain_term": 0.2478831708431244,
+    "loss": 1.5141406059265137,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.266257405281067,
+        "forget_to_original_mse": 0.3904586434364319,
+        "forget_original_modified_cosine": 0.8129489421844482
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.2478831708431244,
+        "retain_cosine_penalty": 0.09073299169540405
+      }
+    }
+  },
+  {
+    "step": 110,
+    "L_forget_mse": 1.269928216934204,
+    "L_retain_mse": 0.18261966109275818,
+    "L_retain_cosine": 0.061635375022888184,
+    "L_retain_total": 0.18261966109275818,
+    "forget_to_target_mse": 1.269928216934204,
+    "forget_to_original_mse": 0.40861791372299194,
+    "retain_rep_mse": 0.18261966109275818,
+    "forget_original_modified_cosine": 0.7816628217697144,
+    "weighted_forget_term": 1.269928216934204,
+    "weighted_retain_term": 0.18261966109275818,
+    "loss": 1.4525479078292847,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.269928216934204,
+        "forget_to_original_mse": 0.40861791372299194,
+        "forget_original_modified_cosine": 0.7816628217697144
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.18261966109275818,
+        "retain_cosine_penalty": 0.061635375022888184
+      }
+    }
+  },
+  {
+    "step": 120,
+    "L_forget_mse": 1.2642295360565186,
+    "L_retain_mse": 0.23104184865951538,
+    "L_retain_cosine": 0.08609580993652344,
+    "L_retain_total": 0.23104184865951538,
+    "forget_to_target_mse": 1.2642295360565186,
+    "forget_to_original_mse": 0.4258931577205658,
+    "retain_rep_mse": 0.23104184865951538,
+    "forget_original_modified_cosine": 0.7674328088760376,
+    "weighted_forget_term": 1.2642295360565186,
+    "weighted_retain_term": 0.23104184865951538,
+    "loss": 1.4952714443206787,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.2642295360565186,
+        "forget_to_original_mse": 0.4258931577205658,
+        "forget_original_modified_cosine": 0.7674328088760376
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.23104184865951538,
+        "retain_cosine_penalty": 0.08609580993652344
+      }
+    }
+  },
+  {
+    "step": 130,
+    "L_forget_mse": 1.3563491106033325,
+    "L_retain_mse": 0.19233985245227814,
+    "L_retain_cosine": 0.07924586534500122,
+    "L_retain_total": 0.19233985245227814,
+    "forget_to_target_mse": 1.3563491106033325,
+    "forget_to_original_mse": 0.3326062858104706,
+    "retain_rep_mse": 0.19233985245227814,
+    "forget_original_modified_cosine": 0.8053956627845764,
+    "weighted_forget_term": 1.3563491106033325,
+    "weighted_retain_term": 0.19233985245227814,
+    "loss": 1.5486890077590942,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.3563491106033325,
+        "forget_to_original_mse": 0.3326062858104706,
+        "forget_original_modified_cosine": 0.8053956627845764
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.19233985245227814,
+        "retain_cosine_penalty": 0.07924586534500122
+      }
+    }
+  },
+  {
+    "step": 140,
+    "L_forget_mse": 1.155595302581787,
+    "L_retain_mse": 0.18219435214996338,
+    "L_retain_cosine": 0.06812673807144165,
+    "L_retain_total": 0.18219435214996338,
+    "forget_to_target_mse": 1.155595302581787,
+    "forget_to_original_mse": 0.611382007598877,
+    "retain_rep_mse": 0.18219435214996338,
+    "forget_original_modified_cosine": 0.5639997720718384,
+    "weighted_forget_term": 1.155595302581787,
+    "weighted_retain_term": 0.18219435214996338,
+    "loss": 1.3377896547317505,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.155595302581787,
+        "forget_to_original_mse": 0.611382007598877,
+        "forget_original_modified_cosine": 0.5639997720718384
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.18219435214996338,
+        "retain_cosine_penalty": 0.06812673807144165
+      }
+    }
+  },
+  {
+    "step": 150,
+    "L_forget_mse": 1.1217970848083496,
+    "L_retain_mse": 0.14439070224761963,
+    "L_retain_cosine": 0.054945290088653564,
+    "L_retain_total": 0.14439070224761963,
+    "forget_to_target_mse": 1.1217970848083496,
+    "forget_to_original_mse": 0.6312007904052734,
+    "retain_rep_mse": 0.14439070224761963,
+    "forget_original_modified_cosine": 0.563994824886322,
+    "weighted_forget_term": 1.1217970848083496,
+    "weighted_retain_term": 0.14439070224761963,
+    "loss": 1.2661877870559692,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.1217970848083496,
+        "forget_to_original_mse": 0.6312007904052734,
+        "forget_original_modified_cosine": 0.563994824886322
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.14439070224761963,
+        "retain_cosine_penalty": 0.054945290088653564
+      }
+    }
+  },
+  {
+    "step": 160,
+    "L_forget_mse": 1.2130918502807617,
+    "L_retain_mse": 0.2435217797756195,
+    "L_retain_cosine": 0.10813236236572266,
+    "L_retain_total": 0.2435217797756195,
+    "forget_to_target_mse": 1.2130918502807617,
+    "forget_to_original_mse": 0.493910551071167,
+    "retain_rep_mse": 0.2435217797756195,
+    "forget_original_modified_cosine": 0.6955231428146362,
+    "weighted_forget_term": 1.2130918502807617,
+    "weighted_retain_term": 0.2435217797756195,
+    "loss": 1.4566136598587036,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.2130918502807617,
+        "forget_to_original_mse": 0.493910551071167,
+        "forget_original_modified_cosine": 0.6955231428146362
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.2435217797756195,
+        "retain_cosine_penalty": 0.10813236236572266
+      }
+    }
+  },
+  {
+    "step": 170,
+    "L_forget_mse": 1.2414156198501587,
+    "L_retain_mse": 0.116906076669693,
+    "L_retain_cosine": 0.04307746887207031,
+    "L_retain_total": 0.116906076669693,
+    "forget_to_target_mse": 1.2414156198501587,
+    "forget_to_original_mse": 0.4205038845539093,
+    "retain_rep_mse": 0.116906076669693,
+    "forget_original_modified_cosine": 0.7722136378288269,
+    "weighted_forget_term": 1.2414156198501587,
+    "weighted_retain_term": 0.116906076669693,
+    "loss": 1.3583216667175293,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.2414156198501587,
+        "forget_to_original_mse": 0.4205038845539093,
+        "forget_original_modified_cosine": 0.7722136378288269
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.116906076669693,
+        "retain_cosine_penalty": 0.04307746887207031
+      }
+    }
+  },
+  {
+    "step": 180,
+    "L_forget_mse": 1.0852793455123901,
+    "L_retain_mse": 0.25665315985679626,
+    "L_retain_cosine": 0.12621259689331055,
+    "L_retain_total": 0.25665315985679626,
+    "forget_to_target_mse": 1.0852793455123901,
+    "forget_to_original_mse": 0.6939696073532104,
+    "retain_rep_mse": 0.25665315985679626,
+    "forget_original_modified_cosine": 0.4783727526664734,
+    "weighted_forget_term": 1.0852793455123901,
+    "weighted_retain_term": 0.25665315985679626,
+    "loss": 1.3419325351715088,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.0852793455123901,
+        "forget_to_original_mse": 0.6939696073532104,
+        "forget_original_modified_cosine": 0.4783727526664734
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.25665315985679626,
+        "retain_cosine_penalty": 0.12621259689331055
+      }
+    }
+  },
+  {
+    "step": 190,
+    "L_forget_mse": 1.213815689086914,
+    "L_retain_mse": 0.08677055686712265,
+    "L_retain_cosine": 0.033634185791015625,
+    "L_retain_total": 0.08677055686712265,
+    "forget_to_target_mse": 1.213815689086914,
+    "forget_to_original_mse": 0.4009826183319092,
+    "retain_rep_mse": 0.08677055686712265,
+    "forget_original_modified_cosine": 0.8136148452758789,
+    "weighted_forget_term": 1.213815689086914,
+    "weighted_retain_term": 0.08677055686712265,
+    "loss": 1.300586223602295,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.213815689086914,
+        "forget_to_original_mse": 0.4009826183319092,
+        "forget_original_modified_cosine": 0.8136148452758789
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.08677055686712265,
+        "retain_cosine_penalty": 0.033634185791015625
+      }
+    }
+  },
+  {
+    "step": 200,
+    "L_forget_mse": 1.089559555053711,
+    "L_retain_mse": 0.13342197239398956,
+    "L_retain_cosine": 0.0555759072303772,
+    "L_retain_total": 0.13342197239398956,
+    "forget_to_target_mse": 1.089559555053711,
+    "forget_to_original_mse": 0.6828879714012146,
+    "retain_rep_mse": 0.13342197239398956,
+    "forget_original_modified_cosine": 0.5016029477119446,
+    "weighted_forget_term": 1.089559555053711,
+    "weighted_retain_term": 0.13342197239398956,
+    "loss": 1.222981572151184,
+    "target_norm_mean": 1.0,
+    "target_variance_mean": 0.0002441080432618037,
+    "loss_layers": [
+      2
+    ],
+    "forget_layer_metrics": {
+      "2": {
+        "forget_to_target_mse": 1.089559555053711,
+        "forget_to_original_mse": 0.6828879714012146,
+        "forget_original_modified_cosine": 0.5016029477119446
+      }
+    },
+    "retain_layer_metrics": {
+      "2": {
+        "retain_rep_mse": 0.13342197239398956,
+        "retain_cosine_penalty": 0.0555759072303772
+      }
+    }
+  }
+]

@@ -1,101 +1,94 @@
 {
-  "description": "RefSeq Coronaviridae Phase 2 GD/RMU sweeps. Uses the current RefSeq forget/retain splits and localized_layers.json ([5,6,7,8,9], primary layer 6). Runs write checkpoints under data/phase2/checkpoints_tuned.",
+  "description": "Phase 2 selective-unlearning sweeps. The default path prioritizes a training-free joint probe null-space projection plus probe-guided localized fine-tuning on layers 5-9 for the combined host_tropism + coronaviridae objective. GD sweeps now use probe-guided representation loss rather than CE gradient-difference loss and explicitly initialize from the projection checkpoint. The canonical retain.csv is GUE-augmented, and the preferred RMU follow-up now lives in the dedicated rmu_localized_nonhuman.json grid so projection checkpoints and RMU checkpoints can be screened against the same pilot HVUE/GUE benchmark path.",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv",
+    "internal_target_config": "phase2/internal_eval_targets.json"
+  },
   "experiments": [
     {
-      "group": "gd_alpha",
-      "name": "refseq_gd_loc_af1_ar1_s200",
-      "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 1e-5, "steps": 200}
+      "group": "projection",
+      "name": "probe_nullspace_joint_l5_l9",
+      "method": "probe_nullspace",
+      "args": {}
     },
     {
-      "group": "gd_alpha",
-      "name": "refseq_gd_loc_af1_ar3_s200",
-      "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 3.0, "lr": 1e-5, "steps": 200}
+      "group": "probe_train",
+      "name": "probe_guided_projinit_ar5_s200",
+      "method": "probe_guided",
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 200}
     },
     {
-      "group": "gd_alpha",
-      "name": "refseq_gd_loc_af1_ar5_s200",
-      "method": "gd",
+      "group": "probe_ablation",
+      "name": "probe_guided_baseinit_ar5_s200",
+      "method": "probe_guided",
       "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 200}
     },
     {
       "group": "gd_alpha",
-      "name": "refseq_gd_loc_af1_ar10_s200",
+      "name": "refseq_gd_projinit_loc_af1_ar1_s200",
       "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 200}
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "gd_alpha",
+      "name": "refseq_gd_projinit_loc_af1_ar3_s200",
+      "method": "gd",
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 3.0, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "gd_alpha",
+      "name": "refseq_gd_projinit_loc_af1_ar5_s200",
+      "method": "gd",
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "gd_alpha",
+      "name": "refseq_gd_projinit_loc_af1_ar10_s200",
+      "method": "gd",
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 200}
     },
     {
       "group": "gd_lr",
-      "name": "refseq_gd_loc_ar5_lr5e-6_s200",
+      "name": "refseq_gd_projinit_loc_ar5_lr5e-6_s200",
       "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 5e-6, "steps": 200}
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 5e-6, "steps": 200}
     },
     {
       "group": "gd_lr",
-      "name": "refseq_gd_loc_ar5_lr2e-5_s200",
+      "name": "refseq_gd_projinit_loc_ar5_lr2e-5_s200",
       "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 2e-5, "steps": 200}
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 2e-5, "steps": 200}
     },
     {
       "group": "gd_steps",
-      "name": "refseq_gd_loc_ar5_s500",
+      "name": "refseq_gd_projinit_loc_ar5_s500",
       "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}
     },
     {
       "group": "gd_steps",
-      "name": "refseq_gd_loc_ar5_s1000",
+      "name": "refseq_gd_projinit_loc_ar5_s1000",
       "method": "gd",
-      "args": {"condition": "localized", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 1000}
+      "args": {"condition": "localized", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 1000}
     },
     {
       "group": "gd_controls",
-      "name": "refseq_gd_random_ar5_s1000",
+      "name": "refseq_gd_projinit_random_ar5_s1000",
       "method": "gd",
-      "args": {"condition": "random", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 1000}
+      "args": {"condition": "random", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 1000}
     },
     {
       "group": "gd_controls",
-      "name": "refseq_gd_full_ar5_s200",
+      "name": "refseq_gd_projinit_full_ar5_s200",
       "method": "gd",
-      "args": {"condition": "full", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 200}
+      "args": {"condition": "full", "init_from_run": "probe_nullspace_joint_l5_l9", "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 200}
     },
     {
       "group": "rmu_steer",
       "name": "refseq_rmu_loc_sc25_s200",
       "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 25.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
-    },
-    {
-      "group": "rmu_steer",
-      "name": "refseq_rmu_loc_sc50_s200",
-      "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
-    },
-    {
-      "group": "rmu_steer",
-      "name": "refseq_rmu_loc_sc100_s200",
-      "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 100.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
-    },
-    {
-      "group": "rmu_steer",
-      "name": "refseq_rmu_loc_sc200_s200",
-      "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 200.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
-    },
-    {
-      "group": "rmu_retain",
-      "name": "refseq_rmu_loc_sc50_ar3_s200",
-      "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 3.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
-    },
-    {
-      "group": "rmu_retain",
-      "name": "refseq_rmu_loc_sc50_ar5_s200",
-      "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 5.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+      "args": {"condition": "localized", "steer_coef": 25.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
     },
     {
       "group": "rmu_direction",
@@ -104,16 +97,46 @@
       "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
     },
     {
+      "group": "rmu_direction",
+      "name": "refseq_rmu_loc_random_sc50_s200",
+      "method": "rmu",
+      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_steer",
+      "name": "refseq_rmu_loc_sc100_s200",
+      "method": "rmu",
+      "args": {"condition": "localized", "steer_coef": 100.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_steer",
+      "name": "refseq_rmu_loc_sc200_s200",
+      "method": "rmu",
+      "args": {"condition": "localized", "steer_coef": 200.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_retain",
+      "name": "refseq_rmu_loc_sc50_ar3_s200",
+      "method": "rmu",
+      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 3.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
+      "group": "rmu_retain",
+      "name": "refseq_rmu_loc_sc50_ar5_s200",
+      "method": "rmu",
+      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 5.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
+    },
+    {
       "group": "rmu_steps",
       "name": "refseq_rmu_loc_sc50_s500",
       "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 500}
+      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 500}
     },
     {
       "group": "rmu_steps",
       "name": "refseq_rmu_loc_sc50_s1000",
       "method": "rmu",
-      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 1000}
+      "args": {"condition": "localized", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 1000}
     },
     {
       "group": "rmu_controls",
@@ -125,18 +148,22 @@
       "group": "rmu_controls",
       "name": "refseq_rmu_full_sc50_s200",
       "method": "rmu",
-      "args": {"condition": "full", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "target_direction": "random", "target_layer": 6, "lr": 1e-5, "steps": 200}
+      "args": {"condition": "full", "steer_coef": 50.0, "alpha_forget": 1.0, "alpha_retain": 10.0, "target_direction": "nonhuman", "direction_seqs": 500, "target_layer": 6, "lr": 1e-5, "steps": 200}
     }
   ],
   "aliases": {
+    "projection": ["projection"],
+    "probe_train": ["probe_train"],
+    "probe_ablation": ["probe_ablation"],
     "A": ["gd_alpha"],
     "B": ["gd_lr", "gd_steps"],
     "C": ["rmu_steer", "rmu_retain"],
     "D": ["rmu_direction"],
     "gd": ["gd_alpha", "gd_lr", "gd_steps", "gd_controls"],
-    "rmu": ["rmu_steer", "rmu_retain", "rmu_direction", "rmu_steps", "rmu_controls"],
+    "rmu": ["rmu_steer", "rmu_retain", "rmu_direction", "rmu_steps"],
     "controls": ["gd_controls", "rmu_controls"],
-    "trajectory": ["gd_steps", "gd_controls", "rmu_steps", "rmu_controls"],
-    "all": ["gd_alpha", "gd_lr", "gd_steps", "gd_controls", "rmu_steer", "rmu_retain", "rmu_direction", "rmu_steps", "rmu_controls"]
+    "legacy_controls": ["gd_alpha", "gd_lr", "gd_steps", "gd_controls", "rmu_steer", "rmu_retain", "rmu_direction", "rmu_steps", "rmu_controls"],
+    "trajectory": ["probe_train"],
+    "all": ["projection", "probe_train"]
   }
 }

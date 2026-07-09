@@ -1,0 +1,43 @@
+{
+  "description": "Phase 2 localized-primary RMU sweep for the merged host_tropism + coronaviridae forget objective. Uses the canonical GUE-augmented retain.csv, explicit loss_layers=5-9, nonhuman steering, and localized runs as the primary grid. Full-model runs are kept as controls with only effective alpha_retain values (10, 20, 50) because full RMU clamps weaker retain weights upward.",
+  "objective_id": "merged_selective_unlearning",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv"
+  },
+  "experiments": [
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc50_ar5_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc100_ar5_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc200_ar5_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc50_ar10_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc100_ar10_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc200_ar10_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc50_ar20_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc100_ar20_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc200_ar20_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc50_ar50_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc100_ar50_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_nonhuman_sc200_ar50_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc50_ar10_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc100_ar10_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc200_ar10_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc50_ar20_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc100_ar20_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc200_ar20_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc50_ar50_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc100_ar50_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+    {"group": "full_controls", "name": "rmu_full_l5_l9_nonhuman_sc200_ar50_s500", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "nonhuman", "direction_seqs": 500, "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}}
+  ],
+  "aliases": {
+    "localized": ["localized_primary"],
+    "full": ["full_controls"],
+    "rmu": ["localized_primary", "full_controls"],
+    "all": ["localized_primary", "full_controls"]
+  }
+}

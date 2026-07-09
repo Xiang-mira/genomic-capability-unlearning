@@ -10,7 +10,10 @@ This repository studies whether a genomic capability in
 
 The current reported result is the completed 44-task full benchmark comparing
 two Gradient Difference (GD) checkpoints and two Representation Misdirection
-for Unlearning (RMU) checkpoints on HVUE, GUE, and ViroBench.
+for Unlearning (RMU) checkpoints on HVUE, GUE, and ViroBench. The repository
+also now includes the follow-up merged-objective Phase 2 experiments that add
+host-tropism and Coronaviridae probe signals, a GUE-augmented retain set, and
+new projection/probe-guided/RMU sweeps.
 
 ## Current status
 
@@ -19,12 +22,14 @@ for Unlearning (RMU) checkpoints on HVUE, GUE, and ViroBench.
 | Phase 1 probing and activation patching | Complete |
 | GD/RMU condition sweeps | Complete for the checked-in Task 2 grid |
 | 44-task full benchmark | Complete for four selected GD/RMU checkpoints |
+| Merged-objective Phase 2 follow-up | Added; lightweight screens recorded |
 | Phase 3 recovery attacks | Implemented; current attack setting is preliminary |
 
 Machine-readable progress and results are stored under `data/phase2/`, notably:
 
 - `data/phase2/experiment_audit.json`
 - `data/phase2/results/task2_runs.csv`
+- `data/phase2/results/task2_best_checkpoints.csv`
 - `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv`
 - `results/full_benchmark_summary.csv`
 
@@ -208,6 +213,44 @@ See
 `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv` for exact
 paired scores and confidence intervals.
 
+## New merged-objective Phase 2 experiments
+
+The newest Phase 2 work switches the active internal unlearning objective from
+a single family target to a merged target configuration in
+`phase2/internal_eval_targets.json`:
+
+| Target | Manifest | Probe layers |
+|:---|:---|:---|
+| `host_tropism` | `data/host_tropism/manifest.csv` | 5-9 |
+| `coronaviridae` | `data/family_targets/coronaviridae/manifest.csv` | 5-9 |
+
+`phase2/build_unlearn_splits.py` now builds the default split from the
+host-tropism manifest, appends Coronaviridae positives to the forget side, and
+can sample additional benchmark forget rows. `phase2/verify_retain_set.py`
+audits that `data/phase2/splits/retain.csv` still includes both non-GUE retain
+rows and injected GUE rows before new sweeps are run.
+
+The three checked-in follow-up experiment families are:
+
+| Experiment | Entry points | What changed | Current recorded signal |
+|:---|:---|:---|:---|
+| Probe null-space projection | `phase2/project_probe_nullspace.py`, `phase2/sweep_configs/projection_opt_slim.json`, `bash phase2/run.sh probe_nullspace` | Training-free projection of residual-writer modules away from the joint probe subspace | `probe_nullspace_joint_l5_l9` is the current best lightweight screen: HVUE forget drop 0.226, GUE delta -0.0186, internal min drop 0.151 |
+| Probe-guided / projection-initialized GD | `phase2/unlearn_probe.py`, updated `phase2/unlearn_gd.py`, `bash phase2/run.sh probe_guided` | Replaces pure next-token GD with probe-component minimization plus retain representation anchoring; GD can initialize from the projection checkpoint | Projection-initialized `refseq_gd_projinit_*` runs produce positive internal drops, but the checked-in gate still rejects them without enough downstream retain/benchmark evidence |
+| Localized-primary RMU follow-up | updated `phase2/unlearn_rmu.py`, `phase2/sweep_configs/rmu_localized_nonhuman.json`, `phase2/sweep_configs/rmu_localized_joint_probe.json` | Adds non-human and joint-probe steering directions, explicit loss layers 5-9, and stronger full-model retain anchoring | New RMU sweeps are configured and logged; they are treated as follow-up candidates rather than replacements for the completed 44-task result |
+
+Related run logs are checked in under `logs/`, including
+`rmu_full_layer_scan_20260629.log`, `rmu_l6_l8_tuning_20260629.log`,
+`rmu_pareto_lora_20260630.log`, and
+`refseq_gd_projinit_loc_ar5_s1000_benchmark.log`. The aggregate result schema
+now records per-target internal AUROC drops, representation metrics, and a hard
+internal gate in `data/phase2/results/task2_runs.csv` and
+`data/phase2/results/task2_summary.json`. Lightweight per-run metadata and
+evaluation artifacts for these screens are stored under
+`data/phase2/checkpoints_layer_scan/`, `data/phase2/checkpoints_rmu_tuning/`,
+`data/phase2/checkpoints_rmu_pareto/`, `data/phase2/checkpoints_projection_opt/`,
+and `data/phase2/checkpoints_rmu_localized_*`; large weight files and temporary
+downstream task checkpoints remain excluded.
+
 ## Repository layout
 
 ```text
@@ -222,6 +265,9 @@ paired scores and confidence intervals.
 ├── phase2/                         # unlearning and downstream evaluation
 │   ├── unlearn_gd.py
 │   ├── unlearn_rmu.py
+│   ├── unlearn_probe.py
+│   ├── project_probe_nullspace.py
+│   ├── verify_retain_set.py
 │   ├── eval_unlearn.py
 │   ├── eval_benchmarks.py
 │   ├── run_task2_sweeps.py
@@ -277,6 +323,7 @@ export PHASE2_PYTHON="$(command -v python)"
 |:---|:---|:---|:---|
 | `global_host_tropism` | Human-tropic viruses | Non-human-tropic viruses | `checkpoints_lora_grid/`, earlier `checkpoints_tuned/` runs |
 | `coronaviridae_family` | Coronaviridae | Non-Coronaviridae | `checkpoints_layer_scan/`, `checkpoints_rmu_tuning/` |
+| `merged_selective_unlearning` | Human-tropic viruses plus Coronaviridae positives | Non-human/non-Coronaviridae retain plus injected GUE retain rows | `checkpoints_tuned/`, `checkpoints_projection_opt/`, `checkpoints_rmu_localized_*` |
 
 The global host-tropism training split contains 3,800 forget and 3,814 retain
 sequences. The balanced Coronaviridae split contains 1,888 windows per class.
@@ -320,6 +367,9 @@ layers. Feature extraction is GPU- and storage-intensive.
 
 ```bash
 bash phase2/run.sh splits
+bash phase2/run.sh verify_retain
+bash phase2/run.sh probe_nullspace
+bash phase2/run.sh probe_guided
 bash phase2/run.sh gd
 bash phase2/run.sh rmu
 bash phase2/run.sh eval
@@ -329,7 +379,9 @@ Conditions are:
 
 | Method | Conditions | Layer behavior |
 |:---|:---|:---|
-| GD | `full`, `localized`, `probe`, `random` | next-token forget maximization plus retain minimization |
+| Projection | `probe_nullspace` | training-free joint-probe null-space projection |
+| Probe-guided | `probe_guided` | probe-component minimization plus retain representation anchoring |
+| GD | `full`, `localized`, `probe`, `random` | probe-guided GD objective with optional projection initialization |
 | RMU | `full`, `localized`, `random` | activation steering plus reference-model retain MSE |
 
 For the current RefSeq setup, `localized` updates layers 5–9. The matched random
@@ -352,7 +404,12 @@ Available checked-in configurations:
 | `task2_sweeps.json` | RefSeq GD/RMU localized and control grid |
 | `lora_full_grid.json` | Global host-tropism full-model candidate grid |
 | `rmu_full_layer_scan.json` | Full-depth RMU target-layer scan |
+| `rmu_l6_l8_tuning.json` | Layer-6/layer-8 RMU retain-ratio and step tuning |
 | `rmu_full_multimetric.json` | Multi-metric RMU stage-1/stage-2 search |
+| `rmu_pareto_lora.json` | RMU candidates selected for LoRA downstream Pareto checks |
+| `projection_opt_slim.json` | Probe-projection layer, strength, and module-scope screen |
+| `rmu_localized_nonhuman.json` | Merged-objective localized RMU with non-human steering |
+| `rmu_localized_joint_probe.json` | Merged-objective localized RMU with joint-probe steering |
 
 Use `--dry-run` to inspect commands, `--resume` to reuse complete artifacts,
 and `--internal-layers 0-31` for full-depth diagnostics.

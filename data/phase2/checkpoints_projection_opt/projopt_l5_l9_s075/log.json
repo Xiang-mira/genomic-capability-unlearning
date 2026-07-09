@@ -1,0 +1,112 @@
+{
+  "layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "target_names": [
+    "host_tropism",
+    "coronaviridae"
+  ],
+  "projection_strength": 0.75,
+  "target_strengths": {},
+  "module_scope": "all",
+  "module_suffixes": [
+    "out_filter_dense",
+    "mlp.l3",
+    "inner_mha_cls.out_proj"
+  ],
+  "projection_ranks": {
+    "5": 2,
+    "6": 2,
+    "7": 2,
+    "8": 2,
+    "9": 2
+  },
+  "projection_modules": {
+    "5": [
+      "blocks.5.out_filter_dense",
+      "blocks.5.mlp.l3"
+    ],
+    "6": [
+      "blocks.6.out_filter_dense",
+      "blocks.6.mlp.l3"
+    ],
+    "7": [
+      "blocks.7.out_filter_dense",
+      "blocks.7.mlp.l3"
+    ],
+    "8": [
+      "blocks.8.inner_mha_cls.out_proj",
+      "blocks.8.mlp.l3"
+    ],
+    "9": [
+      "blocks.9.out_filter_dense",
+      "blocks.9.mlp.l3"
+    ]
+  },
+  "layer_basis_meta": {
+    "5": [
+      {
+        "target": "host_tropism",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 0.9999999403953552
+      }
+    ],
+    "6": [
+      {
+        "target": "host_tropism",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 0.9999999403953552
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ],
+    "7": [
+      {
+        "target": "host_tropism",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ],
+    "8": [
+      {
+        "target": "host_tropism",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 0.9999998807907104
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ],
+    "9": [
+      {
+        "target": "host_tropism",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      },
+      {
+        "target": "coronaviridae",
+        "strength": 0.75,
+        "pre_orthogonalized_norm": 1.0
+      }
+    ]
+  }
+}

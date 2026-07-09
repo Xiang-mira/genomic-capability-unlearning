@@ -1,9 +1,9 @@
 {
-  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): full-model RMU search for LoRA evaluation without localized-layer priors. Stage 1 coarsely compares three evenly spaced numerically stable layers (2, 6, 10) and retain anchoring. Stage 2 varies steering strength at the same layers.",
-  "objective_id": "coronaviridae_family",
+  "description": "Merged selective-unlearning objective: full-model RMU search for the combined host_tropism + coronaviridae forget target. Stage 1 coarsely compares three evenly spaced numerically stable layers (2, 6, 10) and retain anchoring. Stage 2 varies steering strength at the same layers.",
+  "objective_id": "merged_selective_unlearning",
   "train_defaults": {
-    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
-    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv"
   },
   "experiments": [
     {

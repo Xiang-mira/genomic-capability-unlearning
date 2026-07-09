@@ -1,0 +1,199 @@
+{
+  "runs": {
+    "rmu_full_layer00": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer00",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer02": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer02",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer04": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer04",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer06": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer06",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer08": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer08",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer10": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer10",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer12": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer12",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer14": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer14",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer16": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer16",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer18": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer18",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer20": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer20",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer22": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer22",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer24": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer24",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer26": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer26",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer28": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer28",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer30": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer30",
+      "status": "complete",
+      "updated_at": "2026-06-29T16:57:38Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_full_layer31": {
+      "group": "rmu_layer_scan",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_layer_scan/rmu_full_layer31",
+      "status": "complete",
+      "updated_at": "2026-06-29T17:05:51Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    }
+  },
+  "config": "phase2/sweep_configs/rmu_full_layer_scan.json",
+  "selectors": [
+    "layers"
+  ],
+  "selected_runs": [
+    "rmu_full_layer00",
+    "rmu_full_layer02",
+    "rmu_full_layer04",
+    "rmu_full_layer06",
+    "rmu_full_layer08",
+    "rmu_full_layer10",
+    "rmu_full_layer12",
+    "rmu_full_layer14",
+    "rmu_full_layer16",
+    "rmu_full_layer18",
+    "rmu_full_layer20",
+    "rmu_full_layer22",
+    "rmu_full_layer24",
+    "rmu_full_layer26",
+    "rmu_full_layer28",
+    "rmu_full_layer30",
+    "rmu_full_layer31"
+  ],
+  "resume": true,
+  "updated_at": "2026-06-29T17:05:51Z"
+}

@@ -1,0 +1,4 @@
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=1812731 tasks=46 scope=all
+[bench-lora] applied 66 checkpoint tensors from data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000/weights.safetensors
+[bench-lora] task 1/46 task=gue_emp_h3 rows=14965

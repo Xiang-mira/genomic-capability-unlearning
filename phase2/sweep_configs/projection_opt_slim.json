@@ -1,0 +1,82 @@
+{
+  "description": "Small projection optimization sweep. It varies target layers, soft projection strength, target-specific coronaviridae strength, and a light module-scope ablation, then can be screened on the slim HVUE/GUE benchmark.",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv",
+    "internal_target_config": "phase2/internal_eval_targets.json"
+  },
+  "experiments": [
+    {
+      "group": "layer",
+      "name": "projopt_l4_l8_s1",
+      "method": "probe_nullspace",
+      "args": {"layers": "4-8", "projection_strength": 1.0}
+    },
+    {
+      "group": "layer",
+      "name": "projopt_l6_l10_s1",
+      "method": "probe_nullspace",
+      "args": {"layers": "6-10", "projection_strength": 1.0}
+    },
+    {
+      "group": "layer",
+      "name": "projopt_l4_l10_s1",
+      "method": "probe_nullspace",
+      "args": {"layers": "4-10", "projection_strength": 1.0}
+    },
+    {
+      "group": "strength",
+      "name": "projopt_l5_l9_s075",
+      "method": "probe_nullspace",
+      "args": {"layers": "5-9", "projection_strength": 0.75}
+    },
+    {
+      "group": "strength",
+      "name": "projopt_l5_l9_s1",
+      "method": "probe_nullspace",
+      "args": {"layers": "5-9", "projection_strength": 1.0}
+    },
+    {
+      "group": "strength",
+      "name": "projopt_l5_l9_s125",
+      "method": "probe_nullspace",
+      "args": {"layers": "5-9", "projection_strength": 1.25}
+    },
+    {
+      "group": "target_specific",
+      "name": "projopt_host5_9_coro4_10_s1",
+      "method": "probe_nullspace",
+      "args": {"target_layers": "host_tropism=5-9,coronaviridae=4-10", "projection_strength": 1.0}
+    },
+    {
+      "group": "target_specific",
+      "name": "projopt_host5_9_coro4_10_coro125",
+      "method": "probe_nullspace",
+      "args": {"target_layers": "host_tropism=5-9,coronaviridae=4-10", "projection_strength": 1.0, "target_strengths": "host_tropism=1.0,coronaviridae=1.25"}
+    },
+    {
+      "group": "target_specific",
+      "name": "projopt_host5_9_coro5_12_coro125",
+      "method": "probe_nullspace",
+      "args": {"target_layers": "host_tropism=5-9,coronaviridae=5-12", "projection_strength": 1.0, "target_strengths": "host_tropism=1.0,coronaviridae=1.25"}
+    },
+    {
+      "group": "module_scope",
+      "name": "projopt_l5_l9_mlp_l3_s1",
+      "method": "probe_nullspace",
+      "args": {"layers": "5-9", "projection_strength": 1.0, "module_scope": "mlp_l3"}
+    },
+    {
+      "group": "module_scope",
+      "name": "projopt_l5_l9_filter_s1",
+      "method": "probe_nullspace",
+      "args": {"layers": "5-9", "projection_strength": 1.0, "module_scope": "out_filter_dense"}
+    }
+  ],
+  "aliases": {
+    "quick": ["layer", "strength"],
+    "coro": ["target_specific"],
+    "modules": ["module_scope"],
+    "all": ["layer", "strength", "target_specific", "module_scope"]
+  }
+}

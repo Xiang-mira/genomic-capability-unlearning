@@ -1,0 +1,18 @@
+{
+  "targets": [
+    {
+      "name": "host_tropism",
+      "manifest": "data/host_tropism/manifest.csv",
+      "probe_dir": "data/host_tropism/probes",
+      "localized_layers_path": "data/family_targets/coronaviridae/localized_layers.json",
+      "layers": "5-9"
+    },
+    {
+      "name": "coronaviridae",
+      "manifest": "data/family_targets/coronaviridae/manifest.csv",
+      "probe_dir": "data/family_targets/coronaviridae/probes",
+      "localized_layers_path": "data/family_targets/coronaviridae/localized_layers.json",
+      "layers": "5-9"
+    }
+  ]
+}

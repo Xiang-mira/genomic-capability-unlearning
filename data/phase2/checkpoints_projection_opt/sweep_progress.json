@@ -1,0 +1,116 @@
+{
+  "runs": {
+    "projopt_l4_l8_s1": {
+      "group": "layer",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l4_l8_s1",
+      "status": "complete",
+      "updated_at": "2026-07-08T16:46:33Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_l6_l10_s1": {
+      "group": "layer",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l6_l10_s1",
+      "status": "complete",
+      "updated_at": "2026-07-08T16:54:18Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_l4_l10_s1": {
+      "group": "layer",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l4_l10_s1",
+      "status": "complete",
+      "updated_at": "2026-07-08T17:02:15Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_l5_l9_s075": {
+      "group": "strength",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l5_l9_s075",
+      "status": "complete",
+      "updated_at": "2026-07-08T17:09:52Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_l5_l9_s1": {
+      "group": "strength",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l5_l9_s1",
+      "status": "complete",
+      "updated_at": "2026-07-08T17:17:55Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_l5_l9_s125": {
+      "group": "strength",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l5_l9_s125",
+      "status": "complete",
+      "updated_at": "2026-07-08T17:25:40Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_host5_9_coro4_10_s1": {
+      "group": "target_specific",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_host5_9_coro4_10_s1",
+      "status": "complete",
+      "updated_at": "2026-07-08T20:12:19Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing",
+      "benchmark_eval": "complete"
+    },
+    "projopt_host5_9_coro4_10_coro125": {
+      "group": "target_specific",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_host5_9_coro4_10_coro125",
+      "status": "complete",
+      "updated_at": "2026-07-08T22:43:19Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing",
+      "benchmark_eval": "complete"
+    },
+    "projopt_host5_9_coro5_12_coro125": {
+      "group": "target_specific",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_host5_9_coro5_12_coro125",
+      "status": "complete",
+      "updated_at": "2026-07-09T02:09:29Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing",
+      "benchmark_eval": "complete"
+    },
+    "projopt_l5_l9_mlp_l3_s1": {
+      "group": "module_scope",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l5_l9_mlp_l3_s1",
+      "status": "complete",
+      "updated_at": "2026-07-08T17:56:16Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "projopt_l5_l9_filter_s1": {
+      "group": "module_scope",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_projection_opt/projopt_l5_l9_filter_s1",
+      "status": "training",
+      "updated_at": "2026-07-08T17:56:16Z",
+      "train": "running"
+    }
+  },
+  "config": "phase2/sweep_configs/projection_opt_slim.json",
+  "selectors": [
+    "coro"
+  ],
+  "selected_runs": [
+    "projopt_host5_9_coro4_10_s1",
+    "projopt_host5_9_coro4_10_coro125",
+    "projopt_host5_9_coro5_12_coro125"
+  ],
+  "resume": true,
+  "updated_at": "2026-07-09T02:09:29Z"
+}

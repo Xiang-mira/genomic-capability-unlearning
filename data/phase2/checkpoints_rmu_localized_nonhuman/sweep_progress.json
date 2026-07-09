@@ -1,0 +1,132 @@
+{
+  "runs": {
+    "rmu_loc_l5_l9_nonhuman_sc50_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc50_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T01:05:52Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc100_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T01:20:13Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc200_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T01:34:25Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc50_ar10_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T01:48:40Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc100_ar10_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T02:03:01Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc200_ar10_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T02:17:13Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc50_ar20_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T02:31:36Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc100_ar20_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T02:46:00Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc200_ar20_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T03:00:23Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc50_ar50_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T03:14:56Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc100_ar50_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T03:29:22Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_nonhuman/rmu_loc_l5_l9_nonhuman_sc200_ar50_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T03:44:02Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    }
+  },
+  "config": "phase2/sweep_configs/rmu_localized_nonhuman.json",
+  "selectors": [
+    "localized"
+  ],
+  "selected_runs": [
+    "rmu_loc_l5_l9_nonhuman_sc50_ar5_s500",
+    "rmu_loc_l5_l9_nonhuman_sc100_ar5_s500",
+    "rmu_loc_l5_l9_nonhuman_sc200_ar5_s500",
+    "rmu_loc_l5_l9_nonhuman_sc50_ar10_s500",
+    "rmu_loc_l5_l9_nonhuman_sc100_ar10_s500",
+    "rmu_loc_l5_l9_nonhuman_sc200_ar10_s500",
+    "rmu_loc_l5_l9_nonhuman_sc50_ar20_s500",
+    "rmu_loc_l5_l9_nonhuman_sc100_ar20_s500",
+    "rmu_loc_l5_l9_nonhuman_sc200_ar20_s500",
+    "rmu_loc_l5_l9_nonhuman_sc50_ar50_s500",
+    "rmu_loc_l5_l9_nonhuman_sc100_ar50_s500",
+    "rmu_loc_l5_l9_nonhuman_sc200_ar50_s500"
+  ],
+  "resume": true,
+  "updated_at": "2026-07-08T03:44:02Z"
+}

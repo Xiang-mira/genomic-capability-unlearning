@@ -15,7 +15,7 @@ from phase1.utils import ManifestRecord, pad_batch, read_manifest
 from evo.tokenizer import CharLevelTokenizer
 
 
-DEFAULT_LOCALIZED_LAYERS = [3, 4, 5, 6, 7, 8, 9]
+DEFAULT_LOCALIZED_LAYERS = [5, 6, 7, 8, 9]
 DEFAULT_PRIMARY_TARGET_LAYER = 6
 DEFAULT_LOCALIZED_LAYERS_PATH = "data/family_targets/coronaviridae/localized_layers.json"
 PROBE_LAYERS = list(range(0, 11))
@@ -51,7 +51,7 @@ def select_random_layers(seed: int, n: int) -> List[int]:
 
 
 def split_records(records: List[ManifestRecord]) -> Tuple[List[ManifestRecord], List[ManifestRecord]]:
-    """label=1 -> forget (target family); label=0 -> retain (matched non-target viral families)."""
+    """label=1 -> forget; label=0 -> retain for the merged Phase 2 selective-unlearning split."""
     forget = [r for r in records if r.label == 1]
     retain = [r for r in records if r.label == 0]
     return forget, retain

@@ -1,9 +1,9 @@
 {
-  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): three constrained-Pareto RMU checkpoints selected from the layer-6/layer-8 family-specific sweep for separate LoRA evaluation. Do not merge their scores into the global-host-tropism full benchmark ranking.",
-  "objective_id": "coronaviridae_family",
+  "description": "Merged selective-unlearning objective: constrained-Pareto RMU checkpoints selected from the layer-6/layer-8 sweep for separate LoRA evaluation on the combined host_tropism + coronaviridae forget target.",
+  "objective_id": "merged_selective_unlearning",
   "train_defaults": {
-    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
-    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv"
   },
   "experiments": [
     {

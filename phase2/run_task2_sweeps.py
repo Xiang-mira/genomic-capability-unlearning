@@ -18,6 +18,8 @@ from typing import Dict, Iterable, List, Optional
 METHOD_SCRIPT = {
     "gd": "phase2/unlearn_gd.py",
     "rmu": "phase2/unlearn_rmu.py",
+    "probe_nullspace": "phase2/project_probe_nullspace.py",
+    "probe_guided": "phase2/unlearn_probe.py",
 }
 
 
@@ -128,6 +130,7 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
         raise ValueError(f"Unsupported method {method!r} for run {experiment['name']}")
 
     run_name = experiment["name"]
+    experiment_args = experiment.get("args", {})
     ckpt_dir = Path(args.out_dir) / run_name
     ckpt_path = ckpt_dir / "weights.safetensors"
     update_run_status(
@@ -174,7 +177,7 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
             "--save-steps",
             args.save_steps,
         ]
-        add_args(train_cmd, experiment.get("args", {}))
+        add_args(train_cmd, experiment_args)
         update_run_status(progress_path, run_name, train="running", status="training")
         run_command(train_cmd, args.dry_run)
         update_run_status(progress_path, run_name, train="complete")
@@ -196,6 +199,8 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
                 "phase2/eval_unlearn.py",
                 "--ckpt",
                 str(ckpt_path),
+                "--internal-target-config",
+                args.internal_target_config,
                 "--device",
                 args.device,
                 "--batch-size",
@@ -205,6 +210,15 @@ def train_and_eval(args, experiment: dict, progress_path: Path) -> None:
                 "--layers",
                 args.internal_layers,
             ]
+            forget_csv = experiment_args.get("forget_csv")
+            retain_csv = experiment_args.get("retain_csv")
+            localized_layers_path = experiment_args.get("localized_layers_path")
+            if forget_csv:
+                eval_cmd.extend(["--forget-csv", str(forget_csv)])
+            if retain_csv:
+                eval_cmd.extend(["--retain-csv", str(retain_csv)])
+            if localized_layers_path:
+                eval_cmd.extend(["--localized-layers-path", str(localized_layers_path)])
             update_run_status(progress_path, run_name, internal_eval="running", status="internal_eval")
             run_command(eval_cmd, False)
             update_run_status(progress_path, run_name, internal_eval="complete")
@@ -333,8 +347,13 @@ def main() -> None:
     parser.add_argument("--eval-batch-size", type=int, default=int(os.environ.get("EVAL_BATCH", "4")))
     parser.add_argument(
         "--internal-layers",
-        default=os.environ.get("INTERNAL_LAYERS", "0-10"),
-        help="Layers evaluated by eval_unlearn.py; use 0-31 for full-depth RMU scans.",
+        default=os.environ.get("INTERNAL_LAYERS", "5-9"),
+        help="Layers evaluated by eval_unlearn.py for the merged selective-unlearning objective.",
+    )
+    parser.add_argument(
+        "--internal-target-config",
+        default=os.environ.get("INTERNAL_TARGET_CONFIG", "phase2/internal_eval_targets.json"),
+        help="JSON config listing the internal probe targets evaluated by eval_unlearn.py.",
     )
     parser.add_argument(
         "--delete-checkpoint-after-internal-eval",
@@ -379,7 +398,7 @@ def main() -> None:
     parser.add_argument("--benchmark-manifest", default=os.environ.get("BENCHMARK_MANIFEST", "data/benchmarks/hvue_gue_manifest.csv"))
     parser.add_argument("--benchmark-scope", default=os.environ.get("BENCHMARK_SCOPE", "all"))
     parser.add_argument("--bench-task-filter", default=os.environ.get("BENCH_TASK_FILTER", ""))
-    parser.add_argument("--bench-layers", default=os.environ.get("BENCH_LAYERS", "3-9"))
+    parser.add_argument("--bench-layers", default=os.environ.get("BENCH_LAYERS", "5-9"))
     parser.add_argument("--bench-batch-size", type=int, default=int(os.environ.get("BENCH_BATCH", "1")))
     parser.add_argument(
         "--bench-train-batch-size",

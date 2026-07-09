@@ -3,14 +3,15 @@ RMU (Representation Misdirection for Unlearning) for Evo-1-8k-base.
 
 Idea (Li et al., ICML 2024):
   - Forget set: push hidden activations at one or more target layers toward a
-    steering direction (random or non-human).
+    steering direction (random, non-human, or joint probe-derived).
   - Retain set: keep hidden activations close to those of a *frozen* reference
     copy of the model.
 
 This implementation supports multi-layer RMU. That matters for this project:
-Phase 1 localizes host-tropism causally to a span of layers rather than a
-single layer, so a one-layer hook can leave later "localized" layers with no
-effective gradient. Trainable parameters depend on the condition:
+Phase 1 localizes the merged selective-unlearning signal to a span of layers
+rather than a single layer, so a one-layer hook can leave later "localized"
+layers with no effective gradient. Trainable parameters depend on the
+condition:
   full       : all blocks
   localized  : layers loaded from localized_layers.json
   random     : matched random layers from 11..30
@@ -21,7 +22,7 @@ import os
 import random
 import sys
 import time
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -41,6 +42,12 @@ from phase2.utils import (
     select_random_layers,
     set_block_grad,
     tokenize_batch,
+)
+from phase2.probe_utils import (
+    load_probe,
+    load_target_specs,
+    normalized_raw_probe_direction,
+    orthonormal_basis,
 )
 
 
@@ -240,6 +247,64 @@ def compute_nonhuman_directions(
     return directions
 
 
+def compute_joint_probe_directions(
+    internal_target_config: str,
+    target_layers: List[int],
+    device: str,
+    sign: float = -1.0,
+) -> Tuple[Dict[int, torch.Tensor], dict]:
+    """Compute per-layer directions from the configured target probes.
+
+    The raw probe direction increases the label=1 logit. The default negative
+    sign steers label=1 forget examples away from the joint target subspace.
+    """
+    if not internal_target_config:
+        raise ValueError("--internal-target-config is required for --target-direction=joint_probe")
+    target_specs = load_target_specs(internal_target_config)
+    target_names = [spec["name"] for spec in target_specs]
+    directions: Dict[int, torch.Tensor] = {}
+    layer_probe_paths: Dict[str, Dict[str, str]] = {}
+    layer_target_names: Dict[str, List[str]] = {}
+
+    for layer in target_layers:
+        vectors = []
+        probe_paths = {}
+        names = []
+        for spec in target_specs:
+            if layer not in spec["layers"]:
+                continue
+            probe = load_probe(spec["probe_dir"], layer, device=device)
+            vectors.append(normalized_raw_probe_direction(probe))
+            probe_paths[spec["name"]] = probe["path"]
+            names.append(spec["name"])
+        if not vectors:
+            raise ValueError(
+                f"No target probes from {internal_target_config} cover RMU loss layer {layer}"
+            )
+
+        direction = torch.stack(vectors, dim=0).sum(dim=0)
+        raw_norm = direction.norm()
+        if raw_norm <= 1e-6 and len(vectors) > 1:
+            basis = orthonormal_basis(vectors)
+            direction = basis.sum(dim=1)
+            raw_norm = direction.norm()
+        direction = sign * direction
+        norm = direction.norm().clamp(min=1e-8)
+        directions[layer] = (direction / norm).to(device)
+        layer_probe_paths[str(layer)] = probe_paths
+        layer_target_names[str(layer)] = names
+        print(
+            f"[RMU] layer {layer} joint-probe direction targets={names} "
+            f"sign={sign:g} raw_norm={raw_norm.item():.4f}"
+        )
+
+    return directions, {
+        "target_names": target_names,
+        "layer_probe_paths": layer_probe_paths,
+        "layer_target_names": layer_target_names,
+    }
+
+
 def save_block_deltas(model, layers: List[int], out_path: str) -> None:
     delta = {}
     sd = model.state_dict()
@@ -258,8 +323,13 @@ def save_block_deltas(model, layers: List[int], out_path: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--forget-csv", default="data/phase2/coronaviridae_splits/forget.csv")
-    parser.add_argument("--retain-csv", default="data/phase2/coronaviridae_splits/retain.csv")
+    parser.add_argument("--forget-csv", default="data/phase2/splits/forget.csv")
+    parser.add_argument("--retain-csv", default="data/phase2/splits/retain.csv")
+    parser.add_argument(
+        "--internal-target-config",
+        default="phase2/internal_eval_targets.json",
+        help="Target probe config used by --target-direction=joint_probe.",
+    )
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--out-dir", default="data/phase2/checkpoints")
@@ -279,7 +349,12 @@ def main() -> None:
             "hidden-vector norm, enabling comparable searches across shallow/deep layers."
         ),
     )
-    parser.add_argument("--alpha-retain", type=float, default=1.0)
+    parser.add_argument(
+        "--alpha-retain",
+        type=float,
+        default=1.0,
+        help="Retain anchor weight. Full-model runs are clamped to at least 10.0 to avoid global representation drift.",
+    )
     parser.add_argument("--alpha-forget", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--max-length", type=int, default=512)
@@ -313,13 +388,24 @@ def main() -> None:
     )
     parser.add_argument(
         "--target-direction",
-        choices=["random", "nonhuman"],
-        default="random",
+        choices=["random", "nonhuman", "joint_probe"],
+        default="nonhuman",
         help=(
             "Steering direction for forget set. "
-            "'random': fixed random unit vector (original). "
+            "'random': fixed random unit vector (control only). "
             "'nonhuman': mean(retain) - mean(forget) at target_layer, "
-            "steers human-tropic activations toward the non-human-tropic subspace."
+            "steers human-tropic activations toward the non-human-tropic subspace. "
+            "'joint_probe': negative equal-weight sum of configured raw target-probe "
+            "directions, steers label=1 forget examples away from the joint target."
+        ),
+    )
+    parser.add_argument(
+        "--probe-direction-sign",
+        type=float,
+        default=-1.0,
+        help=(
+            "Sign applied to joint_probe directions. Default -1 steers positive "
+            "forget examples away from the target-probe logits."
         ),
     )
     parser.add_argument(
@@ -341,13 +427,30 @@ def main() -> None:
 
     torch.manual_seed(args.seed)
     rng = random.Random(args.seed)
+    requested_alpha_retain = args.alpha_retain
+    effective_alpha_retain = args.alpha_retain
+    if args.condition == "full" and effective_alpha_retain < 10.0:
+        effective_alpha_retain = 10.0
+        print(
+            "[RMU] condition=full: raising alpha_retain "
+            f"from {requested_alpha_retain} to {effective_alpha_retain} "
+            "because weaker retain anchoring caused full-model drift."
+        )
+    if args.target_direction == "random":
+        print(
+            "[RMU] warning: --target-direction=random is kept only as a control. "
+            "Use nonhuman or joint_probe for real checkpoint selection."
+        )
 
     requested_target_layer = (
         args.target_layer
         if args.target_layer is not None
         else get_primary_target_layer(args.localized_layers_path)
     )
-    print(f"[RMU] condition={args.condition} target_layer={requested_target_layer} c={args.steer_coef}")
+    print(
+        f"[RMU] condition={args.condition} target_layer={requested_target_layer} "
+        f"c={args.steer_coef} alpha_retain={effective_alpha_retain}"
+    )
     save_steps = {step for step in parse_save_steps(args.save_steps) if 1 <= step <= args.steps}
     run_name = args.run_name if args.run_name else f"rmu_{args.condition}"
     run_dir = os.path.join(args.out_dir, run_name)
@@ -394,6 +497,7 @@ def main() -> None:
     ref_hooks = {layer: HiddenCapture(ref_model, layer) for layer in loss_layers}
 
     # Steering direction for the forget set
+    direction_metadata = {}
     if args.target_direction == "nonhuman":
         ref_model.eval()
         raw_directions = compute_nonhuman_directions(
@@ -412,8 +516,22 @@ def main() -> None:
             layer: (args.steer_coef * raw_directions[layer]).to(torch.float32)
             for layer in loss_layers
         }
+        direction_metadata = {"direction_seqs": args.direction_seqs}
         for layer in loss_layers:
             print(f"[RMU] layer {layer} non-human target dir norm={target_vecs[layer].norm().item():.2f}")
+    elif args.target_direction == "joint_probe":
+        raw_directions, direction_metadata = compute_joint_probe_directions(
+            internal_target_config=args.internal_target_config,
+            target_layers=loss_layers,
+            device=args.device,
+            sign=args.probe_direction_sign,
+        )
+        target_vecs = {
+            layer: (args.steer_coef * raw_directions[layer]).to(torch.float32)
+            for layer in loss_layers
+        }
+        for layer in loss_layers:
+            print(f"[RMU] layer {layer} joint-probe target dir norm={target_vecs[layer].norm().item():.2f}")
     else:
         target_vecs = {}
         for layer in loss_layers:
@@ -539,7 +657,7 @@ def main() -> None:
         L_retain = L_retain_mse + (args.retain_cosine_weight * L_retain_cosine)
 
         weighted_forget = args.alpha_forget * L_forget
-        weighted_retain = args.alpha_retain * L_retain
+        weighted_retain = effective_alpha_retain * L_retain
         loss = weighted_forget + weighted_retain
         loss.backward()
         if args.grad_clip > 0:
@@ -595,9 +713,16 @@ def main() -> None:
                     "steer_coef": args.steer_coef,
                     "target_direction": args.target_direction,
                     "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
+                    "internal_target_config": args.internal_target_config,
+                    "probe_direction_sign": (
+                        args.probe_direction_sign if args.target_direction == "joint_probe" else None
+                    ),
+                    "direction_metadata": direction_metadata,
                     "retain_cosine_weight": args.retain_cosine_weight,
                     "steps": args.steps, "lr": args.lr,
-                    "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
+                    "alpha_forget": args.alpha_forget,
+                    "alpha_retain": effective_alpha_retain,
+                    "requested_alpha_retain": requested_alpha_retain,
                     "batch_size": args.batch_size, "max_length": args.max_length,
                     "forget_csv": args.forget_csv,
                     "retain_csv": args.retain_csv,
@@ -626,9 +751,16 @@ def main() -> None:
             "steer_coef": args.steer_coef,
             "target_direction": args.target_direction,
             "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
+            "internal_target_config": args.internal_target_config,
+            "probe_direction_sign": (
+                args.probe_direction_sign if args.target_direction == "joint_probe" else None
+            ),
+            "direction_metadata": direction_metadata,
             "retain_cosine_weight": args.retain_cosine_weight,
             "steps": args.steps, "lr": args.lr,
-            "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
+            "alpha_forget": args.alpha_forget,
+            "alpha_retain": effective_alpha_retain,
+            "requested_alpha_retain": requested_alpha_retain,
             "batch_size": args.batch_size, "max_length": args.max_length,
             "forget_csv": args.forget_csv,
             "retain_csv": args.retain_csv,

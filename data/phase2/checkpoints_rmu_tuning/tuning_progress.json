@@ -1,0 +1,254 @@
+{
+  "runs": {
+    "rmu_l6_ratio050_ar1_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio050_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T17:51:10Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio075_ar1_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio075_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T17:58:41Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio125_ar1_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio125_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:06:11Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio150_ar1_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio150_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:13:41Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar2_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar2_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:21:15Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar3_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar3_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:28:47Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar5_lr5e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar5_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:36:28Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar2_lr2e6_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar2_lr2e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:44:07Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar2_lr1e5_s200": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar2_lr1e5_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:52:12Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar2_lr5e6_s100": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar2_lr5e6_s100",
+      "status": "complete",
+      "updated_at": "2026-06-29T18:58:49Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l6_ratio100_ar2_lr5e6_s300": {
+      "group": "tune_l6",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l6_ratio100_ar2_lr5e6_s300",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:07:37Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio050_ar1_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio050_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:15:41Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio075_ar1_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio075_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:23:52Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio125_ar1_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio125_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:31:58Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio150_ar1_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio150_ar1_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:40:02Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar2_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar2_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:48:19Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar3_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar3_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T19:56:23Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar5_lr5e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar5_lr5e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T20:04:10Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar2_lr2e6_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar2_lr2e6_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T20:11:49Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar2_lr1e5_s200": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar2_lr1e5_s200",
+      "status": "complete",
+      "updated_at": "2026-06-29T20:19:31Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar2_lr5e6_s100": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar2_lr5e6_s100",
+      "status": "complete",
+      "updated_at": "2026-06-29T20:25:55Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    },
+    "rmu_l8_ratio100_ar2_lr5e6_s300": {
+      "group": "tune_l8",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_l8_ratio100_ar2_lr5e6_s300",
+      "status": "complete",
+      "updated_at": "2026-06-29T20:34:45Z",
+      "train": "complete",
+      "internal_eval": "complete",
+      "checkpoint_deleted_after_internal_eval": true
+    }
+  },
+  "config": "phase2/sweep_configs/rmu_l6_l8_tuning.json",
+  "selectors": [
+    "tune"
+  ],
+  "selected_runs": [
+    "rmu_l6_ratio050_ar1_lr5e6_s200",
+    "rmu_l6_ratio075_ar1_lr5e6_s200",
+    "rmu_l6_ratio125_ar1_lr5e6_s200",
+    "rmu_l6_ratio150_ar1_lr5e6_s200",
+    "rmu_l6_ratio100_ar2_lr5e6_s200",
+    "rmu_l6_ratio100_ar3_lr5e6_s200",
+    "rmu_l6_ratio100_ar5_lr5e6_s200",
+    "rmu_l6_ratio100_ar2_lr2e6_s200",
+    "rmu_l6_ratio100_ar2_lr1e5_s200",
+    "rmu_l6_ratio100_ar2_lr5e6_s100",
+    "rmu_l6_ratio100_ar2_lr5e6_s300",
+    "rmu_l8_ratio050_ar1_lr5e6_s200",
+    "rmu_l8_ratio075_ar1_lr5e6_s200",
+    "rmu_l8_ratio125_ar1_lr5e6_s200",
+    "rmu_l8_ratio150_ar1_lr5e6_s200",
+    "rmu_l8_ratio100_ar2_lr5e6_s200",
+    "rmu_l8_ratio100_ar3_lr5e6_s200",
+    "rmu_l8_ratio100_ar5_lr5e6_s200",
+    "rmu_l8_ratio100_ar2_lr2e6_s200",
+    "rmu_l8_ratio100_ar2_lr1e5_s200",
+    "rmu_l8_ratio100_ar2_lr5e6_s100",
+    "rmu_l8_ratio100_ar2_lr5e6_s300"
+  ],
+  "resume": true,
+  "updated_at": "2026-06-29T20:34:45Z"
+}

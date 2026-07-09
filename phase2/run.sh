@@ -8,6 +8,11 @@
 #   bash phase2/run.sh kmer_hiyata         # k-mer baseline on the derived Hiyata LoRA manifest
 #   bash phase2/run.sh gd                  # all four GD conditions (full, localized, probe, random)
 #   bash phase2/run.sh rmu                 # all three RMU conditions
+#   bash phase2/run.sh verify_retain       # verify canonical retain.csv still contains GUE + viral retain rows
+#   bash phase2/run.sh probe_nullspace     # projection-only localized probe baseline
+#   bash phase2/run.sh projection_screen   # projection + internal eval + pilot HVUE/GUE benchmark screen
+#   bash phase2/run.sh probe_guided        # probe-guided localized training (defaults to projection init)
+#   bash phase2/run.sh rmu_primary         # localized-primary nonhuman RMU sweep with explicit loss layers 5-9
 #   bash phase2/run.sh eval                # internal diagnostic eval for every checkpoint
 #   bash phase2/run.sh benchmarks          # primary HVUE LoRA benchmark eval for base + checkpoints
 #   bash phase2/run.sh benchmark_pilot     # stratified LoRA pilot eval for explicit/all candidate checkpoints
@@ -17,7 +22,7 @@
 
 set -euo pipefail
 
-PHASE2_PYTHON=${PHASE2_PYTHON:-python}
+PHASE2_PYTHON=${PHASE2_PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}
 CKPT_ROOT=data/phase2/checkpoints
 BENCH_CKPT_ROOT=${BENCH_CKPT_ROOT:-data/phase2/checkpoints_tuned}
 STEPS=${STEPS:-1000}
@@ -25,10 +30,11 @@ LR=${LR:-1e-5}
 BATCH=${BATCH:-2}
 MAX_LEN=${MAX_LEN:-512}
 SAVE_STEPS=${SAVE_STEPS:-}
-TARGET_MANIFEST=${TARGET_MANIFEST:-data/family_targets/coronaviridae/manifest.csv}
-TARGET_PROBE_DIR=${TARGET_PROBE_DIR:-data/family_targets/coronaviridae/probes}
+TARGET_MANIFEST=${TARGET_MANIFEST:-data/host_tropism/manifest.csv}
+EXTRA_FORGET_MANIFEST=${EXTRA_FORGET_MANIFEST:-data/family_targets/coronaviridae/manifest.csv}
 LOCALIZED_LAYERS_PATH=${LOCALIZED_LAYERS_PATH:-data/family_targets/coronaviridae/localized_layers.json}
-SPLIT_DIR=${SPLIT_DIR:-data/phase2/coronaviridae_splits}
+INTERNAL_TARGET_CONFIG=${INTERNAL_TARGET_CONFIG:-phase2/internal_eval_targets.json}
+SPLIT_DIR=${SPLIT_DIR:-data/phase2/splits}
 BENCHMARK_MANIFEST=${BENCHMARK_MANIFEST:-data/benchmarks/hvue_gue_manifest.csv}
 VIRAL_RETAIN_ROOT=${VIRAL_RETAIN_ROOT:-}
 VIRAL_RETAIN_TASKS=${VIRAL_RETAIN_TASKS:-virus_vs_nonvirus dna_vs_rna_virus host_range_prediction hiv1_vs_hiv2 sars_cov_2_lineage_typing influenza_subtype_typing}
@@ -37,7 +43,7 @@ BENCH_BATCH=${BENCH_BATCH:-1}
 BENCH_CPU_THREADS=${BENCH_CPU_THREADS:-16}
 BENCH_AUTO_BATCH=${BENCH_AUTO_BATCH:-96}
 BENCH_PROBE_JOBS=${BENCH_PROBE_JOBS:-7}
-BENCH_LAYERS=${BENCH_LAYERS:-0-10}
+BENCH_LAYERS=${BENCH_LAYERS:-5-9}
 BENCH_EPOCHS=${BENCH_EPOCHS:-3}
 BENCH_MAX_STEPS=${BENCH_MAX_STEPS:-0}
 BENCH_EVAL_EVERY=${BENCH_EVAL_EVERY:-100}
@@ -79,14 +85,46 @@ TAXONOMY_GROUP_KEY=${TAXONOMY_GROUP_KEY:-auto}
 TAXONOMY_CKPT_ROOT=${TAXONOMY_CKPT_ROOT:-data/phase2/checkpoints_tuned}
 TAXONOMY_OUT_ROOT=${TAXONOMY_OUT_ROOT:-data/phase2/taxonomy_heldout}
 TAXONOMY_CINI_INPUT=${TAXONOMY_CINI_INPUT:-$BENCHMARK_MANIFEST}
-TAXONOMY_MANIFEST=${TAXONOMY_MANIFEST:-$TARGET_MANIFEST}
+TAXONOMY_MANIFEST=${TAXONOMY_MANIFEST:-data/host_tropism/manifest.csv}
+RMU_CONDITIONS=${RMU_CONDITIONS:-localized full}
+RMU_TARGET_DIRECTION=${RMU_TARGET_DIRECTION:-nonhuman}
+RMU_DIRECTION_SEQS=${RMU_DIRECTION_SEQS:-500}
+PROBE_NULLSPACE_RUN=${PROBE_NULLSPACE_RUN:-probe_nullspace_joint_l5_l9}
+PROBE_GUIDED_RUN=${PROBE_GUIDED_RUN:-probe_guided_projinit_ar5_s200}
+PROBE_INIT_RUN=${PROBE_INIT_RUN:-$PROBE_NULLSPACE_RUN}
+GD_INIT_RUN=${GD_INIT_RUN:-$PROBE_NULLSPACE_RUN}
+RMU_PRIMARY_CONFIG=${RMU_PRIMARY_CONFIG:-phase2/sweep_configs/rmu_localized_nonhuman.json}
+
+verify_retain() {
+    "$PHASE2_PYTHON" -u phase2/verify_retain_set.py \
+        --csv "$SPLIT_DIR/retain.csv" \
+        --summary-json "$SPLIT_DIR/retain_audit.json"
+}
+
+ensure_pilot_manifest() {
+    if [ -f "$BENCH_PILOT_MANIFEST" ]; then
+        echo "[phase2] using existing pilot manifest $BENCH_PILOT_MANIFEST"
+        return
+    fi
+    "$PHASE2_PYTHON" -u phase2/subsample_benchmark_manifest.py \
+        --input-manifest "$BENCHMARK_MANIFEST" \
+        --output-manifest "$BENCH_PILOT_MANIFEST" \
+        --seed "$HIYATA_SEED" \
+        --train-per-label "$BENCH_PILOT_TRAIN_PER_LABEL" \
+        --val-per-label "$BENCH_PILOT_VAL_PER_LABEL" \
+        --test-per-label "$BENCH_PILOT_TEST_PER_LABEL"
+}
 
 run_gd() {
     for cond in localized probe random full; do
         echo "=== GD $cond ==="
-        python phase2/unlearn_gd.py \
+        "$PHASE2_PYTHON" -u phase2/unlearn_gd.py \
             --forget-csv "$SPLIT_DIR/forget.csv" \
             --retain-csv "$SPLIT_DIR/retain.csv" \
+            --internal-target-config "$INTERNAL_TARGET_CONFIG" \
+            --out-dir "$CKPT_ROOT" \
+            --run-name "gd_projinit_$cond" \
+            --init-from-run "$GD_INIT_RUN" \
             --condition "$cond" \
             --steps "$STEPS" --lr "$LR" \
             --batch-size "$BATCH" --max-length "$MAX_LEN" \
@@ -96,17 +134,65 @@ run_gd() {
 }
 
 run_rmu() {
-    for cond in localized random full; do
+    for cond in $RMU_CONDITIONS; do
         echo "=== RMU $cond ==="
         python phase2/unlearn_rmu.py \
             --forget-csv "$SPLIT_DIR/forget.csv" \
             --retain-csv "$SPLIT_DIR/retain.csv" \
             --condition "$cond" \
+            --target-direction "$RMU_TARGET_DIRECTION" \
+            --direction-seqs "$RMU_DIRECTION_SEQS" \
             --steps "$STEPS" --lr "$LR" \
             --batch-size "$BATCH" --max-length "$MAX_LEN" \
             --save-steps "$SAVE_STEPS" \
             --localized-layers-path "$LOCALIZED_LAYERS_PATH"
     done
+}
+
+run_probe_nullspace() {
+    echo "=== Probe null-space projection ==="
+    python phase2/project_probe_nullspace.py \
+        --internal-target-config "$INTERNAL_TARGET_CONFIG" \
+        --forget-csv "$SPLIT_DIR/forget.csv" \
+        --retain-csv "$SPLIT_DIR/retain.csv" \
+        --out-dir "$CKPT_ROOT" \
+        --run-name "$PROBE_NULLSPACE_RUN" \
+        --device "${DEVICE:-cuda:0}"
+}
+
+run_probe_guided() {
+    echo "=== Probe-guided localized training ==="
+    python phase2/unlearn_probe.py \
+        --internal-target-config "$INTERNAL_TARGET_CONFIG" \
+        --forget-csv "$SPLIT_DIR/forget.csv" \
+        --retain-csv "$SPLIT_DIR/retain.csv" \
+        --out-dir "$CKPT_ROOT" \
+        --run-name "$PROBE_GUIDED_RUN" \
+        --init-from-run "$PROBE_INIT_RUN" \
+        --device "${DEVICE:-cuda:0}" \
+        --steps "$STEPS" --lr "$LR" \
+        --batch-size "$BATCH" --max-length "$MAX_LEN" \
+        --save-steps "$SAVE_STEPS"
+}
+
+run_projection_screen() {
+    verify_retain
+    ensure_pilot_manifest
+    "$PHASE2_PYTHON" -u phase2/run_task2_sweeps.py \
+        projection \
+        --out-dir "$BENCH_CKPT_ROOT" \
+        --run-benchmarks \
+        --benchmark-manifest "$BENCH_PILOT_MANIFEST" \
+        --benchmark-scope all \
+        --device "${DEVICE:-cuda:0}"
+}
+
+run_rmu_primary() {
+    verify_retain
+    "$PHASE2_PYTHON" -u phase2/run_task2_sweeps.py \
+        --config "$RMU_PRIMARY_CONFIG" \
+        --out-dir "$BENCH_CKPT_ROOT" \
+        --device "${DEVICE:-cuda:0}"
 }
 
 run_eval() {
@@ -116,8 +202,9 @@ run_eval() {
             echo "=== eval $run ==="
             python phase2/eval_unlearn.py \
                 --ckpt "$ckpt" \
-                --manifest "$TARGET_MANIFEST" \
-                --probe-dir "$TARGET_PROBE_DIR" \
+                --internal-target-config "$INTERNAL_TARGET_CONFIG" \
+                --forget-csv "$SPLIT_DIR/forget.csv" \
+                --retain-csv "$SPLIT_DIR/retain.csv" \
                 --localized-layers-path "$LOCALIZED_LAYERS_PATH"
         fi
     done
@@ -353,13 +440,18 @@ run_taxonomy_heldout() {
 }
 
 case "${1:-all}" in
-    splits) python phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --out-dir "$SPLIT_DIR" ;;
+    splits) python phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --extra-forget-manifest "$EXTRA_FORGET_MANIFEST" --out-dir "$SPLIT_DIR" ;;
     audit) run_audit ;;
     prepare_benchmarks) prepare_benchmarks ;;
     prepare_hiyata_lora) prepare_hiyata_lora ;;
     kmer_hiyata) run_kmer_hiyata ;;
     gd) run_gd ;;
     rmu) run_rmu ;;
+    verify_retain) verify_retain ;;
+    probe_nullspace) run_probe_nullspace ;;
+    projection_screen) run_projection_screen ;;
+    probe_guided) run_probe_guided ;;
+    rmu_primary) run_rmu_primary ;;
     eval) run_eval ;;
     benchmarks) run_benchmarks ;;
     benchmark_pilot) run_benchmark_pilot ;;
@@ -368,11 +460,13 @@ case "${1:-all}" in
     taxonomy_heldout_ckpts) run_taxonomy_heldout_ckpts ;;
     taxonomy_heldout) run_taxonomy_heldout ;;
     all)
-        python phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --out-dir "$SPLIT_DIR"
+        python phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --extra-forget-manifest "$EXTRA_FORGET_MANIFEST" --out-dir "$SPLIT_DIR"
         run_audit
         prepare_benchmarks
         prepare_hiyata_lora
         run_kmer_hiyata
+        run_probe_nullspace
+        run_probe_guided
         run_gd
         run_rmu
         run_eval
@@ -380,7 +474,7 @@ case "${1:-all}" in
         ;;
     *)
         echo "Unknown target: $1"
-        echo "Usage: bash phase2/run.sh [splits|audit|prepare_benchmarks|prepare_hiyata_lora|kmer_hiyata|gd|rmu|eval|benchmarks|benchmark_pilot|benchmark_full_top|taxonomy_heldout_base|taxonomy_heldout_ckpts|taxonomy_heldout|all]"
+        echo "Usage: bash phase2/run.sh [splits|audit|prepare_benchmarks|prepare_hiyata_lora|kmer_hiyata|gd|rmu|verify_retain|probe_nullspace|projection_screen|probe_guided|rmu_primary|eval|benchmarks|benchmark_pilot|benchmark_full_top|taxonomy_heldout_base|taxonomy_heldout_ckpts|taxonomy_heldout|all]"
         exit 1
         ;;
 esac

@@ -1,0 +1,32 @@
+{
+  "runs": {
+    "rmu_full_l6_base": {
+      "group": "retain_baselines",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_full_l6_base",
+      "status": "complete",
+      "updated_at": "2026-06-29T17:35:41Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_full_l8_base": {
+      "group": "retain_baselines",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_tuning/rmu_full_l8_base",
+      "status": "complete",
+      "updated_at": "2026-06-29T17:43:16Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    }
+  },
+  "config": "phase2/sweep_configs/rmu_l6_l8_tuning.json",
+  "selectors": [
+    "baselines"
+  ],
+  "selected_runs": [
+    "rmu_full_l6_base",
+    "rmu_full_l8_base"
+  ],
+  "resume": true,
+  "updated_at": "2026-06-29T17:43:16Z"
+}

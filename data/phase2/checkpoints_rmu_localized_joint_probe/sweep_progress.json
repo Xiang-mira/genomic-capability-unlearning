@@ -1,0 +1,132 @@
+{
+  "runs": {
+    "rmu_loc_l5_l9_jointprobe_sc50_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc50_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T06:23:43Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc100_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc100_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T06:36:57Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc200_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc200_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T06:50:19Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc50_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc50_ar10_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T07:03:47Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc100_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc100_ar10_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T07:17:03Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc200_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc200_ar10_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T07:30:18Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc50_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc50_ar20_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T07:43:39Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc100_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc100_ar20_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T07:56:58Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc200_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc200_ar20_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T08:10:27Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc50_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc50_ar50_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T08:23:55Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc100_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc100_ar50_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T08:37:13Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_jointprobe_sc200_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_localized_joint_probe/rmu_loc_l5_l9_jointprobe_sc200_ar50_s500",
+      "status": "complete",
+      "updated_at": "2026-07-08T08:50:44Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    }
+  },
+  "config": "phase2/sweep_configs/rmu_localized_joint_probe.json",
+  "selectors": [
+    "localized"
+  ],
+  "selected_runs": [
+    "rmu_loc_l5_l9_jointprobe_sc50_ar5_s500",
+    "rmu_loc_l5_l9_jointprobe_sc100_ar5_s500",
+    "rmu_loc_l5_l9_jointprobe_sc200_ar5_s500",
+    "rmu_loc_l5_l9_jointprobe_sc50_ar10_s500",
+    "rmu_loc_l5_l9_jointprobe_sc100_ar10_s500",
+    "rmu_loc_l5_l9_jointprobe_sc200_ar10_s500",
+    "rmu_loc_l5_l9_jointprobe_sc50_ar20_s500",
+    "rmu_loc_l5_l9_jointprobe_sc100_ar20_s500",
+    "rmu_loc_l5_l9_jointprobe_sc200_ar20_s500",
+    "rmu_loc_l5_l9_jointprobe_sc50_ar50_s500",
+    "rmu_loc_l5_l9_jointprobe_sc100_ar50_s500",
+    "rmu_loc_l5_l9_jointprobe_sc200_ar50_s500"
+  ],
+  "resume": true,
+  "updated_at": "2026-07-08T08:50:44Z"
+}

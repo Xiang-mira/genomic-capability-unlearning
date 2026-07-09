@@ -1,9 +1,9 @@
 {
-  "description": "CORONAVIRIDAE-FAMILY OBJECTIVE (not global host tropism): scale-calibrated full RMU tuning for layer 6 and layer 8. Baselines are retained; tuning runs use a fractional design over target norm ratio, retain weight, learning rate, and steps.",
-  "objective_id": "coronaviridae_family",
+  "description": "Merged selective-unlearning objective: scale-calibrated full RMU tuning for layer 6 and layer 8 on the combined host_tropism + coronaviridae forget target.",
+  "objective_id": "merged_selective_unlearning",
   "train_defaults": {
-    "forget_csv": "data/phase2/coronaviridae_splits/forget.csv",
-    "retain_csv": "data/phase2/coronaviridae_splits/retain.csv"
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv"
   },
   "experiments": [
     {"group": "retain_baselines", "name": "rmu_full_l6_base", "method": "rmu", "args": {"condition": "full", "target_layer": 6, "loss_layers": "6", "scale_calibrated": true, "steer_coef": 1.0, "alpha_forget": 1.0, "alpha_retain": 1.0, "lr": 5e-6, "steps": 200}},

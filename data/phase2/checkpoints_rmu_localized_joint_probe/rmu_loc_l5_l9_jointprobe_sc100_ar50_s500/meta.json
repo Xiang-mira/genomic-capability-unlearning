@@ -1,0 +1,90 @@
+{
+  "method": "rmu",
+  "condition": "localized",
+  "layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "target_layer": 6,
+  "loss_layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "normalize_hidden": false,
+  "scale_calibrated": false,
+  "steer_coef": 100.0,
+  "target_direction": "joint_probe",
+  "direction_seqs": null,
+  "internal_target_config": "phase2/internal_eval_targets.json",
+  "probe_direction_sign": -1.0,
+  "direction_metadata": {
+    "target_names": [
+      "host_tropism",
+      "coronaviridae"
+    ],
+    "layer_probe_paths": {
+      "5": {
+        "host_tropism": "data/host_tropism/probes/layer_5.npz",
+        "coronaviridae": "data/family_targets/coronaviridae/probes/layer_5.npz"
+      },
+      "6": {
+        "host_tropism": "data/host_tropism/probes/layer_6.npz",
+        "coronaviridae": "data/family_targets/coronaviridae/probes/layer_6.npz"
+      },
+      "7": {
+        "host_tropism": "data/host_tropism/probes/layer_7.npz",
+        "coronaviridae": "data/family_targets/coronaviridae/probes/layer_7.npz"
+      },
+      "8": {
+        "host_tropism": "data/host_tropism/probes/layer_8.npz",
+        "coronaviridae": "data/family_targets/coronaviridae/probes/layer_8.npz"
+      },
+      "9": {
+        "host_tropism": "data/host_tropism/probes/layer_9.npz",
+        "coronaviridae": "data/family_targets/coronaviridae/probes/layer_9.npz"
+      }
+    },
+    "layer_target_names": {
+      "5": [
+        "host_tropism",
+        "coronaviridae"
+      ],
+      "6": [
+        "host_tropism",
+        "coronaviridae"
+      ],
+      "7": [
+        "host_tropism",
+        "coronaviridae"
+      ],
+      "8": [
+        "host_tropism",
+        "coronaviridae"
+      ],
+      "9": [
+        "host_tropism",
+        "coronaviridae"
+      ]
+    }
+  },
+  "retain_cosine_weight": 0.0,
+  "steps": 500,
+  "lr": 1e-05,
+  "alpha_forget": 1.0,
+  "alpha_retain": 50.0,
+  "requested_alpha_retain": 50.0,
+  "batch_size": 2,
+  "max_length": 512,
+  "forget_csv": "data/phase2/splits/forget.csv",
+  "retain_csv": "data/phase2/splits/retain.csv",
+  "seed": 42,
+  "elapsed_sec": 302.4748582839966,
+  "save_steps": [],
+  "localized_layers_path": "data/family_targets/coronaviridae/localized_layers.json"
+}

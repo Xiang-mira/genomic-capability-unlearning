@@ -386,35 +386,292 @@
       "updated_at": "2026-06-11T04:03:15Z",
       "train": "complete",
       "internal_eval": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc50_ar5_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc100_ar5_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar5_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc200_ar5_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc50_ar10_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc100_ar10_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar10_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc200_ar10_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc50_ar20_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc100_ar20_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar20_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc200_ar20_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc50_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc50_ar50_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc100_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc100_ar50_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_loc_l5_l9_nonhuman_sc200_ar50_s500": {
+      "group": "localized_primary",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_loc_l5_l9_nonhuman_sc200_ar50_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc50_ar10_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc50_ar10_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc100_ar10_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc100_ar10_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc200_ar10_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc200_ar10_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc50_ar20_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc50_ar20_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc100_ar20_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc100_ar20_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc200_ar20_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc200_ar20_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc50_ar50_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc50_ar50_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc100_ar50_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc100_ar50_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "rmu_full_l5_l9_nonhuman_sc200_ar50_s500": {
+      "group": "full_controls",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/rmu_full_l5_l9_nonhuman_sc200_ar50_s500",
+      "status": "dry_run",
+      "updated_at": "2026-07-07T04:58:10Z",
+      "train": "complete"
+    },
+    "probe_nullspace_joint_l5_l9": {
+      "group": "projection",
+      "method": "probe_nullspace",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/probe_nullspace_joint_l5_l9",
+      "status": "complete",
+      "updated_at": "2026-07-07T10:26:39Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing",
+      "benchmark_eval": "complete"
+    },
+    "refseq_gd_projinit_loc_af1_ar1_s200": {
+      "group": "gd_alpha",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_af1_ar1_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:32:48Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing"
+    },
+    "refseq_gd_projinit_loc_af1_ar3_s200": {
+      "group": "gd_alpha",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_af1_ar3_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:32:48Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing"
+    },
+    "refseq_gd_projinit_loc_af1_ar5_s200": {
+      "group": "gd_alpha",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_af1_ar5_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:32:48Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing"
+    },
+    "refseq_gd_projinit_loc_af1_ar10_s200": {
+      "group": "gd_alpha",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_af1_ar10_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:32:48Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing"
+    },
+    "refseq_gd_projinit_loc_ar5_lr5e-6_s200": {
+      "group": "gd_lr",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_lr5e-6_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:32:48Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing"
+    },
+    "refseq_gd_projinit_loc_ar5_lr2e-5_s200": {
+      "group": "gd_lr",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_lr2e-5_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:32:48Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing"
+    },
+    "refseq_gd_projinit_loc_ar5_s500": {
+      "group": "gd_steps",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s500",
+      "status": "complete",
+      "updated_at": "2026-07-07T17:46:22Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "refseq_gd_projinit_loc_ar5_s1000": {
+      "group": "gd_steps",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000",
+      "status": "complete",
+      "updated_at": "2026-07-07T18:05:24Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "refseq_gd_projinit_random_ar5_s1000": {
+      "group": "gd_controls",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000",
+      "status": "complete",
+      "updated_at": "2026-07-07T18:25:20Z",
+      "train": "complete",
+      "internal_eval": "complete"
+    },
+    "refseq_gd_projinit_full_ar5_s200": {
+      "group": "gd_controls",
+      "method": "gd",
+      "checkpoint_dir": "data/phase2/checkpoints_tuned/refseq_gd_projinit_full_ar5_s200",
+      "status": "complete",
+      "updated_at": "2026-07-07T18:36:56Z",
+      "train": "complete",
+      "internal_eval": "complete"
     }
   },
   "config": "phase2/sweep_configs/task2_sweeps.json",
   "selectors": [
-    "all"
+    "gd"
   ],
   "selected_runs": [
-    "refseq_gd_loc_af1_ar1_s200",
-    "refseq_gd_loc_af1_ar3_s200",
-    "refseq_gd_loc_af1_ar5_s200",
-    "refseq_gd_loc_af1_ar10_s200",
-    "refseq_gd_loc_ar5_lr5e-6_s200",
-    "refseq_gd_loc_ar5_lr2e-5_s200",
-    "refseq_gd_loc_ar5_s500",
-    "refseq_gd_loc_ar5_s1000",
-    "refseq_gd_random_ar5_s1000",
-    "refseq_gd_full_ar5_s200",
-    "refseq_rmu_loc_sc25_s200",
-    "refseq_rmu_loc_sc50_s200",
-    "refseq_rmu_loc_sc100_s200",
-    "refseq_rmu_loc_sc200_s200",
-    "refseq_rmu_loc_sc50_ar3_s200",
-    "refseq_rmu_loc_sc50_ar5_s200",
-    "refseq_rmu_loc_nonhuman_sc50_s200",
-    "refseq_rmu_loc_sc50_s500",
-    "refseq_rmu_loc_sc50_s1000",
-    "refseq_rmu_random_sc50_s1000",
-    "refseq_rmu_full_sc50_s200"
+    "refseq_gd_projinit_loc_af1_ar1_s200",
+    "refseq_gd_projinit_loc_af1_ar3_s200",
+    "refseq_gd_projinit_loc_af1_ar5_s200",
+    "refseq_gd_projinit_loc_af1_ar10_s200",
+    "refseq_gd_projinit_loc_ar5_lr5e-6_s200",
+    "refseq_gd_projinit_loc_ar5_lr2e-5_s200",
+    "refseq_gd_projinit_loc_ar5_s500",
+    "refseq_gd_projinit_loc_ar5_s1000",
+    "refseq_gd_projinit_random_ar5_s1000",
+    "refseq_gd_projinit_full_ar5_s200"
   ],
   "resume": true,
-  "updated_at": "2026-06-11T04:03:15Z"
+  "updated_at": "2026-07-07T18:36:56Z"
 }

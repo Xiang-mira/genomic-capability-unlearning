@@ -1,0 +1,33 @@
+{
+  "runs": {
+    "rmu_pareto_l8_ratio050": {
+      "group": "pareto",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_pareto/rmu_pareto_l8_ratio050",
+      "status": "benchmark_eval",
+      "updated_at": "2026-07-01T15:56:00Z",
+      "train": "skipped_existing",
+      "internal_eval": "skipped_existing",
+      "benchmark_eval": "running"
+    },
+    "rmu_pareto_l8_ratio150": {
+      "group": "pareto",
+      "method": "rmu",
+      "checkpoint_dir": "data/phase2/checkpoints_rmu_pareto/rmu_pareto_l8_ratio150",
+      "status": "interrupted",
+      "updated_at": "2026-07-01T15:56:00Z",
+      "train": "interrupted_before_checkpoint"
+    }
+  },
+  "config": "phase2/sweep_configs/rmu_pareto_lora.json",
+  "selectors": [
+    "pareto"
+  ],
+  "selected_runs": [
+    "rmu_pareto_l8_ratio050",
+    "rmu_pareto_l8_ratio150",
+    "rmu_pareto_l6_ar2_lr1e5"
+  ],
+  "resume": true,
+  "updated_at": "2026-07-01T15:56:00Z"
+}

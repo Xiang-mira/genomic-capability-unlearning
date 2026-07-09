@@ -1,0 +1,31 @@
+{
+  "description": "Phase 2 localized-primary RMU sweep for the merged host_tropism + coronaviridae forget objective using joint_probe steering. The joint_probe direction is the negative equal-weight sum of configured raw target-probe directions, so label=1 forget examples are steered away from the host_tropism + coronaviridae probe subspace. This mirrors rmu_localized_nonhuman.json for direct comparison.",
+  "objective_id": "merged_selective_unlearning_joint_probe",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv",
+    "internal_target_config": "phase2/internal_eval_targets.json"
+  },
+  "experiments": [
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc50_ar5_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc100_ar5_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc200_ar5_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 5.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc50_ar10_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc100_ar10_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc200_ar10_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 10.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc50_ar20_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc100_ar20_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc200_ar20_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 20.0, "lr": 1e-5, "steps": 500}},
+
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc50_ar50_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 50, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc100_ar50_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 100, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}},
+    {"group": "localized_primary", "name": "rmu_loc_l5_l9_jointprobe_sc200_ar50_s500", "method": "rmu", "args": {"condition": "localized", "target_layer": 6, "loss_layers": "5,6,7,8,9", "target_direction": "joint_probe", "probe_direction_sign": -1.0, "internal_target_config": "phase2/internal_eval_targets.json", "steer_coef": 200, "alpha_forget": 1.0, "alpha_retain": 50.0, "lr": 1e-5, "steps": 500}}
+  ],
+  "aliases": {
+    "localized": ["localized_primary"],
+    "rmu": ["localized_primary"],
+    "all": ["localized_primary"]
+  }
+}

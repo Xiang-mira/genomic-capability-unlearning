@@ -1,0 +1,38 @@
+{
+  "method": "rmu",
+  "condition": "localized",
+  "layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "target_layer": 6,
+  "loss_layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "normalize_hidden": false,
+  "scale_calibrated": false,
+  "steer_coef": 200.0,
+  "target_direction": "nonhuman",
+  "direction_seqs": 500,
+  "retain_cosine_weight": 0.0,
+  "steps": 500,
+  "lr": 1e-05,
+  "alpha_forget": 1.0,
+  "alpha_retain": 10.0,
+  "requested_alpha_retain": 10.0,
+  "batch_size": 2,
+  "max_length": 512,
+  "forget_csv": "data/phase2/splits/forget.csv",
+  "retain_csv": "data/phase2/splits/retain.csv",
+  "seed": 42,
+  "elapsed_sec": 300.0035934448242,
+  "save_steps": [],
+  "localized_layers_path": "data/family_targets/coronaviridae/localized_layers.json"
+}

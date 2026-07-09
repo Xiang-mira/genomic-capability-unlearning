@@ -1,0 +1,42 @@
+{
+  "groups": {
+    "gue_retain": {
+      "mean_score": 0.7673617996330262,
+      "n_tasks": 5
+    },
+    "hvue_forget": {
+      "mean_score": 0.7170606666666666,
+      "n_tasks": 2
+    }
+  },
+  "tasks": {
+    "gue_emp_h3": {
+      "mean_score": 0.8015128255475625,
+      "n_rows": 1
+    },
+    "gue_human_tf_1": {
+      "mean_score": 0.606842,
+      "n_rows": 1
+    },
+    "gue_mouse_1": {
+      "mean_score": 0.8616957777777777,
+      "n_rows": 1
+    },
+    "gue_prom_300_notata": {
+      "mean_score": 0.9741986666666667,
+      "n_rows": 1
+    },
+    "gue_splice_reconstructed": {
+      "mean_score": 0.5925597281731242,
+      "n_rows": 1
+    },
+    "hvue_human_host_tropism": {
+      "mean_score": 0.7811506666666667,
+      "n_rows": 1
+    },
+    "hvue_human_transmissibility_coronaviridae": {
+      "mean_score": 0.6529706666666666,
+      "n_rows": 1
+    }
+  }
+}

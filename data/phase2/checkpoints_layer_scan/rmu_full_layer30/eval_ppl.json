@@ -1,0 +1,17 @@
+{
+  "forget_val_perplexity": 17.67590245349715,
+  "forget_val_loss": 2.8722022686685835,
+  "n_forget": 224,
+  "retain_val_perplexity": 6.274871918123632,
+  "retain_val_loss": 1.8365530733551299,
+  "n_retain": 224,
+  "localized_layers": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "localized_val_mean_auroc": 0.8676339285714286,
+  "localized_test_mean_auroc": 0.8693638392857143
+}
