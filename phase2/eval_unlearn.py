@@ -15,6 +15,8 @@ Outputs:
   data/phase2/checkpoints/<run>/eval_ppl.json
   data/phase2/checkpoints/<run>/eval_representation.csv
 """
+from __future__ import annotations
+
 import argparse
 import csv
 import json
@@ -26,14 +28,22 @@ from typing import Dict, List
 import numpy as np
 import torch
 from safetensors.torch import load_file
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, matthews_corrcoef, roc_auc_score
+from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from phase1.utils import load_local_checkpoint, read_manifest
-from evo.tokenizer import CharLevelTokenizer
-from phase2.utils import get_localized_layers, language_model_loss, tokenize_batch
+DEFAULT_LOCALIZED_LAYERS = [5, 6, 7, 8, 9]
+
+
+def get_localized_layers(path: str) -> List[int]:
+    if not path or not os.path.exists(path):
+        return list(DEFAULT_LOCALIZED_LAYERS)
+    with open(path) as f:
+        payload = json.load(f)
+    return sorted(set(int(layer) for layer in payload.get("layers", DEFAULT_LOCALIZED_LAYERS)))
 
 
 def apply_checkpoint(model, ckpt_path: str) -> None:
@@ -52,13 +62,22 @@ def apply_checkpoint(model, ckpt_path: str) -> None:
 
 
 def load_probe(probe_dir: str, layer_idx: int) -> dict:
-    data = np.load(os.path.join(probe_dir, f"layer_{layer_idx}.npz"))
+    path = os.path.join(probe_dir, f"layer_{layer_idx}.npz")
+    data = np.load(path)
     return {
         "coef": data["coef"].astype(np.float32),
         "intercept": data["intercept"].astype(np.float32),
         "mean": data["scaler_mean"].astype(np.float32),
         "scale": data["scaler_scale"].astype(np.float32),
+        "path": path,
     }
+
+
+def load_probe_if_exists(probe_dir: str, layer_idx: int) -> dict | None:
+    path = os.path.join(probe_dir, f"layer_{layer_idx}.npz")
+    if not os.path.exists(path):
+        return None
+    return load_probe(probe_dir, layer_idx)
 
 
 def stable_sigmoid(logits: np.ndarray) -> np.ndarray:
@@ -79,7 +98,7 @@ def probe_probs(features: np.ndarray, probe: dict) -> np.ndarray:
 
 def parse_layers(spec: str) -> List[int]:
     layers: List[int] = []
-    for part in spec.split(","):
+    for part in spec.replace(" ", ",").split(","):
         part = part.strip()
         if not part:
             continue
@@ -101,6 +120,8 @@ def extract_features_for_layers(
     device: str,
 ) -> Dict[int, np.ndarray]:
     """Extract mean-pooled activations using next_norm representation."""
+    from phase2.utils import tokenize_batch
+
     num_layers = len(model.blocks)
     feature_buffers: Dict[int, List[np.ndarray]] = {layer: [] for layer in layers}
     state = {"mask": None}
@@ -139,6 +160,8 @@ def extract_features_for_layers(
 
 
 def measure_perplexity(model, records, tokenizer, batch_size, max_length, device) -> tuple[float, float]:
+    from phase2.utils import language_model_loss, tokenize_batch
+
     if not records:
         return float("nan"), float("nan")
     losses = []
@@ -152,8 +175,11 @@ def measure_perplexity(model, records, tokenizer, batch_size, max_length, device
     return float(np.exp(mean_loss)), mean_loss
 
 
-def cap_eval_records(records, max_eval: int, seed: int):
-    eval_records = [r for r in records if r.split in ("val", "test")]
+def cap_eval_records(records, max_eval: int, seed: int, include_train: bool = False):
+    allowed = {"val", "test"}
+    if include_train:
+        allowed.add("train")
+    eval_records = [r for r in records if r.split in allowed]
     rng = np.random.default_rng(seed)
     buckets = {}
     for record in eval_records:
@@ -174,6 +200,12 @@ def safe_auroc(labels: np.ndarray, probs: np.ndarray) -> float:
         return float("nan")
 
 
+def separability(auroc: float) -> float:
+    if np.isnan(auroc):
+        return float("nan")
+    return float(max(auroc, 1.0 - auroc))
+
+
 def metrics_for_split(labels: np.ndarray, probs: np.ndarray) -> dict:
     preds = (probs >= 0.5).astype(np.int64)
     return {
@@ -183,13 +215,71 @@ def metrics_for_split(labels: np.ndarray, probs: np.ndarray) -> dict:
     }
 
 
+def parse_c_grid(spec: str) -> List[float]:
+    return [float(part.strip()) for part in spec.split(",") if part.strip()]
+
+
+def train_fresh_probe(
+    features: np.ndarray,
+    labels: np.ndarray,
+    splits: np.ndarray,
+    c_grid: List[float],
+    max_iter: int,
+    seed: int,
+) -> dict:
+    masks = {name: splits == name for name in ("train", "val", "test")}
+    for split, mask in masks.items():
+        if mask.sum() == 0:
+            return {"fresh_probe_status": f"missing_{split}"}
+        if len(np.unique(labels[mask])) < 2:
+            return {"fresh_probe_status": f"single_class_{split}"}
+
+    scaler = StandardScaler()
+    scaled = np.empty(features.shape, dtype=np.float32)
+    scaled[masks["train"]] = scaler.fit_transform(features[masks["train"]].astype(np.float32, copy=False))
+    scaled[masks["val"]] = scaler.transform(features[masks["val"]].astype(np.float32, copy=False))
+    scaled[masks["test"]] = scaler.transform(features[masks["test"]].astype(np.float32, copy=False))
+
+    best = None
+    best_val = -float("inf")
+    for c_value in c_grid:
+        clf = LogisticRegression(
+            C=c_value,
+            solver="lbfgs",
+            max_iter=max_iter,
+            class_weight="balanced",
+            random_state=seed,
+        )
+        clf.fit(scaled[masks["train"]], labels[masks["train"]])
+        val_probs = clf.predict_proba(scaled[masks["val"]])[:, 1]
+        val_auroc = safe_auroc(labels[masks["val"]], val_probs)
+        val_score = separability(val_auroc)
+        if not np.isnan(val_score) and val_score > best_val:
+            best_val = val_score
+            best = (c_value, clf)
+
+    if best is None:
+        return {"fresh_probe_status": "fit_failed"}
+
+    c_value, clf = best
+    result = {"fresh_probe_status": "ok", "fresh_C": float(c_value)}
+    for split, mask in masks.items():
+        probs = clf.predict_proba(scaled[mask])[:, 1]
+        metrics = metrics_for_split(labels[mask], probs)
+        result[f"fresh_{split}_acc"] = metrics["acc"]
+        result[f"fresh_{split}_mcc"] = metrics["mcc"]
+        result[f"fresh_{split}_auroc"] = metrics["auroc"]
+        result[f"fresh_{split}_separability"] = separability(metrics["auroc"])
+    return result
+
+
 def load_target_specs(args) -> List[dict]:
     if args.internal_target_config:
         with open(args.internal_target_config) as f:
             payload = json.load(f)
         targets = []
         for entry in payload.get("targets", []):
-            layers_spec = entry.get("layers") or args.layers
+            layers_spec = args.layers or entry.get("layers") or "5-9"
             localized_layers_path = entry.get("localized_layers_path", args.localized_layers_path)
             layers = parse_layers(layers_spec)
             targets.append(
@@ -208,32 +298,63 @@ def load_target_specs(args) -> List[dict]:
             raise ValueError(f"No targets found in {args.internal_target_config}")
         return targets
 
-    localized_layers = [layer for layer in get_localized_layers(args.localized_layers_path) if layer in parse_layers(args.layers)]
+    legacy_layers = parse_layers(args.layers or "5-9")
+    localized_layers = [layer for layer in get_localized_layers(args.localized_layers_path) if layer in legacy_layers]
     return [
         {
             "name": Path(args.manifest).parent.name or "internal",
             "manifest": args.manifest,
             "probe_dir": args.probe_dir,
             "localized_layers_path": args.localized_layers_path,
-            "layers": parse_layers(args.layers),
+            "layers": legacy_layers,
             "localized_layers": localized_layers,
         }
     ]
 
 
-def summarize_target_rows(rows: List[dict], localized_layers: List[int]) -> dict:
-    target_rows = [row for row in rows if row["layer"] in (localized_layers or [row["layer"] for row in rows])]
-    base_scores = [row["base_test_auroc"] for row in target_rows if not np.isnan(row["base_test_auroc"])]
-    modified_scores = [row["test_auroc"] for row in target_rows if not np.isnan(row["test_auroc"])]
-    base_mean = float(np.mean(base_scores)) if base_scores else None
-    modified_mean = float(np.mean(modified_scores)) if modified_scores else None
+def _mean_numeric(rows: List[dict], key: str) -> float | None:
+    values = [
+        row[key]
+        for row in rows
+        if row.get(key) is not None and not np.isnan(row[key])
+    ]
+    return float(np.mean(values)) if values else None
+
+
+def _max_numeric(rows: List[dict], key: str) -> float | None:
+    values = [
+        row[key]
+        for row in rows
+        if row.get(key) is not None and not np.isnan(row[key])
+    ]
+    return float(np.max(values)) if values else None
+
+
+def _summarize_rows(rows: List[dict], prefix: str) -> dict:
+    base_mean = _mean_numeric(rows, "base_test_auroc")
+    modified_mean = _mean_numeric(rows, "test_auroc")
     drop = (base_mean - modified_mean) if base_mean is not None and modified_mean is not None else None
     return {
-        "localized_layers": localized_layers,
-        "base_localized_test_mean_auroc": base_mean,
-        "localized_test_mean_auroc": modified_mean,
-        "localized_test_auroc_drop": drop,
+        f"base_{prefix}_test_mean_auroc": base_mean,
+        f"{prefix}_test_mean_auroc": modified_mean,
+        f"{prefix}_test_auroc_drop": drop,
+        f"{prefix}_test_mean_separability": _mean_numeric(rows, "test_separability"),
+        f"fresh_{prefix}_test_mean_auroc": _mean_numeric(rows, "fresh_test_auroc"),
+        f"fresh_{prefix}_test_mean_separability": _mean_numeric(rows, "fresh_test_separability"),
+        f"fresh_{prefix}_test_max_separability": _max_numeric(rows, "fresh_test_separability"),
     }
+
+
+def summarize_target_rows(rows: List[dict], localized_layers: List[int]) -> dict:
+    selected_layers = localized_layers or [row["layer"] for row in rows]
+    localized_rows = [row for row in rows if row["layer"] in selected_layers]
+    summary = {
+        "localized_layers": selected_layers,
+        "evaluated_layers": [row["layer"] for row in rows],
+    }
+    summary.update(_summarize_rows(localized_rows, "localized"))
+    summary.update(_summarize_rows(rows, "evaluated"))
+    return summary
 
 
 def main() -> None:
@@ -249,14 +370,38 @@ def main() -> None:
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--max-length", type=int, default=512)
-    parser.add_argument("--layers", default="5-9", help="Comma list/ranges used in legacy single-target mode.")
+    parser.add_argument(
+        "--layers",
+        default="",
+        help=(
+            "Optional comma/space list or ranges, e.g. '0-15'. In multi-target config "
+            "mode this overrides each target's configured layer range."
+        ),
+    )
     parser.add_argument("--max-eval", type=int, default=400, help="Cap eval samples per (split,label) to keep runs short.")
+    parser.add_argument(
+        "--fresh-probe",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Train fresh logistic probes on modified checkpoint features and report held-out AUROC.",
+    )
+    parser.add_argument("--fresh-c-grid", default="0.001,0.01,0.1,1")
+    parser.add_argument("--fresh-max-iter", type=int, default=1000)
+    parser.add_argument(
+        "--fresh-gate-threshold",
+        type=float,
+        default=0.60,
+        help="Fresh-probe separability threshold used for the internal fresh gate.",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--localized-layers-path",
         default="data/family_targets/coronaviridae/localized_layers.json",
     )
     args = parser.parse_args()
+
+    from phase1.utils import load_local_checkpoint, read_manifest
+    from evo.tokenizer import CharLevelTokenizer
 
     target_specs = load_target_specs(args)
 
@@ -267,7 +412,12 @@ def main() -> None:
 
     target_caches = []
     for idx, spec in enumerate(target_specs):
-        records = cap_eval_records(read_manifest(spec["manifest"]), args.max_eval, args.seed + idx)
+        records = cap_eval_records(
+            read_manifest(spec["manifest"]),
+            args.max_eval,
+            args.seed + idx,
+            include_train=args.fresh_probe,
+        )
         sequences = [record.sequence for record in records]
         splits = np.array([record.split for record in records])
         labels = np.array([record.label for record in records])
@@ -325,29 +475,53 @@ def main() -> None:
 
         target_rows = []
         for layer_idx in spec["layers"]:
-            probe = load_probe(spec["probe_dir"], layer_idx)
-            modified_probs = probe_probs(cache["modified_features"][layer_idx], probe)
-            base_probs = probe_probs(base_features[layer_idx], probe)
             row = {
                 "target": spec["name"],
                 "layer": layer_idx,
                 "localized_layer": int(layer_idx in spec["localized_layers"]),
             }
-            for split in ("val", "test"):
-                mask = cache["splits"] == split
-                if mask.sum() == 0:
-                    continue
-                split_labels = cache["labels"][mask]
-                modified_metrics = metrics_for_split(split_labels, modified_probs[mask])
-                base_metrics = metrics_for_split(split_labels, base_probs[mask])
-                row[f"base_{split}_acc"] = base_metrics["acc"]
-                row[f"base_{split}_mcc"] = base_metrics["mcc"]
-                row[f"base_{split}_auroc"] = base_metrics["auroc"]
-                row[f"{split}_acc"] = modified_metrics["acc"]
-                row[f"{split}_mcc"] = modified_metrics["mcc"]
-                row[f"{split}_auroc"] = modified_metrics["auroc"]
-                if not np.isnan(base_metrics["auroc"]) and not np.isnan(modified_metrics["auroc"]):
-                    row[f"{split}_auroc_drop"] = base_metrics["auroc"] - modified_metrics["auroc"]
+            probe = load_probe_if_exists(spec["probe_dir"], layer_idx)
+            row["fixed_probe_present"] = int(probe is not None)
+            if probe is None:
+                print(
+                    f"[eval] target={spec['name']} layer={layer_idx}: "
+                    f"fixed probe missing under {spec['probe_dir']}; fresh metrics only"
+                )
+            else:
+                row["fixed_probe_path"] = probe["path"]
+                modified_probs = probe_probs(cache["modified_features"][layer_idx], probe)
+                base_probs = probe_probs(base_features[layer_idx], probe)
+                for split in ("val", "test"):
+                    mask = cache["splits"] == split
+                    if mask.sum() == 0:
+                        continue
+                    split_labels = cache["labels"][mask]
+                    modified_metrics = metrics_for_split(split_labels, modified_probs[mask])
+                    base_metrics = metrics_for_split(split_labels, base_probs[mask])
+                    row[f"base_{split}_acc"] = base_metrics["acc"]
+                    row[f"base_{split}_mcc"] = base_metrics["mcc"]
+                    row[f"base_{split}_auroc"] = base_metrics["auroc"]
+                    row[f"base_{split}_separability"] = separability(base_metrics["auroc"])
+                    row[f"{split}_acc"] = modified_metrics["acc"]
+                    row[f"{split}_mcc"] = modified_metrics["mcc"]
+                    row[f"{split}_auroc"] = modified_metrics["auroc"]
+                    row[f"{split}_separability"] = separability(modified_metrics["auroc"])
+                    if not np.isnan(base_metrics["auroc"]) and not np.isnan(modified_metrics["auroc"]):
+                        row[f"{split}_auroc_drop"] = base_metrics["auroc"] - modified_metrics["auroc"]
+                        row[f"{split}_separability_drop"] = (
+                            separability(base_metrics["auroc"]) - separability(modified_metrics["auroc"])
+                        )
+            if args.fresh_probe:
+                row.update(
+                    train_fresh_probe(
+                        cache["modified_features"][layer_idx].astype(np.float32, copy=False),
+                        cache["labels"].astype(np.int64, copy=False),
+                        cache["splits"],
+                        parse_c_grid(args.fresh_c_grid),
+                        args.fresh_max_iter,
+                        args.seed + layer_idx,
+                    )
+                )
             target_rows.append(row)
             auroc_rows.append(row)
 
@@ -377,11 +551,19 @@ def main() -> None:
 
         summary = summarize_target_rows(target_rows, spec["localized_layers"])
         internal_targets[spec["name"]] = summary
-        print(
-            f"[eval] target={spec['name']} localized_test_mean="
-            f"{summary['localized_test_mean_auroc']:.4f} "
+        fixed_msg = (
+            f"fixed_mean={summary['localized_test_mean_auroc']:.4f} "
             f"drop={summary['localized_test_auroc_drop']:.4f}"
+            if summary["localized_test_mean_auroc"] is not None
+            else "fixed_mean=NA drop=NA"
         )
+        fresh_msg = (
+            f"fresh_mean={summary['fresh_localized_test_mean_auroc']:.4f} "
+            f"fresh_sep={summary['fresh_localized_test_mean_separability']:.4f}"
+            if summary["fresh_localized_test_mean_auroc"] is not None
+            else "fresh_mean=NA fresh_sep=NA"
+        )
+        print(f"[eval] target={spec['name']} {fixed_msg} {fresh_msg}")
 
     target_drops = [
         payload["localized_test_auroc_drop"]
@@ -391,6 +573,26 @@ def main() -> None:
     internal_gate_pass = bool(target_drops) and len(target_drops) == len(internal_targets) and all(drop > 0 for drop in target_drops)
     internal_min_drop = float(min(target_drops)) if target_drops else None
     internal_mean_drop = float(np.mean(target_drops)) if target_drops else None
+    fresh_localized_separabilities = [
+        payload["fresh_localized_test_max_separability"]
+        for payload in internal_targets.values()
+        if payload.get("fresh_localized_test_max_separability") is not None
+    ]
+    fresh_evaluated_separabilities = [
+        payload["fresh_evaluated_test_max_separability"]
+        for payload in internal_targets.values()
+        if payload.get("fresh_evaluated_test_max_separability") is not None
+    ]
+    fresh_internal_gate_pass = (
+        bool(fresh_evaluated_separabilities)
+        and len(fresh_evaluated_separabilities) == len(internal_targets)
+        and all(value <= args.fresh_gate_threshold for value in fresh_evaluated_separabilities)
+    )
+    fresh_localized_internal_gate_pass = (
+        bool(fresh_localized_separabilities)
+        and len(fresh_localized_separabilities) == len(internal_targets)
+        and all(value <= args.fresh_gate_threshold for value in fresh_localized_separabilities)
+    )
 
     out_dir = os.path.dirname(args.ckpt)
     auroc_path = os.path.join(out_dir, "eval_auroc.csv")
@@ -398,20 +600,42 @@ def main() -> None:
         "target",
         "layer",
         "localized_layer",
+        "fixed_probe_present",
+        "fixed_probe_path",
         "base_val_acc",
         "base_val_mcc",
         "base_val_auroc",
+        "base_val_separability",
         "base_test_acc",
         "base_test_mcc",
         "base_test_auroc",
+        "base_test_separability",
         "val_acc",
         "val_mcc",
         "val_auroc",
+        "val_separability",
         "val_auroc_drop",
+        "val_separability_drop",
         "test_acc",
         "test_mcc",
         "test_auroc",
+        "test_separability",
         "test_auroc_drop",
+        "test_separability_drop",
+        "fresh_probe_status",
+        "fresh_C",
+        "fresh_train_acc",
+        "fresh_train_mcc",
+        "fresh_train_auroc",
+        "fresh_train_separability",
+        "fresh_val_acc",
+        "fresh_val_mcc",
+        "fresh_val_auroc",
+        "fresh_val_separability",
+        "fresh_test_acc",
+        "fresh_test_mcc",
+        "fresh_test_auroc",
+        "fresh_test_separability",
     ]
     with open(auroc_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=auroc_fields)
@@ -432,6 +656,10 @@ def main() -> None:
                 "n_retain": len(retain_val),
                 "internal_targets": internal_targets,
                 "internal_gate_pass": internal_gate_pass,
+                "fresh_internal_gate_pass": fresh_internal_gate_pass,
+                "fresh_localized_internal_gate_pass": fresh_localized_internal_gate_pass,
+                "fresh_gate_threshold": args.fresh_gate_threshold,
+                "fresh_probe_enabled": args.fresh_probe,
                 "internal_min_drop": internal_min_drop,
                 "internal_mean_drop": internal_mean_drop,
             },

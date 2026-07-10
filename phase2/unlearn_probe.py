@@ -2,9 +2,10 @@
 Probe-guided Phase 2 unlearning.
 
 This method trains localized layers 5-9 with a representation-level forget
-objective: for each internal target and layer, drive the standardized hidden
-state's component along the probe direction toward zero. Retain preservation is
-anchored against a frozen base model on the merged Phase 2 retain split.
+objective. The default zero-logit objective drives each positive target batch
+toward the fixed probe decision boundary rather than maximizing the target
+score. Retain preservation is anchored against a frozen base model on the
+merged Phase 2 retain split.
 """
 import argparse
 import json
@@ -136,6 +137,16 @@ def main() -> None:
     parser.add_argument("--steps", type=int, default=200)
     parser.add_argument("--alpha-forget", type=float, default=1.0)
     parser.add_argument("--alpha-retain", type=float, default=5.0)
+    parser.add_argument(
+        "--forget-objective",
+        choices=["logit_zero", "component_zero"],
+        default="logit_zero",
+        help=(
+            "Probe-guided forget loss. logit_zero minimizes the squared fixed-probe "
+            "logit including intercept; component_zero preserves the older squared "
+            "standardized component along the normalized probe direction."
+        ),
+    )
     parser.add_argument("--retain-cosine-weight", type=float, default=0.0)
     parser.add_argument("--log-every", type=int, default=10)
     parser.add_argument("--save-steps", default="")
@@ -250,10 +261,15 @@ def main() -> None:
                 probe = spec["probes"][layer]
                 direction = spec["directions"][layer]
                 standardized = (pooled - probe["mean"]) / probe["scale"].clamp(min=1e-12)
+                logits = (standardized @ probe["coef"].reshape(-1, 1).float()).reshape(-1) + probe["intercept"].reshape(-1)[0].float()
                 components = standardized @ direction
-                layer_loss = (components ** 2).mean()
+                if args.forget_objective == "logit_zero":
+                    layer_loss = (logits ** 2).mean()
+                else:
+                    layer_loss = (components ** 2).mean()
                 target_layer_losses.append(layer_loss)
                 layer_metrics[str(layer)] = {
+                    "fixed_probe_logit_rms": torch.sqrt((logits ** 2).mean()).item(),
                     "probe_component_rms": torch.sqrt((components ** 2).mean()).item(),
                 }
             target_loss = torch.stack(target_layer_losses).mean()
@@ -340,6 +356,7 @@ def main() -> None:
                         "lr": args.lr,
                         "alpha_forget": args.alpha_forget,
                         "alpha_retain": args.alpha_retain,
+                        "forget_objective": args.forget_objective,
                         "retain_cosine_weight": args.retain_cosine_weight,
                         "batch_size": args.batch_size,
                         "max_length": args.max_length,
@@ -367,6 +384,7 @@ def main() -> None:
                 "lr": args.lr,
                 "alpha_forget": args.alpha_forget,
                 "alpha_retain": args.alpha_retain,
+                "forget_objective": args.forget_objective,
                 "retain_cosine_weight": args.retain_cosine_weight,
                 "batch_size": args.batch_size,
                 "max_length": args.max_length,

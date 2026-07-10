@@ -1,0 +1,26 @@
+{
+  "description": "Projection run that consumes adaptive multi-rank Coronaviridae bases built by phase2/build_adaptive_probe_basis.py. Build the bases first, then run this config.",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv",
+    "internal_target_config": "phase2/internal_eval_targets.json",
+    "module_scope": "all",
+    "basis_dir": "data/phase2/adaptive_probe_bases",
+    "target_layers": "host_tropism=5-9,coronaviridae=0-10"
+  },
+  "experiments": [
+    {
+      "group": "adaptive_basis",
+      "name": "projopt_host5_9_coro0_10_adaptive_basis",
+      "method": "probe_nullspace",
+      "args": {
+        "projection_strength": 1.0,
+        "target_strengths": "host_tropism:5-9=1.0,coronaviridae:0-4=0.75,coronaviridae:5-10=1.0"
+      }
+    }
+  ],
+  "aliases": {
+    "all": ["adaptive_basis"],
+    "adaptive": ["adaptive_basis"]
+  }
+}

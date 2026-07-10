@@ -1,0 +1,43 @@
+{
+  "description": "Early-layer Coronaviridae projection sweep. Host-tropism remains 5-9; Coronaviridae expands to 0-10 with conservative early-layer strengths.",
+  "train_defaults": {
+    "forget_csv": "data/phase2/splits/forget.csv",
+    "retain_csv": "data/phase2/splits/retain.csv",
+    "internal_target_config": "phase2/internal_eval_targets.json",
+    "module_scope": "all",
+    "target_layers": "host_tropism=5-9,coronaviridae=0-10"
+  },
+  "experiments": [
+    {
+      "group": "coro_early",
+      "name": "projopt_host5_9_coro0_10_early050_mid100",
+      "method": "probe_nullspace",
+      "args": {
+        "projection_strength": 1.0,
+        "target_strengths": "host_tropism:5-9=1.0,coronaviridae:0-4=0.5,coronaviridae:5-10=1.0"
+      }
+    },
+    {
+      "group": "coro_early",
+      "name": "projopt_host5_9_coro0_10_early075_mid100",
+      "method": "probe_nullspace",
+      "args": {
+        "projection_strength": 1.0,
+        "target_strengths": "host_tropism:5-9=1.0,coronaviridae:0-4=0.75,coronaviridae:5-10=1.0"
+      }
+    },
+    {
+      "group": "coro_early",
+      "name": "projopt_host5_9_coro0_10_early100_mid100",
+      "method": "probe_nullspace",
+      "args": {
+        "projection_strength": 1.0,
+        "target_strengths": "host_tropism:5-9=1.0,coronaviridae:0-4=1.0,coronaviridae:5-10=1.0"
+      }
+    }
+  ],
+  "aliases": {
+    "all": ["coro_early"],
+    "early": ["coro_early"]
+  }
+}

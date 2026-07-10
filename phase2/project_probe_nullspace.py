@@ -10,15 +10,16 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 from typing import Dict, List, Tuple
 
+import numpy as np
 import torch
 import torch.nn as nn
 from safetensors.torch import save_file
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from phase1.utils import load_local_checkpoint
 from phase2.probe_utils import (
     load_probe,
     load_target_specs,
@@ -60,7 +61,30 @@ def parse_target_map(spec: str) -> Dict[str, str]:
 
 
 def parse_target_strengths(spec: str) -> Dict[str, float]:
+    """Parse target or target:layer-range strengths.
+
+    Examples:
+      host_tropism=1.0,coronaviridae=1.25
+      coronaviridae:0-4=0.5,coronaviridae:5-10=1.0,host_tropism:5-9=1.0
+    """
     return {name: float(value) for name, value in parse_target_map(spec).items()}
+
+
+def strength_for_target_layer(
+    target_name: str,
+    layer_idx: int,
+    projection_strength: float,
+    target_strengths: Dict[str, float],
+) -> float:
+    strength = float(target_strengths.get(target_name, projection_strength))
+    prefix = f"{target_name}:"
+    for key, value in target_strengths.items():
+        if not key.startswith(prefix):
+            continue
+        layer_spec = key[len(prefix):]
+        if layer_idx in set(parse_layers(layer_spec)):
+            strength = float(value)
+    return strength
 
 
 def apply_layer_overrides(target_specs: List[dict], layers: str, target_layers: str) -> List[dict]:
@@ -120,6 +144,7 @@ def soft_projection_matrix(
     target_strengths: Dict[str, float],
     hidden_dim: int,
     device: str,
+    layer_idx: int,
 ) -> Tuple[torch.Tensor, torch.Tensor, List[dict]]:
     eye = torch.eye(hidden_dim, device=device, dtype=torch.float32)
     basis_vectors = []
@@ -132,7 +157,12 @@ def soft_projection_matrix(
         if norm <= 1e-6:
             continue
         unit = candidate / norm
-        strength = float(target_strengths.get(target_name, projection_strength))
+        strength = strength_for_target_layer(
+            target_name,
+            layer_idx,
+            projection_strength,
+            target_strengths,
+        )
         basis_vectors.append(unit)
         basis_meta.append(
             {
@@ -150,6 +180,72 @@ def soft_projection_matrix(
         projector = projector - float(meta["strength"]) * torch.outer(unit, unit)
     basis = torch.stack(basis_vectors, dim=1)
     return projector, basis, basis_meta
+
+
+def basis_candidates(basis_dir: str, target_name: str, layer_idx: int) -> List[Path]:
+    root = Path(basis_dir)
+    return [
+        root / target_name / f"layer_{layer_idx}.npz",
+        root / target_name / f"layer_{layer_idx}_basis.npz",
+        root / f"{target_name}_layer_{layer_idx}.npz",
+        root / f"{target_name}_layer_{layer_idx}_basis.npz",
+    ]
+
+
+def load_basis_file(path: Path, hidden_dim: int, device: str) -> List[torch.Tensor]:
+    data = np.load(path)
+    if "basis" in data:
+        array = data["basis"]
+    elif "directions" in data:
+        array = data["directions"]
+    elif "coef" in data:
+        array = data["coef"]
+    else:
+        raise ValueError(f"Basis file {path} must contain one of: basis, directions, coef")
+
+    array = np.asarray(array, dtype=np.float32)
+    if array.ndim == 1:
+        array = array.reshape(1, -1)
+    if array.ndim != 2:
+        raise ValueError(f"Basis file {path} must be 1D or 2D, got shape={array.shape}")
+    if array.shape[0] == hidden_dim:
+        vectors = [array[:, idx] for idx in range(array.shape[1])]
+    elif array.shape[1] == hidden_dim:
+        vectors = [array[idx, :] for idx in range(array.shape[0])]
+    else:
+        raise ValueError(
+            f"Basis file {path} shape={array.shape} is incompatible with hidden_dim={hidden_dim}"
+        )
+
+    result = []
+    for vector in vectors:
+        tensor = torch.from_numpy(vector.astype(np.float32, copy=False)).to(device)
+        norm = tensor.float().norm()
+        if norm > 1e-6:
+            result.append(tensor / norm)
+    return result
+
+
+def load_projection_vectors(
+    spec: dict,
+    layer_idx: int,
+    hidden_dim: int,
+    device: str,
+    basis_dir: str,
+) -> Tuple[List[Tuple[str, torch.Tensor]], List[str]]:
+    """Load all projection directions for one target/layer.
+
+    If --basis-dir has a matching file, every vector in that basis file is used.
+    Otherwise this falls back to the original single fixed-probe direction.
+    """
+    if basis_dir:
+        for path in basis_candidates(basis_dir, spec["name"], layer_idx):
+            if path.exists():
+                vectors = load_basis_file(path, hidden_dim, device)
+                return [(spec["name"], vector) for vector in vectors], [str(path)]
+
+    probe = load_probe(spec["probe_dir"], layer_idx, device=device)
+    return [(spec["name"], normalized_raw_probe_direction(probe))], [probe["path"]]
 
 
 def main() -> None:
@@ -184,7 +280,20 @@ def main() -> None:
     parser.add_argument(
         "--target-strengths",
         default="",
-        help="Optional per-target strengths, e.g. host_tropism=1.0,coronaviridae=1.25.",
+        help=(
+            "Optional target or target:layer strengths, e.g. "
+            "host_tropism=1.0,coronaviridae=1.25 or "
+            "coronaviridae:0-4=0.5,coronaviridae:5-10=1.0."
+        ),
+    )
+    parser.add_argument(
+        "--basis-dir",
+        default="",
+        help=(
+            "Optional adaptive multi-rank basis directory. Matching files may be "
+            "<basis-dir>/<target>/layer_<N>.npz or <basis-dir>/<target>_layer_<N>.npz "
+            "and must contain basis, directions, or coef."
+        ),
     )
     parser.add_argument(
         "--module-scope",
@@ -208,6 +317,7 @@ def main() -> None:
     layers = sorted({layer for spec in target_specs for layer in spec["layers"]})
     target_names = [spec["name"] for spec in target_specs]
     target_strengths = parse_target_strengths(args.target_strengths)
+    hidden_dim = None
     suffixes = (
         tuple(part.strip() for part in args.module_suffixes.split(",") if part.strip())
         if args.module_suffixes
@@ -216,21 +326,30 @@ def main() -> None:
     run_dir = os.path.join(args.out_dir, args.run_name)
     os.makedirs(run_dir, exist_ok=True)
 
+    from phase1.utils import load_local_checkpoint
+
     model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     model.eval()
+    hidden_dim = int(model.blocks[0].pre_norm.scale.shape[0])
 
     layer_bases: Dict[int, torch.Tensor] = {}
     projection_ranks: Dict[str, int] = {}
-    layer_target_paths: Dict[str, Dict[str, str]] = {}
+    layer_target_paths: Dict[str, Dict[str, List[str]]] = {}
     for layer in layers:
         named_vectors = []
         target_paths = {}
         for spec in target_specs:
             if layer not in spec["layers"]:
                 continue
-            probe = load_probe(spec["probe_dir"], layer, device=args.device)
-            named_vectors.append((spec["name"], normalized_raw_probe_direction(probe)))
-            target_paths[spec["name"]] = probe["path"]
+            vectors, paths = load_projection_vectors(
+                spec,
+                layer,
+                hidden_dim=hidden_dim,
+                device=args.device,
+                basis_dir=args.basis_dir,
+            )
+            named_vectors.extend(vectors)
+            target_paths[spec["name"]] = paths
         basis = orthonormal_basis([vector for _name, vector in named_vectors])
         layer_bases[layer] = basis
         projection_ranks[str(layer)] = int(basis.shape[1])
@@ -250,14 +369,21 @@ def main() -> None:
             for spec in target_specs:
                 if layer not in spec["layers"]:
                     continue
-                probe = load_probe(spec["probe_dir"], layer, device=args.device)
-                named_vectors.append((spec["name"], normalized_raw_probe_direction(probe)))
+                vectors, _paths = load_projection_vectors(
+                    spec,
+                    layer,
+                    hidden_dim=hidden_dim,
+                    device=args.device,
+                    basis_dir=args.basis_dir,
+                )
+                named_vectors.extend(vectors)
             projector, basis, basis_meta = soft_projection_matrix(
                 named_vectors,
                 projection_strength=args.projection_strength,
                 target_strengths=target_strengths,
-                hidden_dim=int(model.blocks[0].pre_norm.scale.shape[0]),
+                hidden_dim=hidden_dim,
                 device=args.device,
+                layer_idx=layer,
             )
             layer_bases[layer] = basis
             projection_ranks[str(layer)] = int(basis.shape[1])
@@ -287,6 +413,7 @@ def main() -> None:
         "target_layer_overrides": parse_target_map(args.target_layers),
         "projection_strength": args.projection_strength,
         "target_strengths": target_strengths,
+        "basis_dir": args.basis_dir,
         "module_scope": args.module_scope,
         "module_suffixes": list(suffixes),
         "projection_ranks": projection_ranks,
@@ -307,6 +434,7 @@ def main() -> None:
                 "target_names": target_names,
                 "projection_strength": args.projection_strength,
                 "target_strengths": target_strengths,
+                "basis_dir": args.basis_dir,
                 "module_scope": args.module_scope,
                 "module_suffixes": list(suffixes),
                 "projection_ranks": projection_ranks,

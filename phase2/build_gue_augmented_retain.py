@@ -68,14 +68,23 @@ def main() -> None:
     manifest_rows = read_csv(benchmark_path)
     requested = [strip_task_prefix(task) for task in args.tasks]
     requested_by_key = {task_match_key(task): task for task in requested}
+    heldout_sequences = {
+        row["sequence"]
+        for row in manifest_rows
+        if row.get("benchmark") == "gue" and row.get("split") in {"val", "test"}
+    }
 
     grouped: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    excluded_heldout_duplicates = 0
     for row in manifest_rows:
         if row.get("benchmark") != "gue":
             continue
         if row.get("group") != "gue_retain":
             continue
         if row.get("split") != "train":
+            continue
+        if row["sequence"] in heldout_sequences:
+            excluded_heldout_duplicates += 1
             continue
         task_key = task_match_key(row["task"])
         if task_key not in requested_by_key:
@@ -136,9 +145,11 @@ def main() -> None:
         "added_gue_rows": len(sampled_rows) - len(duplicate_added_ids),
         "new_retain_rows": len(combined),
         "duplicate_added_ids": duplicate_added_ids[:20],
+        "excluded_train_rows_matching_gue_val_or_test_sequence": excluded_heldout_duplicates,
         "gue_rows_by_task": summary_tasks,
         "notes": [
             "GUE rows are sampled from train split only.",
+            "Train rows whose sequence exactly matches any GUE val/test sequence are excluded.",
             "All injected GUE rows use label=0 because this is the unlearning retain label.",
             "Original GUE labels are preserved in id and source metadata.",
         ],

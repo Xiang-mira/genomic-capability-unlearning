@@ -30,7 +30,19 @@ CSV_FIELDS = [
     "host_tropism_internal_drop",
     "coronaviridae_internal_auroc",
     "coronaviridae_internal_drop",
+    "host_tropism_fixed_separability",
+    "coronaviridae_fixed_separability",
+    "host_tropism_fresh_auroc",
+    "host_tropism_fresh_separability",
+    "coronaviridae_fresh_auroc",
+    "coronaviridae_fresh_separability",
+    "host_tropism_evaluated_fresh_separability",
+    "coronaviridae_evaluated_fresh_separability",
+    "host_tropism_evaluated_fresh_max_separability",
+    "coronaviridae_evaluated_fresh_max_separability",
     "internal_gate_pass",
+    "fresh_internal_gate_pass",
+    "fresh_localized_internal_gate_pass",
     "internal_min_drop",
     "internal_mean_drop",
     "forget_ppl",
@@ -230,9 +242,21 @@ def row_for_run(args, run_dir: Path, layers: set[int], baselines: dict) -> dict:
     coronaviridae_internal = internal_targets.get("coronaviridae", {}).get("localized_test_mean_auroc")
     host_tropism_drop = internal_targets.get("host_tropism", {}).get("localized_test_auroc_drop")
     coronaviridae_drop = internal_targets.get("coronaviridae", {}).get("localized_test_auroc_drop")
+    host_tropism_fixed_sep = internal_targets.get("host_tropism", {}).get("localized_test_mean_separability")
+    coronaviridae_fixed_sep = internal_targets.get("coronaviridae", {}).get("localized_test_mean_separability")
+    host_tropism_fresh = internal_targets.get("host_tropism", {}).get("fresh_localized_test_mean_auroc")
+    host_tropism_fresh_sep = internal_targets.get("host_tropism", {}).get("fresh_localized_test_mean_separability")
+    coronaviridae_fresh = internal_targets.get("coronaviridae", {}).get("fresh_localized_test_mean_auroc")
+    coronaviridae_fresh_sep = internal_targets.get("coronaviridae", {}).get("fresh_localized_test_mean_separability")
+    host_tropism_eval_fresh_sep = internal_targets.get("host_tropism", {}).get("fresh_evaluated_test_mean_separability")
+    coronaviridae_eval_fresh_sep = internal_targets.get("coronaviridae", {}).get("fresh_evaluated_test_mean_separability")
+    host_tropism_eval_fresh_max_sep = internal_targets.get("host_tropism", {}).get("fresh_evaluated_test_max_separability")
+    coronaviridae_eval_fresh_max_sep = internal_targets.get("coronaviridae", {}).get("fresh_evaluated_test_max_separability")
     internal_min_drop = as_float(ppl.get("internal_min_drop"))
     internal_mean_drop = as_float(ppl.get("internal_mean_drop"))
     internal_gate_pass = ppl.get("internal_gate_pass")
+    fresh_internal_gate_pass = ppl.get("fresh_internal_gate_pass")
+    fresh_localized_internal_gate_pass = ppl.get("fresh_localized_internal_gate_pass")
     internal_drop = internal_mean_drop
     if internal_drop is None:
         internal_drop = delta_drop(args.internal_base_auroc, internal)
@@ -245,6 +269,8 @@ def row_for_run(args, run_dir: Path, layers: set[int], baselines: dict) -> dict:
     consistency_checks = []
     if internal_gate_pass is not None:
         consistency_checks.append(bool(internal_gate_pass))
+    if fresh_internal_gate_pass is not None:
+        consistency_checks.append(bool(fresh_internal_gate_pass))
     if hvue_drop is not None and internal_min_drop is not None:
         consistency_checks.append((hvue_drop > 0) == (internal_min_drop > 0))
     if tax_drop is not None and internal_min_drop is not None:
@@ -286,7 +312,19 @@ def row_for_run(args, run_dir: Path, layers: set[int], baselines: dict) -> dict:
         "host_tropism_internal_drop": host_tropism_drop,
         "coronaviridae_internal_auroc": coronaviridae_internal,
         "coronaviridae_internal_drop": coronaviridae_drop,
+        "host_tropism_fixed_separability": host_tropism_fixed_sep,
+        "coronaviridae_fixed_separability": coronaviridae_fixed_sep,
+        "host_tropism_fresh_auroc": host_tropism_fresh,
+        "host_tropism_fresh_separability": host_tropism_fresh_sep,
+        "coronaviridae_fresh_auroc": coronaviridae_fresh,
+        "coronaviridae_fresh_separability": coronaviridae_fresh_sep,
+        "host_tropism_evaluated_fresh_separability": host_tropism_eval_fresh_sep,
+        "coronaviridae_evaluated_fresh_separability": coronaviridae_eval_fresh_sep,
+        "host_tropism_evaluated_fresh_max_separability": host_tropism_eval_fresh_max_sep,
+        "coronaviridae_evaluated_fresh_max_separability": coronaviridae_eval_fresh_max_sep,
         "internal_gate_pass": internal_gate_pass,
+        "fresh_internal_gate_pass": fresh_internal_gate_pass,
+        "fresh_localized_internal_gate_pass": fresh_localized_internal_gate_pass,
         "internal_min_drop": internal_min_drop,
         "internal_mean_drop": internal_mean_drop,
         "forget_ppl": as_float(ppl.get("forget_val_perplexity")),
