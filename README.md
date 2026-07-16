@@ -251,6 +251,53 @@ evaluation artifacts for these screens are stored under
 and `data/phase2/checkpoints_rmu_localized_*`; large weight files and temporary
 downstream task checkpoints remain excluded.
 
+## Latest July 10-15 updates
+
+The newest checked-in work after July 10, 2026 extends the repository from
+candidate screening into audit-driven route selection. These additions are
+primarily diagnostic: they harden checkpoint I/O, test identity-confound risks,
+build cleaner capability-task candidates, and record a final go/no-go decision
+for the current merged-objective line.
+
+### New programs added in this update window
+
+| Area | Entry points | Purpose |
+|:---|:---|:---|
+| Checkpoint packaging and persistence | `phase2/checkpoint_io.py`, `phase2/smoke_checkpoint_io.py` | Standardize loading/saving of full, delta, adapter, and selected-module checkpoint formats and run a smoke test over the supported variants |
+| Probe basis and projection follow-up | `phase2/build_adaptive_probe_basis.py`, `phase2/project_probe_nullspace.py`, `phase2/sweep_configs/projection_adaptive_basis.json`, `phase2/sweep_configs/projection_coro_early.json` | Build adaptive joint-probe bases and run corrected projection sweeps, including early Coronaviridae weighting variants |
+| Capability-candidate construction | `phase2/build_capability_probe_dataset.py`, `phase2/build_clean_capability_candidates.py`, `phase2/eval_capability_probe.py`, `phase2/probe_validity_audit.py` | Construct matched capability datasets, score probe-based candidate tasks, and audit leakage / shortcut / identity-confound risks before promoting a task family |
+| Task 5a identity re-audit | `phase2/run_task5a_identity_reaudit.py`, `phase2/summarize_task5a_identity_reaudit.py` | Re-evaluate projection and GD candidates against identity-confound-sensitive internal and benchmark checks |
+| Task 5ab7/7r8 queue orchestration | `phase2/run_task5ab7_queue.py`, `phase2/run_task7r8_5bv2_queue.py`, `phase2/run_task8_identity_capability_calibration.py`, `phase2/summarize_identity_capability_calibration.py`, `phase2/summarize_clean_capability_gate_smoke.py` | Launch and summarize the later audit queue, including capability calibration and clean-gate smoke testing |
+| Route-decision pipeline | `phase2/preflight_route_decision.py`, `phase2/run_route_decision_pipeline.py`, `phase2/summarize_route_decision.py`, `phase2/launch_route_decision_screen.sh`, `phase2/run_metadata.py`, `phase2/audit_storage_state.py` | Lock inputs, audit disk/runtime state, run the final comparison bundle, and emit a reproducible route-decision report package |
+
+### Checked-in July 12-15 artifacts
+
+| Date | Artifact root | Summary |
+|:---|:---|:---|
+| 2026-07-12 | `data/phase2/checkpoints_projection_adaptive_rank{8,16,32}/`, `data/phase2/checkpoints_projection_coro_early/` | Adaptive-basis and early-weight projection follow-up runs plus their internal evaluation artifacts |
+| 2026-07-13 | `data/phase2/audits/task0_3_20260713/`, `data/phase2/audits/task5a_identity_reaudit_20260713/` | Storage audit, checkpoint-I/O smoke outputs, probe-validity bundle, and Task 5a identity re-audit results |
+| 2026-07-14 | `logs/task7r8_5bv2_20260714.log` | Queue log for the Task 7/8 capability-calibration stage |
+| 2026-07-15 | `data/phase2/audits/task7s_clean_gate_20260715/`, `data/phase2/audits/task7s_clean_gate_patchcheck_20260715/`, `data/phase2/route_decision_20260715/` | Clean-capability gate smoke test, patch-check candidate build, and the final route-decision report bundle |
+
+### Current interpretation of these diagnostics
+
+- Storage audit (`data/phase2/audits/task0_3_20260713/current_state_summary.md`):
+  Task 0-3 was allowed to proceed, but free disk remained below the safety
+  margin for default full-checkpoint training.
+- Clean-gate smoke summary
+  (`data/phase2/audits/task7s_clean_gate_20260715/smoke_summary/clean_gate_smoke_summary.md`):
+  no candidate passed both validity and positive incremental smoke criteria, so
+  the clean-capability gate stopped with `selected_candidate: None`.
+- Final route decision
+  (`data/phase2/route_decision_20260715/reports/final_route_decision_report.md`):
+  the merged diagnostic evidence is `C: mechanism-negative but decision-useful`
+  with overall `go_no_go: no_go`.
+
+These July additions should therefore be read as reproducible decision support
+rather than as a new positive unlearning result. The completed 44-task
+benchmark remains the main formal external result, while the July 12-15 audit
+bundle documents why the newer merged-objective path was not advanced.
+
 ## Repository layout
 
 ```text
