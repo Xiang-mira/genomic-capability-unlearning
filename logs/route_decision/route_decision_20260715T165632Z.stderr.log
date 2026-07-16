@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_route_decision_pipeline.py", line 349, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/run_route_decision_pipeline.py", line 284, in main
+    run_stage(
+  File "/home/teacher1/UT-project1/project1/phase2/run_route_decision_pipeline.py", line 145, in run_stage
+    raise PipelineError(f"stage failed {name}:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}")
+PipelineError: stage failed summary:
+STDOUT:
+
+STDERR:
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/summarize_route_decision.py", line 11, in <module>
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    ^^^
+NameError: name 'sys' is not defined
+

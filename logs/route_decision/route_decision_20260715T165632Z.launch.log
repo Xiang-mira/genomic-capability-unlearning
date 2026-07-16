@@ -1,0 +1,5 @@
+[route-screen] launching session=route_decision_20260715T165632Z
+[route-screen] command=export PATH='/home/teacher1/miniconda3/envs/UT-p1/bin':"$PATH" && '/home/teacher1/miniconda3/envs/UT-p1/bin/python' -u phase2/run_route_decision_pipeline.py --project-root '/home/teacher1/UT-project1/project1' --python-bin '/home/teacher1/miniconda3/envs/UT-p1/bin/python' --out-dir 'data/phase2/route_decision_20260715' --device 'cuda:0'
+[route-screen] stdout=/home/teacher1/UT-project1/project1/logs/route_decision/route_decision_20260715T165632Z.stdout.log
+[route-screen] stderr=/home/teacher1/UT-project1/project1/logs/route_decision/route_decision_20260715T165632Z.stderr.log
+[route-screen] session=route_decision_20260715T165632Z

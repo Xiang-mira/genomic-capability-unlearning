@@ -136,7 +136,7 @@ run_gd() {
 run_rmu() {
     for cond in $RMU_CONDITIONS; do
         echo "=== RMU $cond ==="
-        python phase2/unlearn_rmu.py \
+        "$PHASE2_PYTHON" -u phase2/unlearn_rmu.py \
             --forget-csv "$SPLIT_DIR/forget.csv" \
             --retain-csv "$SPLIT_DIR/retain.csv" \
             --condition "$cond" \
@@ -151,7 +151,7 @@ run_rmu() {
 
 run_probe_nullspace() {
     echo "=== Probe null-space projection ==="
-    python phase2/project_probe_nullspace.py \
+    "$PHASE2_PYTHON" -u phase2/project_probe_nullspace.py \
         --internal-target-config "$INTERNAL_TARGET_CONFIG" \
         --forget-csv "$SPLIT_DIR/forget.csv" \
         --retain-csv "$SPLIT_DIR/retain.csv" \
@@ -162,7 +162,7 @@ run_probe_nullspace() {
 
 run_probe_guided() {
     echo "=== Probe-guided localized training ==="
-    python phase2/unlearn_probe.py \
+    "$PHASE2_PYTHON" -u phase2/unlearn_probe.py \
         --internal-target-config "$INTERNAL_TARGET_CONFIG" \
         --forget-csv "$SPLIT_DIR/forget.csv" \
         --retain-csv "$SPLIT_DIR/retain.csv" \
@@ -200,7 +200,7 @@ run_eval() {
         ckpt="$run/weights.safetensors"
         if [ -f "$ckpt" ]; then
             echo "=== eval $run ==="
-            python phase2/eval_unlearn.py \
+            "$PHASE2_PYTHON" -u phase2/eval_unlearn.py \
                 --ckpt "$ckpt" \
                 --internal-target-config "$INTERNAL_TARGET_CONFIG" \
                 --forget-csv "$SPLIT_DIR/forget.csv" \
@@ -225,7 +225,7 @@ prepare_benchmarks() {
         extra_args+=(--viral-retain-root "$VIRAL_RETAIN_ROOT")
     fi
 
-    python phase2/prepare_benchmarks.py \
+    "$PHASE2_PYTHON" -u phase2/prepare_benchmarks.py \
         "${extra_args[@]}" \
         --raw-root data/benchmarks/raw \
         --out-manifest "$BENCHMARK_MANIFEST" \
@@ -234,7 +234,7 @@ prepare_benchmarks() {
 }
 
 run_audit() {
-    python phase2/audit_experiment_state.py \
+    "$PHASE2_PYTHON" -u phase2/audit_experiment_state.py \
         --raw-root data/benchmarks/raw \
         --manifest "$BENCHMARK_MANIFEST" \
         --out data/phase2/experiment_audit.json
@@ -271,7 +271,7 @@ run_benchmarks() {
         exit 1
     fi
     echo "=== benchmark base model ==="
-    python -u phase2/eval_benchmarks.py \
+    "$PHASE2_PYTHON" -u phase2/eval_benchmarks.py \
         --benchmark-manifest "$BENCHMARK_MANIFEST" \
         --out-dir data/phase2/base_benchmarks \
         --resume \
@@ -294,7 +294,7 @@ run_benchmarks() {
         ckpt="$run/weights.safetensors"
         if [ -f "$ckpt" ]; then
             echo "=== benchmark $run ==="
-            python -u phase2/eval_benchmarks.py \
+            "$PHASE2_PYTHON" -u phase2/eval_benchmarks.py \
                 --ckpt "$ckpt" \
                 --benchmark-manifest "$BENCHMARK_MANIFEST" \
                 --resume \
@@ -395,7 +395,7 @@ run_benchmark_full_top() {
 
 run_taxonomy_heldout_base() {
     echo "=== taxonomy-held-out base model ($TAXONOMY_DATASET, group_key=$TAXONOMY_GROUP_KEY) ==="
-    python -u phase2/eval_taxonomy_heldout.py \
+    "$PHASE2_PYTHON" -u phase2/eval_taxonomy_heldout.py \
         --dataset "$TAXONOMY_DATASET" \
         --manifest "$TAXONOMY_MANIFEST" \
         --cini-input "$TAXONOMY_CINI_INPUT" \
@@ -416,7 +416,7 @@ run_taxonomy_heldout_ckpts() {
         if [ -f "$ckpt" ]; then
             run_name="$(basename "$run")"
             echo "=== taxonomy-held-out $run_name ==="
-            python -u phase2/eval_taxonomy_heldout.py \
+            "$PHASE2_PYTHON" -u phase2/eval_taxonomy_heldout.py \
                 --ckpt "$ckpt" \
                 --dataset "$TAXONOMY_DATASET" \
                 --manifest "$TAXONOMY_MANIFEST" \
@@ -440,7 +440,7 @@ run_taxonomy_heldout() {
 }
 
 case "${1:-all}" in
-    splits) python phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --extra-forget-manifest "$EXTRA_FORGET_MANIFEST" --out-dir "$SPLIT_DIR" ;;
+    splits) "$PHASE2_PYTHON" -u phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --extra-forget-manifest "$EXTRA_FORGET_MANIFEST" --out-dir "$SPLIT_DIR" ;;
     audit) run_audit ;;
     prepare_benchmarks) prepare_benchmarks ;;
     prepare_hiyata_lora) prepare_hiyata_lora ;;
@@ -460,7 +460,7 @@ case "${1:-all}" in
     taxonomy_heldout_ckpts) run_taxonomy_heldout_ckpts ;;
     taxonomy_heldout) run_taxonomy_heldout ;;
     all)
-        python phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --extra-forget-manifest "$EXTRA_FORGET_MANIFEST" --out-dir "$SPLIT_DIR"
+        "$PHASE2_PYTHON" -u phase2/build_unlearn_splits.py --manifest "$TARGET_MANIFEST" --extra-forget-manifest "$EXTRA_FORGET_MANIFEST" --out-dir "$SPLIT_DIR"
         run_audit
         prepare_benchmarks
         prepare_hiyata_lora

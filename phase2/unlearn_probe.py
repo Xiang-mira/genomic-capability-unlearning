@@ -17,20 +17,19 @@ from typing import Dict, List
 
 import torch
 import torch.nn.functional as F
-from safetensors.torch import save_file
 from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from phase1.utils import load_local_checkpoint, read_manifest
-from evo.tokenizer import CharLevelTokenizer
-from phase2.probe_utils import (
-    apply_checkpoint,
-    load_probe,
-    load_target_specs,
-    normalized_standard_probe_direction,
+from phase2.checkpoint_io import (
+    DEFAULT_TRAINABLE_MODULE_SUFFIXES,
+    parse_module_suffixes,
+    save_checkpoint,
+    select_tensor_names,
+    set_trainable_by_suffixes,
+    snapshot_state,
 )
-from phase2.utils import count_trainable, freeze_all, iterate_batches, set_block_grad, tokenize_batch
+from phase2.run_metadata import build_run_metadata, write_metadata
 
 
 def parse_save_steps(spec: str) -> set[int]:
@@ -50,18 +49,6 @@ def filter_train(records, label: int | None = None):
     if label is not None:
         result = [record for record in result if record.label == label]
     return result
-
-
-def save_block_state(model, layers: List[int], out_path: str) -> None:
-    tensors = {}
-    state_dict = model.state_dict()
-    for layer_idx in layers:
-        prefix = f"blocks.{layer_idx}."
-        for key, value in state_dict.items():
-            if key.startswith(prefix):
-                tensors[key] = value.detach().to(torch.bfloat16).cpu()
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    save_file(tensors, out_path)
 
 
 class NextNormCapture:
@@ -136,7 +123,7 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument("--steps", type=int, default=200)
     parser.add_argument("--alpha-forget", type=float, default=1.0)
-    parser.add_argument("--alpha-retain", type=float, default=5.0)
+    parser.add_argument("--alpha-retain", type=float, default=20.0)
     parser.add_argument(
         "--forget-objective",
         choices=["logit_zero", "component_zero"],
@@ -148,17 +135,56 @@ def main() -> None:
         ),
     )
     parser.add_argument("--retain-cosine-weight", type=float, default=0.0)
+    parser.add_argument(
+        "--retain-loss-components",
+        default="hidden_mse,output_kl,ce",
+        help="Comma-separated retain losses from hidden_mse,output_kl,ce.",
+    )
+    parser.add_argument("--forget-probe-config", default="", help="Reserved for multi-probe forget config.")
+    parser.add_argument("--capability-probe-config", default="", help="Reserved for capability probe config.")
     parser.add_argument("--log-every", type=int, default=10)
     parser.add_argument("--save-steps", default="")
+    parser.add_argument(
+        "--save-policy",
+        choices=["full", "selected_modules", "delta", "adapter"],
+        default="delta",
+    )
+    parser.add_argument(
+        "--trainable-module-suffixes",
+        default=",".join(DEFAULT_TRAINABLE_MODULE_SUFFIXES),
+    )
+    parser.add_argument("--save-final-only", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--save-best-only", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--min-free-disk-gb", type=float, default=80.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     parser.add_argument("--init-ckpt", default="")
     parser.add_argument("--init-from-run", default="")
     args = parser.parse_args()
 
+    from phase1.utils import load_local_checkpoint, read_manifest
+    from evo.tokenizer import CharLevelTokenizer
+    from phase2.probe_utils import (
+        apply_checkpoint,
+        load_probe,
+        load_target_specs,
+        normalized_standard_probe_direction,
+    )
+    from phase2.utils import count_trainable, iterate_batches, language_model_loss, tokenize_batch
+
     torch.manual_seed(args.seed)
     rng = random.Random(args.seed)
     save_steps = {step for step in parse_save_steps(args.save_steps) if 1 <= step <= args.steps}
+    if args.save_final_only or args.save_best_only:
+        save_steps = set()
+    retain_loss_components = {part.strip() for part in args.retain_loss_components.split(",") if part.strip()}
+    allowed_retain_components = {"hidden_mse", "output_kl", "ce"}
+    unknown_retain = retain_loss_components - allowed_retain_components
+    if unknown_retain:
+        raise ValueError(f"Unknown retain loss components: {sorted(unknown_retain)}")
+    if not retain_loss_components:
+        raise ValueError("--retain-loss-components must include at least one component")
+    trainable_suffixes = parse_module_suffixes(args.trainable_module_suffixes)
     run_dir = os.path.join(args.out_dir, args.run_name)
     os.makedirs(run_dir, exist_ok=True)
     init_ckpt, init_source = resolve_init_ckpt(args)
@@ -173,16 +199,19 @@ def main() -> None:
     if init_ckpt:
         apply_checkpoint(model, init_ckpt)
     model.train()
+    trainable_names = set_trainable_by_suffixes(model, layers, trainable_suffixes)
+    if args.save_policy == "adapter" and not select_tensor_names(model, layers, trainable_suffixes, adapter_only=True):
+        raise ValueError("save-policy=adapter requested, but this model has no adapter/LoRA/IA3 tensors")
+    init_state = snapshot_state(model, trainable_names)
 
     ref_model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     ref_model.eval()
     for param in ref_model.parameters():
         param.requires_grad_(False)
 
-    freeze_all(model)
-    set_block_grad(model, layers, True)
     trainable = [param for param in model.parameters() if param.requires_grad]
     print(f"[probe-guided] trainable layers: {layers}")
+    print(f"[probe-guided] trainable suffixes: {trainable_suffixes}")
     print(f"[probe-guided] trainable params: {count_trainable(model):,}")
     optimizer = torch.optim.AdamW(trainable, lr=args.lr, weight_decay=0.0)
 
@@ -215,6 +244,77 @@ def main() -> None:
 
     iterators = {spec["name"]: iter([]) for spec in target_specs}
     retain_iter = iter([])
+
+    data_paths = [args.forget_csv, args.retain_csv, args.internal_target_config] + [
+        spec["manifest"] for spec in target_specs
+    ]
+    probe_paths = [
+        os.path.join(spec["probe_dir"], f"layer_{layer}.npz")
+        for spec in target_specs
+        for layer in spec["layers"]
+    ]
+
+    def save_model_checkpoint(checkpoint_dir: str, checkpoint_step: int | None, elapsed: float | None):
+        out_path = os.path.join(checkpoint_dir, "weights.safetensors")
+        save_result = save_checkpoint(
+            model,
+            out_path,
+            policy=args.save_policy,
+            layers=layers,
+            suffixes=trainable_suffixes,
+            init_state=init_state,
+            min_free_disk_gb=args.min_free_disk_gb,
+            metadata={
+                "created_by": "phase2/unlearn_probe.py",
+                "source_checkpoint": args.model_dir,
+                "init_ckpt": init_ckpt or "",
+                "trainable_module_suffixes": ",".join(trainable_suffixes),
+                "loss_layers": ",".join(str(layer) for layer in layers),
+            },
+        )
+        metadata = build_run_metadata(
+            args=args,
+            source_checkpoint=args.model_dir,
+            init_checkpoint=init_ckpt or "",
+            output_checkpoint=out_path if save_result.saved else "",
+            data_paths=data_paths,
+            probe_paths=probe_paths,
+            trainable_modules=trainable_suffixes,
+            trainable_tensor_names=trainable_names,
+            trainable_param_count=count_trainable(model),
+            loss_layers=layers,
+            seed=args.seed,
+            save_policy=args.save_policy,
+            checkpoint_policy=args.save_policy,
+            extra={
+                "method": "probe_guided",
+                "condition": args.condition,
+                "layers": layers,
+                "target_names": [spec["name"] for spec in target_specs],
+                "internal_target_config": args.internal_target_config,
+                "checkpoint_step": checkpoint_step,
+                "steps": args.steps,
+                "lr": args.lr,
+                "alpha_forget": args.alpha_forget,
+                "alpha_retain": args.alpha_retain,
+                "forget_objective": args.forget_objective,
+                "retain_loss_components": sorted(retain_loss_components),
+                "retain_cosine_weight": args.retain_cosine_weight,
+                "batch_size": args.batch_size,
+                "max_length": args.max_length,
+                "forget_csv": args.forget_csv,
+                "retain_csv": args.retain_csv,
+                "elapsed_sec": elapsed,
+                "save_steps": sorted(save_steps),
+                "init_source": init_source,
+                "init_ckpt": init_ckpt,
+                "parent_run": args.run_name if checkpoint_step is not None else "",
+                "save_result": save_result.__dict__,
+                "save_skipped_reason": save_result.skipped_reason,
+            },
+        )
+        write_metadata(os.path.join(checkpoint_dir, "meta.json"), metadata)
+        return save_result
 
     def next_target_batch(spec: dict):
         nonlocal iterators
@@ -291,10 +391,10 @@ def main() -> None:
         ref_capture.set_mask(r_mask)
         ref_capture.clear()
         with torch.no_grad():
-            _ = ref_model(r_ids, padding_mask=r_mask)
+            ref_logits, _ = ref_model(r_ids, padding_mask=r_mask)
         model_capture.set_mask(r_mask)
         model_capture.clear()
-        _ = model(r_ids, padding_mask=r_mask)
+        model_logits, _ = model(r_ids, padding_mask=r_mask)
 
         retain_mse_losses = []
         retain_cosine_losses = []
@@ -313,7 +413,20 @@ def main() -> None:
 
         L_retain_mse = torch.stack(retain_mse_losses).mean()
         L_retain_cosine = torch.stack(retain_cosine_losses).mean()
-        L_retain = L_retain_mse + args.retain_cosine_weight * L_retain_cosine
+        retain_components = {}
+        if "hidden_mse" in retain_loss_components:
+            retain_components["hidden_mse"] = L_retain_mse
+        if "output_kl" in retain_loss_components:
+            shifted_log_probs = F.log_softmax(model_logits[:, :-1, :].float(), dim=-1)
+            shifted_ref_probs = F.softmax(ref_logits[:, :-1, :].detach().float(), dim=-1)
+            shifted_mask = r_mask[:, 1:].float()
+            token_kl = F.kl_div(shifted_log_probs, shifted_ref_probs, reduction="none").sum(dim=-1)
+            retain_components["output_kl"] = (token_kl * shifted_mask).sum() / shifted_mask.sum().clamp(min=1)
+        if "ce" in retain_loss_components:
+            retain_components["ce"] = language_model_loss(model_logits, r_ids, r_mask)
+        L_retain = torch.stack(list(retain_components.values())).mean()
+        if args.retain_cosine_weight:
+            L_retain = L_retain + args.retain_cosine_weight * L_retain_cosine
 
         weighted_forget = args.alpha_forget * L_forget
         weighted_retain = args.alpha_retain * L_retain
@@ -330,6 +443,8 @@ def main() -> None:
                 "L_forget": L_forget.item(),
                 "L_retain_mse": L_retain_mse.item(),
                 "L_retain_cosine": L_retain_cosine.item(),
+                "L_retain_output_kl": retain_components.get("output_kl", torch.tensor(float("nan"))).item(),
+                "L_retain_ce": retain_components.get("ce", torch.tensor(float("nan"))).item(),
                 "L_retain_total": L_retain.item(),
                 "weighted_forget_term": weighted_forget.item(),
                 "weighted_retain_term": weighted_retain.item(),
@@ -342,68 +457,22 @@ def main() -> None:
 
         if current_step in save_steps:
             step_dir = os.path.join(run_dir, f"step_{current_step:06d}")
-            save_block_state(model, layers, os.path.join(step_dir, "weights.safetensors"))
-            with open(os.path.join(step_dir, "meta.json"), "w") as f:
-                json.dump(
-                    {
-                        "method": "probe_guided",
-                        "condition": args.condition,
-                        "layers": layers,
-                        "target_names": [spec["name"] for spec in target_specs],
-                        "internal_target_config": args.internal_target_config,
-                        "checkpoint_step": current_step,
-                        "steps": args.steps,
-                        "lr": args.lr,
-                        "alpha_forget": args.alpha_forget,
-                        "alpha_retain": args.alpha_retain,
-                        "forget_objective": args.forget_objective,
-                        "retain_cosine_weight": args.retain_cosine_weight,
-                        "batch_size": args.batch_size,
-                        "max_length": args.max_length,
-                        "retain_csv": args.retain_csv,
-                        "seed": args.seed,
-                        "init_source": init_source,
-                        "init_ckpt": init_ckpt,
-                        "parent_run": args.run_name,
-                    },
-                    f,
-                    indent=2,
-                )
+            save_model_checkpoint(step_dir, current_step, time.time() - t0)
 
     elapsed = time.time() - t0
-    save_block_state(model, layers, os.path.join(run_dir, "weights.safetensors"))
-    with open(os.path.join(run_dir, "meta.json"), "w") as f:
-        json.dump(
-            {
-                "method": "probe_guided",
-                "condition": args.condition,
-                "layers": layers,
-                "target_names": [spec["name"] for spec in target_specs],
-                "internal_target_config": args.internal_target_config,
-                "steps": args.steps,
-                "lr": args.lr,
-                "alpha_forget": args.alpha_forget,
-                "alpha_retain": args.alpha_retain,
-                "forget_objective": args.forget_objective,
-                "retain_cosine_weight": args.retain_cosine_weight,
-                "batch_size": args.batch_size,
-                "max_length": args.max_length,
-                "forget_csv": args.forget_csv,
-                "retain_csv": args.retain_csv,
-                "seed": args.seed,
-                "elapsed_sec": elapsed,
-                "save_steps": sorted(save_steps),
-                "init_source": init_source,
-                "init_ckpt": init_ckpt,
-            },
-            f,
-            indent=2,
-        )
+    final_save = save_model_checkpoint(run_dir, None, elapsed)
     with open(os.path.join(run_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)
     model_capture.close()
     ref_capture.close()
-    print(f"[probe-guided] saved to {run_dir} in {elapsed:.1f}s")
+    if final_save.saved:
+        print(f"[probe-guided] saved to {run_dir} in {elapsed:.1f}s")
+    else:
+        print(
+            f"[probe-guided] checkpoint save skipped for {run_dir}: "
+            f"{final_save.skipped_reason} free={final_save.free_disk_gb:.2f}G "
+            f"min={final_save.min_free_disk_gb:.2f}G"
+        )
 
 
 if __name__ == "__main__":

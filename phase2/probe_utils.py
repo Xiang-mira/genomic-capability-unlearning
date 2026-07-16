@@ -6,7 +6,6 @@ from typing import Dict, List
 
 import numpy as np
 import torch
-from safetensors.torch import load_file
 
 DEFAULT_LOCALIZED_LAYERS = [5, 6, 7, 8, 9]
 
@@ -106,18 +105,15 @@ def projection_matrix(basis: torch.Tensor) -> torch.Tensor:
     return eye - basis @ basis.T
 
 
-def apply_checkpoint(model, ckpt_path: str) -> None:
-    tensors = load_file(ckpt_path)
-    state_dict = model.state_dict()
-    missing = []
-    for key, value in tensors.items():
-        if key not in state_dict:
-            missing.append(key)
-            continue
-        state_dict[key].copy_(value.to(state_dict[key].dtype).to(state_dict[key].device))
-    if missing:
-        print(f"[probe] skipped {len(missing)} checkpoint tensors not present in model")
-    print(f"[probe] applied {len(tensors) - len(missing)} checkpoint tensors from {ckpt_path}")
+def apply_checkpoint(model, ckpt_path: str, checkpoint_format: str = "auto") -> None:
+    from phase2.checkpoint_io import apply_checkpoint as apply_phase2_checkpoint
+
+    apply_phase2_checkpoint(
+        model,
+        ckpt_path,
+        checkpoint_format=checkpoint_format,
+        log_prefix="probe",
+    )
 
 
 def ensure_parent_dir(path: str) -> None:

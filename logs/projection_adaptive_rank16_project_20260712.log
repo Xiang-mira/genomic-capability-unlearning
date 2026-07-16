@@ -1,0 +1,34 @@
+[probe-nullspace] layer=0 targets=['coronaviridae'] basis_rank=16
+[probe-nullspace] layer=1 targets=['coronaviridae'] basis_rank=16
+[probe-nullspace] layer=2 targets=['coronaviridae'] basis_rank=16
+[probe-nullspace] layer=3 targets=['coronaviridae'] basis_rank=16
+[probe-nullspace] layer=4 targets=['coronaviridae'] basis_rank=16
+[probe-nullspace] layer=5 targets=['coronaviridae', 'host_tropism'] basis_rank=17
+[probe-nullspace] layer=6 targets=['coronaviridae', 'host_tropism'] basis_rank=17
+[probe-nullspace] layer=7 targets=['coronaviridae', 'host_tropism'] basis_rank=17
+[probe-nullspace] layer=8 targets=['coronaviridae', 'host_tropism'] basis_rank=17
+[probe-nullspace] layer=9 targets=['coronaviridae', 'host_tropism'] basis_rank=17
+[probe-nullspace] layer=10 targets=['coronaviridae'] basis_rank=16
+[probe-nullspace] projected blocks.0.out_filter_dense
+[probe-nullspace] projected blocks.0.mlp.l3
+[probe-nullspace] projected blocks.1.out_filter_dense
+[probe-nullspace] projected blocks.1.mlp.l3
+[probe-nullspace] projected blocks.2.out_filter_dense
+[probe-nullspace] projected blocks.2.mlp.l3
+[probe-nullspace] projected blocks.3.out_filter_dense
+[probe-nullspace] projected blocks.3.mlp.l3
+[probe-nullspace] projected blocks.4.out_filter_dense
+[probe-nullspace] projected blocks.4.mlp.l3
+[probe-nullspace] projected blocks.5.out_filter_dense
+[probe-nullspace] projected blocks.5.mlp.l3
+[probe-nullspace] projected blocks.6.out_filter_dense
+[probe-nullspace] projected blocks.6.mlp.l3
+[probe-nullspace] projected blocks.7.out_filter_dense
+[probe-nullspace] projected blocks.7.mlp.l3
+[probe-nullspace] projected blocks.8.inner_mha_cls.out_proj
+[probe-nullspace] projected blocks.8.mlp.l3
+[probe-nullspace] projected blocks.9.out_filter_dense
+[probe-nullspace] projected blocks.9.mlp.l3
+[probe-nullspace] projected blocks.10.out_filter_dense
+[probe-nullspace] projected blocks.10.mlp.l3
+[probe-nullspace] saved 33 tensors to data/phase2/checkpoints_projection_adaptive_rank16/projopt_host5_9_coro0_10_adaptive_basis_rank16/weights.safetensors

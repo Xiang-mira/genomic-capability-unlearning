@@ -1,0 +1,13 @@
+[adaptive-basis] target=coronaviridae layer=0 rank=32 final_val_sep=0.9760 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_0.npz
+[adaptive-basis] target=coronaviridae layer=1 rank=32 final_val_sep=0.9264 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_1.npz
+[adaptive-basis] target=coronaviridae layer=2 rank=32 final_val_sep=0.8428 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_2.npz
+[adaptive-basis] target=coronaviridae layer=3 rank=32 final_val_sep=0.8423 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_3.npz
+[adaptive-basis] target=coronaviridae layer=4 rank=32 final_val_sep=0.7934 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_4.npz
+[adaptive-basis] target=coronaviridae layer=5 rank=32 final_val_sep=0.7308 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_5.npz
+[adaptive-basis] target=coronaviridae layer=6 rank=32 final_val_sep=0.7233 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_6.npz
+[adaptive-basis] target=coronaviridae layer=7 rank=32 final_val_sep=0.7955 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_7.npz
+[adaptive-basis] target=coronaviridae layer=8 rank=32 final_val_sep=0.8229 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_8.npz
+[adaptive-basis] target=coronaviridae layer=9 rank=32 final_val_sep=0.8940 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_9.npz
+[adaptive-basis] target=coronaviridae layer=10 rank=32 final_val_sep=0.9462 path=data/phase2/adaptive_probe_bases_rank32/coronaviridae/layer_10.npz
+[adaptive-basis] wrote data/phase2/adaptive_probe_bases_rank32/coronaviridae/adaptive_basis_metrics.csv
+[adaptive-basis] wrote data/phase2/adaptive_probe_bases_rank32/coronaviridae/adaptive_basis_summary.json
