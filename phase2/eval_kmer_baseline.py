@@ -20,6 +20,7 @@ csv.field_size_limit(sys.maxsize)
 FIELDNAMES = [
     "benchmark",
     "task",
+    "split_type",
     "group",
     "baseline",
     "kmer_min",
@@ -43,6 +44,7 @@ FIELDNAMES = [
 class Record:
     benchmark: str
     task: str
+    split_type: str
     group: str
     split: str
     sequence: str
@@ -68,6 +70,15 @@ def normalize_split(value: object) -> str:
     if split in {"dev", "valid", "validation"}:
         return "val"
     return split
+
+
+def normalize_split_type(value: object) -> str:
+    split_type = str(value or "").strip().lower()
+    if not split_type:
+        return "random"
+    if split_type in {"cluster-disjoint", "cluster_disjoint", "disjoint"}:
+        return "cluster_disjoint"
+    return split_type
 
 
 def infer_group(task: str, benchmark: str, fallback: str) -> str:
@@ -99,8 +110,9 @@ def read_manifest(args) -> list[Record]:
             seq = clean_sequence(row.get("sequence", ""), args.max_length)
             if split not in {"train", "val", "test"} or not label or not seq:
                 continue
+            split_type = normalize_split_type(row.get("split_type"))
             group = infer_group(task, benchmark, row.get("group", "") or args.default_group)
-            records.append(Record(benchmark, task, group, split, seq, label))
+            records.append(Record(benchmark, task, split_type, group, split, seq, label))
     return records
 
 
@@ -139,16 +151,16 @@ def selection_score(metrics: dict) -> tuple[str, float]:
     return "accuracy", float("-inf")
 
 
-def fit_task(task: str, records: list[Record], args) -> Optional[dict]:
+def fit_task(task: str, split_type: str, records: list[Record], args) -> Optional[dict]:
     splits = np.array([record.split for record in records])
     y, _label_to_id = encode_labels(record.label for record in records)
     if len(np.unique(y)) < 2:
-        print(f"[kmer] skip task={task}: fewer than two classes")
+        print(f"[kmer] skip task={task} split_type={split_type}: fewer than two classes")
         return None
     masks = {name: splits == name for name in ("train", "val", "test")}
     for name, mask in masks.items():
         if mask.sum() == 0 or len(np.unique(y[mask])) < 2:
-            print(f"[kmer] skip task={task}: split {name} missing rows or classes")
+            print(f"[kmer] skip task={task} split_type={split_type}: split {name} missing rows or classes")
             return None
 
     sequences = [record.sequence for record in records]
@@ -189,6 +201,7 @@ def fit_task(task: str, records: list[Record], args) -> Optional[dict]:
     return {
         "benchmark": first.benchmark,
         "task": task,
+        "split_type": split_type,
         "group": first.group,
         "baseline": "kmer",
         "kmer_min": args.kmer_min,
@@ -234,12 +247,12 @@ def main() -> None:
     args = parser.parse_args()
 
     records = read_manifest(args)
-    by_task: dict[str, list[Record]] = defaultdict(list)
+    by_task: dict[tuple[str, str], list[Record]] = defaultdict(list)
     for record in records:
-        by_task[record.task].append(record)
+        by_task[(record.task, record.split_type)].append(record)
     rows = []
-    for task, task_records in sorted(by_task.items()):
-        row = fit_task(task, task_records, args)
+    for (task, split_type), task_records in sorted(by_task.items()):
+        row = fit_task(task, split_type, task_records, args)
         if row is not None:
             rows.append(row)
     if not rows:

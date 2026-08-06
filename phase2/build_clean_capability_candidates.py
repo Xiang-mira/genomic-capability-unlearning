@@ -41,7 +41,7 @@ from phase2.probe_validity_audit import (
     build_kmer_features,
     sequence_stats,
 )
-from phase2.run_metadata import file_sha256, git_info, stable_hash
+from phase2.run_metadata import build_run_metadata, file_sha256, git_info, stable_hash, write_metadata
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT
 
 
@@ -252,6 +252,71 @@ def build_signature(source_manifest: Path, args: argparse.Namespace) -> dict[str
         "script_hashes": script_hashes,
         "script_version": stable_hash(script_hashes),
     }
+
+
+def write_candidate_metadata(
+    *,
+    args: argparse.Namespace,
+    candidate_dir: Path,
+    signature: dict[str, Any],
+    candidate_name: str,
+    candidate_quantile: float,
+    rows: int,
+    pair_summary: dict[str, Any],
+) -> None:
+    write_metadata(
+        candidate_dir / "meta.json",
+        build_run_metadata(
+            args=args,
+            source_checkpoint="clean_capability_candidate_builder",
+            data_paths=[
+                args.source_manifest,
+                candidate_dir / "capability_dataset_manifest.csv",
+                candidate_dir / "capability_dataset_audit.json",
+            ],
+            extra={
+                "phase": "clean_capability_candidate",
+                "task": "task7_clean_candidate_builder",
+                "candidate_name": candidate_name,
+                "candidate_quantile": candidate_quantile,
+                "candidate_type": "matched_hard_negative",
+                "rows": rows,
+                "pair_summary": pair_summary,
+                "run_signature": signature,
+            },
+        ),
+    )
+
+
+def write_candidate_build_metadata(
+    *,
+    args: argparse.Namespace,
+    out_root: Path,
+    signature: dict[str, Any],
+    index: dict[str, Any],
+) -> None:
+    write_metadata(
+        out_root / "candidate_build_metadata.json",
+        build_run_metadata(
+            args=args,
+            source_checkpoint="clean_capability_candidate_builder",
+            data_paths=[args.source_manifest, out_root / "candidate_index.json"],
+            extra={
+                "phase": "clean_capability_candidate_build",
+                "task": "task7_clean_candidate_builder",
+                "out_root": str(out_root),
+                "candidate_count": len(index.get("candidates", [])),
+                "candidate_names": [item.get("candidate_name", "") for item in index.get("candidates", [])],
+                "skipped_candidate_reasons": index.get("skipped_candidate_reasons", {}),
+                "run_signature": signature,
+                "outputs": [
+                    "candidate_index.json",
+                    "candidate_build_signature.json",
+                    "candidate_build_metadata.json",
+                ],
+            },
+        ),
+    )
 
 
 def feature_vector(row: dict[str, str]) -> np.ndarray:
@@ -566,6 +631,15 @@ def main() -> None:
             "manifest_hash": file_sha256(candidate_dir / "capability_dataset_manifest.csv"),
             "audit_hash": file_sha256(candidate_dir / "capability_dataset_audit.json"),
         })
+        write_candidate_metadata(
+            args=args,
+            candidate_dir=candidate_dir,
+            signature=signature,
+            candidate_name=name,
+            candidate_quantile=quantile,
+            rows=len(candidate_rows),
+            pair_summary=pair_summary,
+        )
         index["candidates"].append(
             {
                 "candidate_name": name,
@@ -580,6 +654,7 @@ def main() -> None:
 
     write_json(out_root / "candidate_index.json", index)
     write_json(out_root / "candidate_build_signature.json", signature)
+    write_candidate_build_metadata(args=args, out_root=out_root, signature=signature, index=index)
     print(f"[clean-candidates] wrote {len(index['candidates'])} candidates to {out_root}")
 
 

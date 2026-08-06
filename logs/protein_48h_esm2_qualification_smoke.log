@@ -1,0 +1,16 @@
+[2026-08-04T18:16:48.060543+00:00] complete hvue_summary: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_hvue_benchmark_limitation_summary.json
+[2026-08-04T18:16:48.064443+00:00] complete frozen_protocol: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_frozen_protocol.json
+[2026-08-04T18:16:48.108014+00:00] complete static_prescreen: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_candidate_inventory.csv
+[2026-08-04T18:16:48.117118+00:00] complete split_creation: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_split_manifest.json
+[2026-08-04T18:16:48.385718+00:00] complete baseline_evaluation: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_baseline_results.csv
+[2026-08-04T18:16:56.118417+00:00] complete esm2_pilot: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_esm2_pilot_metrics.csv
+[2026-08-04T18:16:56.120293+00:00] complete advancement_gate: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_advancement_gate.json
+[2026-08-04T18:16:58.214688+00:00] complete lora_qualification: data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_lora_metrics.csv
+[2026-08-04T18:19:38.992640+00:00] skip hvue_summary: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_hvue_benchmark_limitation_summary.json
+[2026-08-04T18:19:38.993345+00:00] skip frozen_protocol: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_frozen_protocol.json
+[2026-08-04T18:19:38.993975+00:00] skip static_prescreen: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_candidate_inventory.csv
+[2026-08-04T18:19:38.995764+00:00] skip split_creation: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_split_manifest.json
+[2026-08-04T18:19:38.996393+00:00] skip baseline_evaluation: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_baseline_results.csv
+[2026-08-04T18:19:38.997024+00:00] skip esm2_pilot: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_esm2_pilot_metrics.csv
+[2026-08-04T18:19:38.997643+00:00] skip advancement_gate: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_advancement_gate.json
+[2026-08-04T18:19:38.998313+00:00] skip lora_qualification: output already valid at data/phase2/protein_48h_esm2_qualification_smoke/protein_48h_lora_metrics.csv

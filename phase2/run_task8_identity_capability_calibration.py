@@ -11,9 +11,15 @@ import argparse
 import csv
 import json
 import math
+import os
+import sys
 import time
 from pathlib import Path
 from typing import Any
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from phase2.run_metadata import build_run_metadata, write_metadata
 
 
 def now() -> str:
@@ -52,6 +58,42 @@ def mean(values: list[float | None]) -> float | None:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+
+
+def write_task8_metadata(
+    *,
+    args: argparse.Namespace,
+    out_dir: Path,
+    payload: dict[str, Any],
+) -> None:
+    write_metadata(
+        out_dir / "meta.json",
+        build_run_metadata(
+            args=args,
+            source_checkpoint="task8_identity_capability_calibration",
+            data_paths=[
+                Path(args.task7_dir) / "identity_capability_calibration.json",
+                Path(args.task7_dir) / "capability_probe_summary.csv",
+                args.task5a_summary,
+            ],
+            extra={
+                "phase": "task8_identity_capability_calibration",
+                "task": "task8_identity_capability_calibration",
+                "task7_dir": args.task7_dir,
+                "out_dir": str(out_dir),
+                "capability_probe_status": payload.get("capability_probe_status"),
+                "formal_success_allowed": payload.get("formal_success_allowed"),
+                "relationship_case": payload.get("decision", {}).get("relationship_case"),
+                "identity_role_for_training": payload.get("decision", {}).get("identity_role_for_training"),
+                "probe_weight_ratio_for_task9": payload.get("decision", {}).get("probe_weight_ratio_for_task9"),
+                "task5a_rows_available": payload.get("task5a_rows_available"),
+                "outputs": [
+                    "identity_capability_calibration.json",
+                    "task8_decision.md",
+                ],
+            },
+        ),
+    )
 
 
 def main() -> None:
@@ -119,6 +161,7 @@ def main() -> None:
         "task5a_rows_available": len(task5a.get("rows", [])),
     }
     write_json(out_dir / "identity_capability_calibration.json", payload)
+    write_task8_metadata(args=args, out_dir=out_dir, payload=payload)
     (out_dir / "task8_decision.md").write_text(
         "# Task 8 Identity-Capability Calibration\n\n"
         f"- capability_probe_status: {payload['capability_probe_status']}\n"

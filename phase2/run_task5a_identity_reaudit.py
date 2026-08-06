@@ -20,6 +20,8 @@ from typing import Iterable
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from phase2.run_metadata import build_run_metadata, write_metadata
+
 
 TASK3_CONTEXT = {
     "permutation_failures": 0,
@@ -61,6 +63,12 @@ class CheckpointSpec:
 
 
 TASK5A_CHECKPOINTS: list[CheckpointSpec] = [
+    CheckpointSpec(
+        "base",
+        "base",
+        "",
+        "base_reference",
+    ),
     CheckpointSpec(
         "projection_old_best",
         "projection",
@@ -190,9 +198,19 @@ def select_specs(names: Iterable[str]) -> list[CheckpointSpec]:
 
 
 def write_meta(out_dir: Path, spec: CheckpointSpec, args: argparse.Namespace, batch_size: int) -> None:
-    write_json(
-        out_dir / "meta.json",
-        {
+    metadata = build_run_metadata(
+        args=args,
+        source_checkpoint=spec.checkpoint_path or args.model_dir,
+        data_paths=[
+            args.internal_target_config,
+            args.forget_csv,
+            args.retain_csv,
+            args.config_path,
+            spec.checkpoint_path,
+        ],
+        loss_layers=range(16),
+        seed=args.seed,
+        extra={
             "created_at": now(),
             "task": "task5a_identity_reaudit",
             "checkpoint_name": spec.checkpoint_name,
@@ -214,6 +232,7 @@ def write_meta(out_dir: Path, spec: CheckpointSpec, args: argparse.Namespace, ba
             },
         },
     )
+    write_metadata(out_dir / "meta.json", metadata)
 
 
 def run_one(spec: CheckpointSpec, args: argparse.Namespace) -> int:
@@ -235,7 +254,7 @@ def run_one(spec: CheckpointSpec, args: argparse.Namespace) -> int:
         print(f"[task5a] skip completed {spec.checkpoint_name}")
         return 0
 
-    if not Path(spec.checkpoint_path).exists():
+    if spec.checkpoint_path and not Path(spec.checkpoint_path).exists():
         write_json(
             status_path(out_dir),
             {
@@ -269,7 +288,7 @@ def run_one(spec: CheckpointSpec, args: argparse.Namespace) -> int:
         sys.executable,
         "phase2/eval_unlearn.py",
         "--ckpt",
-        spec.checkpoint_path,
+        spec.checkpoint_path or "base",
         "--checkpoint-format",
         args.checkpoint_format,
         "--out-dir",
@@ -310,6 +329,20 @@ def run_one(spec: CheckpointSpec, args: argparse.Namespace) -> int:
         "--seed",
         str(args.seed),
     ]
+    if spec.checkpoint_name == "base":
+        command.append("--base-checkpoint")
+    if args.export_predictions:
+        command.extend(
+            [
+                "--export-predictions",
+                "--prediction-output",
+                str(out_dir / "eval_predictions.csv"),
+                "--checkpoint-name",
+                spec.checkpoint_name,
+                "--method-family",
+                spec.method_family,
+            ]
+        )
 
     started = now()
     write_json(
@@ -384,6 +417,11 @@ def main() -> None:
     parser.add_argument("--n-bootstrap", type=int, default=TASK5A_PROTOCOL["bootstrap"])
     parser.add_argument("--fresh-gate-threshold", type=float, default=TASK5A_PROTOCOL["fresh_gate_threshold"])
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--export-predictions",
+        action="store_true",
+        help="Ask eval_unlearn.py to write per-sample prediction tables for MCC audits.",
+    )
     args = parser.parse_args()
 
     out_root = Path(args.out_root)

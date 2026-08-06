@@ -17,6 +17,7 @@ from typing import Any
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from phase2.run_metadata import build_run_metadata, stable_hash, write_metadata
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT
 
 
@@ -36,6 +37,79 @@ def write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
+def queue_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.task5b_v2_out_dir) / "task7r8_5bv2_queue_metadata.json"
+
+
+def task5b_v2_manifest_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.task5b_v2_out_dir) / "task5b_v2_checkpoint_manifest_metadata.json"
+
+
+def write_queue_metadata(args: argparse.Namespace) -> None:
+    write_metadata(
+        queue_metadata_path(args),
+        build_run_metadata(
+            args=args,
+            source_checkpoint=args.model_dir,
+            data_paths=[
+                args.task5a_manifest,
+                Path(args.task5a_out_dir) / "task5a_identity_reaudit_summary.json",
+                args.benchmark_manifest,
+                args.config_path,
+                Path(args.task7r_out_dir) / "task7r_internal_target_config.json",
+                Path(args.task7r_out_dir) / "capability_dataset_manifest.csv",
+                Path(args.task7r_out_dir) / "capability_dataset_audit.json",
+                Path(args.task7r_out_dir) / "identity_capability_calibration.json",
+            ],
+            extra={
+                "phase": "task7r8_5bv2_queue",
+                "task": "task7r8_5bv2_queue",
+                "task3_context": TASK3_CONTEXT,
+                "task7r_out_dir": args.task7r_out_dir,
+                "task8_out_dir": args.task8_out_dir,
+                "task5b_v2_out_dir": args.task5b_v2_out_dir,
+                "queue_status_path": args.queue_status,
+                "primary_task": args.primary_task,
+                "aux_task": args.aux_task,
+                "formal_split_column": args.formal_split_column,
+                "max_per_split_label": args.max_per_split_label,
+                "n_bootstrap": args.n_bootstrap,
+                "layers": args.layers,
+                "batch_size": args.batch_size,
+                "device": args.device,
+                "checkpoint_format": args.checkpoint_format,
+                "probe_seeds": args.probe_seeds,
+                "fresh_c_grid": args.fresh_c_grid,
+                "stop_on_low_disk_gb": args.stop_on_low_disk_gb,
+            },
+        ),
+    )
+
+
+def write_task5b_v2_manifest_metadata(args: argparse.Namespace, manifest_path: Path, entries: list[dict[str, Any]]) -> None:
+    checkpoint_names = [str(entry.get("checkpoint_name", "")) for entry in entries]
+    source_names = [str(entry.get("source_checkpoint_name", entry.get("checkpoint_name", ""))) for entry in entries]
+    write_metadata(
+        task5b_v2_manifest_metadata_path(args),
+        build_run_metadata(
+            args=args,
+            source_checkpoint="task5b_v2_checkpoint_manifest_builder",
+            data_paths=[args.task5a_manifest, manifest_path],
+            extra={
+                "phase": "task5b_v2_checkpoint_manifest",
+                "task": "task5b_v2_clean_probe_checkpoint_manifest",
+                "manifest_path": str(manifest_path),
+                "source_task5a_manifest": args.task5a_manifest,
+                "checkpoint_count": len(entries),
+                "checkpoint_names": checkpoint_names,
+                "source_checkpoint_names": source_names,
+                "checkpoint_name_hash": stable_hash(checkpoint_names),
+                "source_checkpoint_name_hash": stable_hash(source_names),
+            },
+        ),
+    )
+
+
 def free_disk_gb(path: Path) -> float:
     path.mkdir(parents=True, exist_ok=True)
     return shutil.disk_usage(path).free / (1024 ** 3)
@@ -51,6 +125,7 @@ def write_status(args: argparse.Namespace, status: str, **extra: Any) -> None:
             "task7r_out_dir": args.task7r_out_dir,
             "task8_out_dir": args.task8_out_dir,
             "task5b_v2_out_dir": args.task5b_v2_out_dir,
+            "queue_metadata_path": str(queue_metadata_path(args)),
             **extra,
         },
     )
@@ -114,6 +189,7 @@ def build_task5b_v2_manifest(args: argparse.Namespace) -> Path:
             "checkpoints": unique,
         },
     )
+    write_task5b_v2_manifest_metadata(args, out, unique)
     return out
 
 
@@ -165,6 +241,7 @@ def main() -> None:
     Path(args.task7r_out_dir).mkdir(parents=True, exist_ok=True)
     Path(args.task8_out_dir).mkdir(parents=True, exist_ok=True)
     Path(args.task5b_v2_out_dir).mkdir(parents=True, exist_ok=True)
+    write_queue_metadata(args)
     write_status(args, "started")
 
     require_disk(args, "task7r-dataset")

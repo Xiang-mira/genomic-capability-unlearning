@@ -1,0 +1,28 @@
+[followup] seed=45 checkpoint=base
+[followup] command: python -u phase2/eval_benchmarks.py --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] resume enabled: loaded 4 completed task rows
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/4 task=gue_mouse_3: already complete
+[bench-lora] skip task 2/4 task=hvue_human_host_tropism: already complete
+[bench-lora] skip task 3/4 task=hvue_human_virus_pathogenicity_cini: already complete
+[bench-lora] skip task 4/4 task=virobench_dna_taxon_genus: already complete
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/eval_benchmarks_summary.json
+[followup] seed=45 checkpoint=gd_random_control
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt :/home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 1149, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 1028, in main
+    apply_checkpoint(model, args.ckpt)
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 195, in apply_checkpoint
+    delta = load_file(ckpt_path)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/safetensors/torch.py", line 336, in load_file
+    with safe_open(filename, framework="pt", device=device) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: No such file or directory: :/home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors

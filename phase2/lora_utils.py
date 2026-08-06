@@ -109,6 +109,26 @@ def remove_lora_adapters(model) -> None:
             _replace_child(parent, parts[-1], module.linear)
 
 
+def merge_lora_adapters(model) -> list[str]:
+    """Merge LoRA updates into base Linear weights and remove wrappers in-place."""
+    merged: list[str] = []
+    for block_idx, block in enumerate(model.blocks):
+        for module_path, module in list(block.named_modules()):
+            if not module_path or not isinstance(module, LoRALinear):
+                continue
+            parts = module_path.split(".")
+            parent = block
+            for part in parts[:-1]:
+                parent = parent[int(part)] if part.isdigit() and isinstance(parent, (nn.Sequential, nn.ModuleList)) else getattr(parent, part)
+            child_name = parts[-1]
+            merged_linear = module.linear
+            delta = (module.lora_B.float() @ module.lora_A.float()) * module.scale
+            merged_linear.weight.data.add_(delta.to(merged_linear.weight.dtype).to(merged_linear.weight.device))
+            _replace_child(parent, child_name, merged_linear)
+            merged.append(f"blocks.{block_idx}.{module_path}")
+    return merged
+
+
 def count_trainable(module: nn.Module) -> int:
     return sum(param.numel() for param in module.parameters() if param.requires_grad)
 

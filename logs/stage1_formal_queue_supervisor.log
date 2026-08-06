@@ -1,0 +1,611 @@
+
+[2026-07-28T00:54:00.924815+00:00] launcher cmd=/home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/stage1_queue_supervisor.py run --python-bin /home/teacher1/miniconda3/envs/UT-p1/bin/python --checkpoint-mode base_only --out-root /home/teacher1/UT-project1/project1/data/phase2/stage1_formal_experiment_20260727 --plan-json /home/teacher1/UT-project1/project1/data/phase2/stage1_formal_experiment_20260727/stage1_formal_experiment_plan.json --status-json /home/teacher1/UT-project1/project1/data/phase2/stage1_formal_experiment_20260727/queue_supervisor_status.json --pid-file /home/teacher1/UT-project1/project1/data/phase2/stage1_formal_experiment_20260727/queue_supervisor.pid --log-file /home/teacher1/UT-project1/project1/logs/stage1_formal_queue_supervisor.log --restart-delay-sec 15
+
+[2026-07-28T00:54:00.993868+00:00] supervisor attempt=1 cmd=/home/teacher1/miniconda3/envs/UT-p1/bin/python -u phase2/run_stage1_formal_experiment.py --checkpoint-mode base_only --execute
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[stage1-formal] wrote /home/teacher1/UT-project1/project1/data/phase2/stage1_formal_experiment_20260727/stage1_formal_experiment_plan.json
+[stage1-formal] available tasks: ['hvue_human_host_tropism']
+[stage1-formal] blocked tasks: ['hvue_human_virus_pathogenicity_cini']
+[stage1-formal] step=fresh_lora_base_r8_lr1e-5_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+[bench-lora] resume enabled: loaded 1 completed task rows
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/1 task=hvue_human_host_tropism: already complete
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-5/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-5/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr1e-5_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+[bench-lora] resume enabled: loaded 1 completed task rows
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/1 task=hvue_human_host_tropism: already complete
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-5/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-5/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr1e-5_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+[bench-lora] resume enabled: loaded 1 completed task rows
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/1 task=hvue_human_host_tropism: already complete
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-5/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-5/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr5e-5_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+[bench-lora] resume enabled: loaded 1 completed task rows
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/1 task=hvue_human_host_tropism: already complete
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr5e-5_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+[bench-lora] resume enabled: loaded 1 completed task rows
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/1 task=hvue_human_host_tropism: already complete
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr5e-5_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5128 val_loss=0.7092 auroc=0.6171306514773941
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0432 val_loss=1.1927 auroc=0.698440726237095
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=6.9178 val_loss=1.0591 auroc=0.7809042363830545
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=6.2325 val_loss=1.7036 auroc=0.7429832680669276
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=7.0660 val_loss=1.1980 auroc=0.8299466002135991
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=2.7990 val_loss=1.2719 auroc=0.8209754360982555
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0072 val_loss=1.0783 auroc=0.8357636169455321
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0030 val_loss=1.2876 auroc=0.8463225347098612
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.1216 val_loss=1.1625 auroc=0.8460092559629762
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0029 val_loss=1.0955 auroc=0.8357137771448914
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=2.3753 val_loss=1.1359 auroc=0.8595514417942329
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0013 val_loss=1.0150 auroc=0.8446137415450338
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0038 val_loss=1.2147 auroc=0.8509505161979352
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0034 val_loss=1.2167 auroc=0.8638376646493413
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0004 val_loss=1.2973 auroc=0.8546030615877537
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=0.0204 val_loss=1.3572 auroc=0.8425987896048417
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=0.0055 val_loss=1.3845 auroc=0.8490281238875045
+[bench-lora] early stop task=hvue_human_host_tropism step=3400
+[bench-lora] finished task=hvue_human_host_tropism best_step=2800 test_auroc=0.8734437800215664 test_mcc=0.5462707743445813 test_f1=0.7719194894452626 test_acc=0.7722772277227723
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_5e-5/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr1e-4_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.1925 val_loss=0.9766 auroc=0.780249199003204
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=2.8846 val_loss=1.9814 auroc=0.7866785332858669
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=6.1589 val_loss=1.1701 auroc=0.7618298326806693
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0151 val_loss=1.5311 auroc=0.7594161623353506
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.0013 val_loss=1.2837 auroc=0.823624065503738
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0021 val_loss=1.1040 auroc=0.835927376290495
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.2378 val_loss=0.9908 auroc=0.8444571021715913
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.4401 val_loss=1.2336 auroc=0.8493271626913492
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0282 val_loss=1.1741 auroc=0.8644855820576718
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0002 val_loss=1.0291 auroc=0.8674617301530794
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0003 val_loss=1.2754 auroc=0.8540405838376647
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=2.1782 val_loss=0.8284 auroc=0.8827910288358847
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0031 val_loss=0.9223 auroc=0.8814453542185832
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0009 val_loss=1.1177 auroc=0.8629690281238875
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0747 val_loss=1.1938 auroc=0.863189747241011
+[bench-lora] early stop task=hvue_human_host_tropism step=3000
+[bench-lora] finished task=hvue_human_host_tropism best_step=2400 test_auroc=0.8817762964415253 test_mcc=0.6163131486778467 test_f1=0.8065466689585737 test_acc=0.806930693069307
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr1e-4_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.9384 val_loss=0.7173 auroc=0.5576005695977216
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.6166 val_loss=0.9231 auroc=0.728686365254539
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.5106 val_loss=0.7102 auroc=0.5449911000355998
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0794 val_loss=1.3173 auroc=0.573314346742613
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.8870 val_loss=0.7117 auroc=0.6131719473122108
+[bench-lora] early stop task=hvue_human_host_tropism step=1000
+[bench-lora] finished task=hvue_human_host_tropism best_step=400 test_auroc=0.7849475541613568 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r8_lr1e-4_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4876 val_loss=0.7176 auroc=0.5714773940904236
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0290 val_loss=1.7385 auroc=0.7713278746885012
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=3.5806 val_loss=1.7825 auroc=0.6577714489142042
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=3.9682 val_loss=1.9948 auroc=0.7231683873264507
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.6371 val_loss=0.6909 auroc=0.7493912424350304
+[bench-lora] early stop task=hvue_human_host_tropism step=1000
+[bench-lora] finished task=hvue_human_host_tropism best_step=400 test_auroc=0.7973360454857367 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_8/lr_1e-4/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr1e-5_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4266 val_loss=0.7447 auroc=0.482997508009968
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.3811 val_loss=0.8271 auroc=0.6758276966892132
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=1.5190 val_loss=0.7645 auroc=0.7473264506941972
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0282 val_loss=1.2894 auroc=0.737871128515486
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.4098 val_loss=0.7327 auroc=0.7847917408330366
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.1037 val_loss=0.7838 auroc=0.807191171235315
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.5391 val_loss=0.9450 auroc=0.8217016731933072
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0841 val_loss=1.0642 auroc=0.8270986116055535
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0013 val_loss=1.0973 auroc=0.826813812744749
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0017 val_loss=1.1707 auroc=0.8112637949448203
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0009 val_loss=1.2243 auroc=0.8105802776788893
+[bench-lora] early stop task=hvue_human_host_tropism step=2200
+[bench-lora] finished task=hvue_human_host_tropism best_step=1600 test_auroc=0.8504068228605037 test_mcc=0.5594127955129766 test_f1=0.7797016205618357 test_acc=0.7797029702970297
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr1e-5_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.8168 val_loss=0.7006 auroc=0.45042363830544674
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.8828 val_loss=0.7080 auroc=0.5414453542185831
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.5766 val_loss=0.6968 auroc=0.7110217159131365
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.1011 val_loss=0.7665 auroc=0.7375863296546814
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=1.3087 val_loss=0.7185 auroc=0.7230758276966893
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.2062 val_loss=0.8688 auroc=0.7488501245995016
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.2683 val_loss=0.9271 auroc=0.7811463154147382
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0045 val_loss=1.1661 auroc=0.777443930224279
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0010 val_loss=1.1944 auroc=0.7923958704165184
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0072 val_loss=1.2149 auroc=0.7947739409042364
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=5.5830 val_loss=1.5705 auroc=0.7983481666073335
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0063 val_loss=1.1749 auroc=0.8033748665005339
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0113 val_loss=1.2096 auroc=0.807127091491634
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0686 val_loss=1.2267 auroc=0.8048273406906373
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0010 val_loss=1.1822 auroc=0.8032039871840513
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=0.0747 val_loss=1.2299 auroc=0.8076753292986828
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=0.0024 val_loss=1.2272 auroc=0.8105945176219295
+[bench-lora] task=hvue_human_host_tropism step=3600 train_loss=0.0005 val_loss=1.1641 auroc=0.8131007475970097
+[bench-lora] task=hvue_human_host_tropism step=3800 train_loss=6.9631 val_loss=1.2928 auroc=0.8133001067995729
+[bench-lora] task=hvue_human_host_tropism step=4000 train_loss=4.2172 val_loss=1.1847 auroc=0.8157493770024921
+[bench-lora] task=hvue_human_host_tropism step=4200 train_loss=3.0789 val_loss=1.2301 auroc=0.8181132075471698
+[bench-lora] finished task=hvue_human_host_tropism best_step=4200 test_auroc=0.8540584256445447 test_mcc=0.6016773856345664 test_f1=0.7990605139541309 test_acc=0.7995049504950495
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr1e-5_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5508 val_loss=0.7051 auroc=0.4921751512993948
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.3748 val_loss=0.7620 auroc=0.67062299750801
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=1.7378 val_loss=0.8560 auroc=0.7240299038803845
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=5.9044 val_loss=2.0504 auroc=0.7138412246351015
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=2.5084 val_loss=1.1060 auroc=0.7787682449270203
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=3.2730 val_loss=1.1565 auroc=0.8031185475258099
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0120 val_loss=1.0688 auroc=0.815998576005696
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=2.3178 val_loss=1.3903 auroc=0.7874403702385191
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0248 val_loss=1.0919 auroc=0.8241367034531861
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0058 val_loss=1.2020 auroc=0.812687789248843
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0087 val_loss=1.1502 auroc=0.8184407262370951
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0405 val_loss=1.1738 auroc=0.8259594161623354
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0030 val_loss=1.2463 auroc=0.8197365610537558
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0008 val_loss=1.1525 auroc=0.8312566749733001
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0002 val_loss=1.2709 auroc=0.8282378070487719
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=0.0250 val_loss=1.3136 auroc=0.8175507297970808
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=2.6888 val_loss=1.2321 auroc=0.8318832324670701
+[bench-lora] task=hvue_human_host_tropism step=3600 train_loss=0.0003 val_loss=1.2885 auroc=0.829875400498398
+[bench-lora] task=hvue_human_host_tropism step=3800 train_loss=0.0005 val_loss=1.2848 auroc=0.8130224279102883
+[bench-lora] task=hvue_human_host_tropism step=4000 train_loss=0.0001 val_loss=1.1777 auroc=0.8292132431470275
+[bench-lora] early stop task=hvue_human_host_tropism step=4000
+[bench-lora] finished task=hvue_human_host_tropism best_step=3400 test_auroc=0.8491324379962748 test_mcc=0.5698728388222896 test_f1=0.7845465412082018 test_acc=0.7846534653465347
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-5/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr5e-5_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.2557 val_loss=0.8799 auroc=0.7634674261302954
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=4.5277 val_loss=2.1154 auroc=0.6643930224279103
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=1.6670 val_loss=0.8298 auroc=0.7702954788180847
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0011 val_loss=1.3801 auroc=0.7502954788180847
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.0030 val_loss=1.1304 auroc=0.8170309718761124
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0002 val_loss=1.3227 auroc=0.7915129939480242
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.7244 val_loss=0.9467 auroc=0.8361409754360983
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0118 val_loss=1.0568 auroc=0.8549519401922392
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0003 val_loss=1.1922 auroc=0.8543965824136703
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0006 val_loss=1.1165 auroc=0.8581274474902101
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0002 val_loss=1.0494 auroc=0.8657458170167319
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0329 val_loss=1.0936 auroc=0.8578853684585263
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0189 val_loss=1.0969 auroc=0.8590245639017444
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0025 val_loss=1.0949 auroc=0.8616589533641865
+[bench-lora] early stop task=hvue_human_host_tropism step=2800
+[bench-lora] finished task=hvue_human_host_tropism best_step=2200 test_auroc=0.8837246348397216 test_mcc=0.5701529228039218 test_f1=0.7844936999908029 test_acc=0.7846534653465347
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr5e-5_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.8619 val_loss=0.7046 auroc=0.6335350658597365
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.5813 val_loss=0.6955 auroc=0.7749661801352794
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=4.4040 val_loss=1.3101 auroc=0.7991100035599858
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0099 val_loss=1.3662 auroc=0.8072908508365967
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.5611 val_loss=1.0180 auroc=0.8197223211107155
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0059 val_loss=0.9124 auroc=0.8443787824848701
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0548 val_loss=0.7843 auroc=0.8484727661089356
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0545 val_loss=0.9988 auroc=0.8443787824848701
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0024 val_loss=1.0661 auroc=0.844122463510146
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0447 val_loss=1.2267 auroc=0.8506301174795301
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.5470 val_loss=1.1577 auroc=0.8522178711285155
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0514 val_loss=1.0357 auroc=0.8667568529725881
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0016 val_loss=0.9712 auroc=0.8662513349946601
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0017 val_loss=0.9942 auroc=0.8581132075471698
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0037 val_loss=0.9313 auroc=0.8630331078675685
+[bench-lora] early stop task=hvue_human_host_tropism step=3000
+[bench-lora] finished task=hvue_human_host_tropism best_step=2400 test_auroc=0.8781614547593373 test_mcc=0.6039900012157713 test_f1=0.8019753449501262 test_acc=0.801980198019802
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr5e-5_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5072 val_loss=0.7092 auroc=0.6595087219651121
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0557 val_loss=1.0047 auroc=0.7748807404770381
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.5969 val_loss=1.4184 auroc=0.802121751512994
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=4.7010 val_loss=1.3817 auroc=0.8027910288358847
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.8963 val_loss=1.0890 auroc=0.8466073335706656
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=6.9365 val_loss=1.9253 auroc=0.8173442506229975
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0029 val_loss=0.9801 auroc=0.8479031683873265
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0087 val_loss=1.3646 auroc=0.8654182983268067
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0256 val_loss=0.9320 auroc=0.8571021715913136
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0022 val_loss=0.9777 auroc=0.8656461374154503
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=1.0521 val_loss=1.1053 auroc=0.8617087931648273
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0058 val_loss=1.0092 auroc=0.8623211107155572
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0006 val_loss=1.1434 auroc=0.8677109291562833
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0017 val_loss=1.0363 auroc=0.8627127091491634
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0000 val_loss=1.1728 auroc=0.8758561765752937
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=0.0008 val_loss=1.0471 auroc=0.872993948024208
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=0.0001 val_loss=1.3401 auroc=0.8806763972944108
+[bench-lora] task=hvue_human_host_tropism step=3600 train_loss=0.0000 val_loss=1.2787 auroc=0.8631114275542899
+[bench-lora] task=hvue_human_host_tropism step=3800 train_loss=0.0002 val_loss=1.3365 auroc=0.8616375934496261
+[bench-lora] task=hvue_human_host_tropism step=4000 train_loss=0.0000 val_loss=1.0775 auroc=0.8837379850480598
+[bench-lora] task=hvue_human_host_tropism step=4200 train_loss=0.0001 val_loss=1.4056 auroc=0.8607048771804913
+[bench-lora] finished task=hvue_human_host_tropism best_step=4000 test_auroc=0.8925718066856191 test_mcc=0.6438484420471409 test_f1=0.8217428606446868 test_acc=0.8217821782178217
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_5e-5/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr1e-4_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.2352 val_loss=0.7390 auroc=0.6278390886436453
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=3.5728 val_loss=2.0928 auroc=0.6792951228195087
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=3.7306 val_loss=1.7487 auroc=0.730936276254895
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0210 val_loss=1.3458 auroc=0.7463225347098611
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.0006 val_loss=1.7897 auroc=0.8066215735137059
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0016 val_loss=1.0345 auroc=0.7965681737273052
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0075 val_loss=1.0996 auroc=0.8053684585261659
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=5.6666 val_loss=1.0039 auroc=0.8082876468494126
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0158 val_loss=1.5335 auroc=0.7931933072267712
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0020 val_loss=0.8066 auroc=0.8015379138483447
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0024 val_loss=0.8584 auroc=0.8295906016375935
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0041 val_loss=1.0825 auroc=0.8354289782840869
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=6.2172 val_loss=0.9871 auroc=0.8364684941260235
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.2632 val_loss=0.8391 auroc=0.8342755428978285
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0468 val_loss=1.0197 auroc=0.8368956924172303
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=0.1164 val_loss=1.3993 auroc=0.8110359558561766
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=0.0003 val_loss=0.9705 auroc=0.8589035243859025
+[bench-lora] task=hvue_human_host_tropism step=3600 train_loss=8.6196 val_loss=1.7989 auroc=0.8265147739409042
+[bench-lora] task=hvue_human_host_tropism step=3800 train_loss=0.0009 val_loss=0.8992 auroc=0.8605339978640087
+[bench-lora] task=hvue_human_host_tropism step=4000 train_loss=0.0051 val_loss=1.0512 auroc=0.8598362406550373
+[bench-lora] task=hvue_human_host_tropism step=4200 train_loss=9.5517 val_loss=1.2796 auroc=0.8463367746529015
+[bench-lora] finished task=hvue_human_host_tropism best_step=3800 test_auroc=0.8692039996078816 test_mcc=0.5846170740069282 test_f1=0.7919976463665783 test_acc=0.7920792079207921
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr1e-4_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.9443 val_loss=0.7133 auroc=0.619814880740477
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.6407 val_loss=0.8715 auroc=0.6032609469562121
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.2571 val_loss=0.8529 auroc=0.6392096831612673
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.1391 val_loss=1.0809 auroc=0.6737059451762193
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=1.1144 val_loss=0.7556 auroc=0.6934496262014952
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=1.5156 val_loss=0.9012 auroc=0.727561409754361
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.1546 val_loss=1.0628 auroc=0.5809184763260946
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.1153 val_loss=1.1993 auroc=0.720064079743681
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=2.7997 val_loss=1.3792 auroc=0.7430971876112495
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=4.6488 val_loss=2.3844 auroc=0.682435030259879
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.4294 val_loss=0.6855 auroc=0.778697045211819
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.7841 val_loss=0.6620 auroc=0.7673620505517977
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0094 val_loss=1.4877 auroc=0.7297472410110359
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=9.3159 val_loss=1.5791 auroc=0.7479102883588464
+[bench-lora] early stop task=hvue_human_host_tropism step=2800
+[bench-lora] finished task=hvue_human_host_tropism best_step=2200 test_auroc=0.7936966964023134 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r16_lr1e-4_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.6858 val_loss=0.6581 auroc=0.7176646493414025
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0667 val_loss=1.4376 auroc=0.5569811320754716
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=3.8169 val_loss=1.8682 auroc=0.7281452474190104
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.3730 val_loss=0.7612 auroc=0.4029761480954076
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=2.4920 val_loss=1.2892 auroc=0.5444143823424706
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=4.0652 val_loss=2.0410 auroc=0.43379850480598076
+[bench-lora] early stop task=hvue_human_host_tropism step=1200
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.7697897264974022 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_16/lr_1e-4/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr1e-5_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4174 val_loss=0.7488 auroc=0.5164542541829833
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=2.3973 val_loss=1.1464 auroc=0.6542114631541474
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=3.5729 val_loss=0.9139 auroc=0.7325881096475613
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0126 val_loss=1.2654 auroc=0.7541901032395871
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.0515 val_loss=0.7088 auroc=0.8122605909576363
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0016 val_loss=1.0115 auroc=0.8200213599145604
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=1.8426 val_loss=1.0138 auroc=0.8190957636169456
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.1046 val_loss=1.0369 auroc=0.8299181203275187
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0016 val_loss=1.0911 auroc=0.8226059095763617
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0013 val_loss=1.1577 auroc=0.8224136703453185
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0006 val_loss=1.2740 auroc=0.814560341758633
+[bench-lora] early stop task=hvue_human_host_tropism step=2200
+[bench-lora] finished task=hvue_human_host_tropism best_step=1600 test_auroc=0.8620723458484463 test_mcc=0.5842729791719349 test_f1=0.7920588235294117 test_acc=0.7920792079207921
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr1e-5_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.8194 val_loss=0.7004 auroc=0.5204200783196866
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.8979 val_loss=0.7094 auroc=0.6501673193307227
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=1.2835 val_loss=0.7290 auroc=0.7311925952296192
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0749 val_loss=0.7668 auroc=0.7462299750800997
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=4.0959 val_loss=1.2730 auroc=0.7038091847632609
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0735 val_loss=0.9855 auroc=0.8003132787468851
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0146 val_loss=1.1265 auroc=0.794190103239587
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0020 val_loss=1.0659 auroc=0.808629405482378
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0021 val_loss=1.1166 auroc=0.8177572089711642
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0090 val_loss=1.1755 auroc=0.8177572089711642
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=4.9944 val_loss=1.2522 auroc=0.8171733713065148
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0115 val_loss=1.1600 auroc=0.8273264506941972
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0011 val_loss=1.1063 auroc=0.8340761836952651
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.1699 val_loss=1.1267 auroc=0.8374652901388394
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0020 val_loss=1.0979 auroc=0.8362833748665005
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=0.1152 val_loss=1.1716 auroc=0.8292630829476682
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=0.0018 val_loss=1.2246 auroc=0.8122178711285155
+[bench-lora] early stop task=hvue_human_host_tropism step=3400
+[bench-lora] finished task=hvue_human_host_tropism best_step=2800 test_auroc=0.864866189589256 test_mcc=0.58041112705733 test_f1=0.7893858825982693 test_acc=0.7896039603960396
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr1e-5_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5483 val_loss=0.7050 auroc=0.5155856176575294
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.3046 val_loss=0.8046 auroc=0.7181772872908508
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=3.1370 val_loss=1.0312 auroc=0.7455891776432894
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=5.9737 val_loss=1.9992 auroc=0.7520327518689925
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=2.9269 val_loss=0.9483 auroc=0.7930295478818086
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=3.2428 val_loss=1.3093 auroc=0.8074830900676397
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0082 val_loss=1.0582 auroc=0.8227839088643646
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.7728 val_loss=1.2800 auroc=0.809626201495194
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0835 val_loss=1.1182 auroc=0.8282662869348523
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0090 val_loss=1.1511 auroc=0.8202207191171236
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0237 val_loss=1.1575 auroc=0.8277963688145247
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0085 val_loss=1.1364 auroc=0.8359558561765753
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0017 val_loss=1.2853 auroc=0.8339622641509434
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0011 val_loss=1.1717 auroc=0.834688501245995
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0002 val_loss=1.2472 auroc=0.8336062655749377
+[bench-lora] early stop task=hvue_human_host_tropism step=3000
+[bench-lora] finished task=hvue_human_host_tropism best_step=2400 test_auroc=0.8646456229781394 test_mcc=0.5806972553108731 test_f1=0.7859483969540895 test_acc=0.7871287128712872
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-5/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr5e-5_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.2208 val_loss=0.9295 auroc=0.7935065859736561
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=4.6911 val_loss=1.9390 auroc=0.5326379494482022
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.8522 val_loss=0.6729 auroc=0.6458526165895336
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.1375 val_loss=1.3544 auroc=0.6775507297970809
+[bench-lora] early stop task=hvue_human_host_tropism step=800
+[bench-lora] finished task=hvue_human_host_tropism best_step=200 test_auroc=0.8241348887363983 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr5e-5_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.8701 val_loss=0.7032 auroc=0.732004271982912
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.5987 val_loss=0.8110 auroc=0.58187255250979
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=5.0326 val_loss=1.8254 auroc=0.745311498754005
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.1104 val_loss=1.0717 auroc=0.8195941616233535
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.3388 val_loss=1.0317 auroc=0.8055108579565682
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0082 val_loss=1.0283 auroc=0.840056959772161
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0159 val_loss=0.7792 auroc=0.860064079743681
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0002 val_loss=1.1917 auroc=0.8424848700605198
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0009 val_loss=1.1442 auroc=0.8610181559273764
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0082 val_loss=0.9993 auroc=0.870067639729441
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=8.7245 val_loss=1.2940 auroc=0.8605838376646493
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0166 val_loss=0.8588 auroc=0.8844998220007121
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0002 val_loss=0.9132 auroc=0.8764257742969028
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0076 val_loss=1.0818 auroc=0.8791028835884656
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0025 val_loss=1.0204 auroc=0.8770808116767533
+[bench-lora] early stop task=hvue_human_host_tropism step=3000
+[bench-lora] finished task=hvue_human_host_tropism best_step=2400 test_auroc=0.8896431722380159 test_mcc=0.6054161897450039 test_f1=0.8017421175315912 test_acc=0.801980198019802
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr5e-5_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5080 val_loss=0.7129 auroc=0.5705233179067284
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.1264 val_loss=1.1474 auroc=0.7112139551441794
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=2.7582 val_loss=1.3169 auroc=0.7494197223211108
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.7545 val_loss=0.7204 auroc=0.7313919544321823
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=3.4298 val_loss=1.2038 auroc=0.7314417942328231
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=7.2914 val_loss=2.0884 auroc=0.7893983624065504
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0178 val_loss=1.5494 auroc=0.7605695977216091
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=3.7411 val_loss=2.6677 auroc=0.5159131363474546
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=2.2527 val_loss=1.1650 auroc=0.8182128871484514
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.8444 val_loss=1.0874 auroc=0.8217728729085084
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0822 val_loss=1.0045 auroc=0.84625133499466
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.0050 val_loss=0.9830 auroc=0.8457244571021715
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=0.0027 val_loss=1.0812 auroc=0.8633392666429335
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.4810 val_loss=1.3110 auroc=0.8455820576717692
+[bench-lora] task=hvue_human_host_tropism step=3000 train_loss=0.0019 val_loss=0.8634 auroc=0.8686507653969384
+[bench-lora] task=hvue_human_host_tropism step=3200 train_loss=3.9920 val_loss=1.3360 auroc=0.8594161623353507
+[bench-lora] task=hvue_human_host_tropism step=3400 train_loss=0.0001 val_loss=1.1954 auroc=0.8677180491278035
+[bench-lora] task=hvue_human_host_tropism step=3600 train_loss=0.0003 val_loss=1.2355 auroc=0.8694268422926309
+[bench-lora] task=hvue_human_host_tropism step=3800 train_loss=0.0013 val_loss=1.1915 auroc=0.867369170523318
+[bench-lora] task=hvue_human_host_tropism step=4000 train_loss=0.0013 val_loss=0.9697 auroc=0.8836454254182983
+[bench-lora] task=hvue_human_host_tropism step=4200 train_loss=0.0011 val_loss=0.8787 auroc=0.890195799216803
+[bench-lora] finished task=hvue_human_host_tropism best_step=4200 test_auroc=0.8932457602195862 test_mcc=0.6734947376569539 test_f1=0.8335209205921607 test_acc=0.8341584158415841
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_5e-5/seed_44/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr1e-4_seed42
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=1.5112 val_loss=0.8114 auroc=0.5326593093627625
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=6.1517 val_loss=2.3910 auroc=0.6529085083659665
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.6856 val_loss=1.4786 auroc=0.6855891776432894
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0084 val_loss=1.2366 auroc=0.7612175151299395
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.0001 val_loss=1.3888 auroc=0.7932217871128517
+[bench-lora] task=hvue_human_host_tropism step=1200 train_loss=0.0301 val_loss=1.2497 auroc=0.7112566749732999
+[bench-lora] task=hvue_human_host_tropism step=1400 train_loss=0.0024 val_loss=1.0031 auroc=0.8405126379494483
+[bench-lora] task=hvue_human_host_tropism step=1600 train_loss=0.0057 val_loss=1.3616 auroc=0.8511925952296191
+[bench-lora] task=hvue_human_host_tropism step=1800 train_loss=0.0281 val_loss=0.9524 auroc=0.8505873976504094
+[bench-lora] task=hvue_human_host_tropism step=2000 train_loss=0.0000 val_loss=1.0198 auroc=0.8610751156995372
+[bench-lora] task=hvue_human_host_tropism step=2200 train_loss=0.0008 val_loss=0.9661 auroc=0.8784549661801353
+[bench-lora] task=hvue_human_host_tropism step=2400 train_loss=0.6420 val_loss=1.0353 auroc=0.8504734781060876
+[bench-lora] task=hvue_human_host_tropism step=2600 train_loss=2.2574 val_loss=0.9514 auroc=0.8539195443218226
+[bench-lora] task=hvue_human_host_tropism step=2800 train_loss=0.0034 val_loss=1.2067 auroc=0.8566678533285867
+[bench-lora] early stop task=hvue_human_host_tropism step=2800
+[bench-lora] finished task=hvue_human_host_tropism best_step=2200 test_auroc=0.8847171845897461 test_mcc=0.6221375694809298 test_f1=0.7924518845228549 test_acc=0.7970297029702971
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_42/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_42/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_42/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr1e-4_seed43
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=1.0330 val_loss=0.7365 auroc=0.4910217159131363
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.6908 val_loss=0.9091 auroc=0.6284941260234957
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.5210 val_loss=0.7073 auroc=0.4313421146315415
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=0.0610 val_loss=1.4340 auroc=0.5520897116411534
+[bench-lora] task=hvue_human_host_tropism step=1000 train_loss=0.6983 val_loss=0.6932 auroc=0.4619722321110715
+[bench-lora] early stop task=hvue_human_host_tropism step=1000
+[bench-lora] finished task=hvue_human_host_tropism best_step=400 test_auroc=0.547176747377708 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_43/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_43/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_43/eval_benchmarks_summary.json
+[stage1-formal] step=fresh_lora_base_r32_lr1e-4_seed44
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=2372 tasks=1 scope=task
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/1 task=hvue_human_host_tropism rows=2372
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4465 val_loss=0.7298 auroc=0.6099964400142399
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.7889 val_loss=0.9594 auroc=0.4812103951584194
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.9158 val_loss=0.7097 auroc=0.49786400854396584
+[bench-lora] task=hvue_human_host_tropism step=800 train_loss=1.2470 val_loss=0.8014 auroc=0.4662014951940192
+[bench-lora] early stop task=hvue_human_host_tropism step=800
+[bench-lora] finished task=hvue_human_host_tropism best_step=200 test_auroc=0.6619203999607882 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_44/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] wrote benchmark results to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_44/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to data/phase2/stage1_formal_experiment_20260727/fresh_lora/base/rank_32/lr_1e-4/seed_44/eval_benchmarks_summary.json
+[2026-07-28T08:34:04.996392+00:00] supervisor attempt=1 child_exit=0

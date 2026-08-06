@@ -31,24 +31,27 @@ from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from phase1.utils import load_local_checkpoint, read_manifest
+from phase1 import utils as phase1_utils
 from evo.tokenizer import CharLevelTokenizer
-from phase2.utils import (
-    count_trainable,
-    freeze_all,
-    get_localized_layers,
-    get_primary_target_layer,
-    iterate_batches,
-    select_random_layers,
-    set_block_grad,
-    tokenize_batch,
-)
+from phase2 import utils as phase2_utils
 from phase2.probe_utils import (
     load_probe,
     load_target_specs,
     normalized_raw_probe_direction,
     orthonormal_basis,
 )
+from phase2.run_metadata import build_run_metadata, write_metadata
+
+load_local_checkpoint = phase1_utils.load_local_checkpoint
+read_manifest = getattr(phase1_utils, "read_manifest", None)
+count_trainable = getattr(phase2_utils, "count_trainable", None)
+freeze_all = getattr(phase2_utils, "freeze_all", None)
+get_localized_layers = getattr(phase2_utils, "get_localized_layers", None)
+get_primary_target_layer = getattr(phase2_utils, "get_primary_target_layer", None)
+iterate_batches = getattr(phase2_utils, "iterate_batches", None)
+select_random_layers = getattr(phase2_utils, "select_random_layers", None)
+set_block_grad = getattr(phase2_utils, "set_block_grad", None)
+tokenize_batch = getattr(phase2_utils, "tokenize_batch", None)
 
 
 def parse_save_steps(spec: str) -> set[int]:
@@ -321,7 +324,68 @@ def save_block_deltas(model, layers: List[int], out_path: str) -> None:
     save_file(delta, out_path)
 
 
+def build_rmu_metadata(
+    *,
+    args,
+    layers: List[int],
+    loss_layers: List[int],
+    requested_target_layer: int,
+    normalize_hidden: bool,
+    direction_metadata: dict,
+    effective_alpha_retain: float,
+    requested_alpha_retain: float,
+    save_steps: List[int],
+    elapsed_sec: float | None = None,
+    checkpoint_step: int | None = None,
+    parent_run: str | None = None,
+) -> dict:
+    extra = {
+        "method": "rmu",
+        "condition": args.condition,
+        "layers": layers,
+        "target_layer": requested_target_layer,
+        "loss_layers": loss_layers,
+        "normalize_hidden": normalize_hidden,
+        "scale_calibrated": args.scale_calibrated,
+        "steer_coef": args.steer_coef,
+        "target_direction": args.target_direction,
+        "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
+        "internal_target_config": args.internal_target_config,
+        "probe_direction_sign": args.probe_direction_sign if args.target_direction == "joint_probe" else None,
+        "direction_metadata": direction_metadata,
+        "retain_cosine_weight": args.retain_cosine_weight,
+        "steps": args.steps,
+        "lr": args.lr,
+        "alpha_forget": args.alpha_forget,
+        "alpha_retain": effective_alpha_retain,
+        "requested_alpha_retain": requested_alpha_retain,
+        "batch_size": args.batch_size,
+        "max_length": args.max_length,
+        "forget_csv": args.forget_csv,
+        "retain_csv": args.retain_csv,
+        "seed": args.seed,
+        "save_steps": save_steps,
+        "localized_layers_path": args.localized_layers_path,
+    }
+    if elapsed_sec is not None:
+        extra["elapsed_sec"] = elapsed_sec
+    if checkpoint_step is not None:
+        extra["checkpoint_step"] = checkpoint_step
+    if parent_run is not None:
+        extra["parent_run"] = parent_run
+    return build_run_metadata(
+        args=args,
+        source_checkpoint=args.model_dir,
+        data_paths=[args.internal_target_config, args.forget_csv, args.retain_csv, args.localized_layers_path],
+        loss_layers=loss_layers,
+        seed=args.seed,
+        extra=extra,
+    )
+
+
 def main() -> None:
+    if read_manifest is None:
+        raise ImportError("phase1.utils.read_manifest is required to run unlearn_rmu.py")
     parser = argparse.ArgumentParser()
     parser.add_argument("--forget-csv", default="data/phase2/splits/forget.csv")
     parser.add_argument("--retain-csv", default="data/phase2/splits/retain.csv")
@@ -700,36 +764,22 @@ def main() -> None:
         if current_step in save_steps:
             step_dir = os.path.join(run_dir, f"step_{current_step:06d}")
             save_block_deltas(model, layers=layers, out_path=os.path.join(step_dir, "weights.safetensors"))
-            with open(os.path.join(step_dir, "meta.json"), "w") as f:
-                json.dump({
-                    "method": "rmu",
-                    "condition": args.condition,
-                    "layers": layers,
-                    "checkpoint_step": current_step,
-                    "target_layer": requested_target_layer,
-                    "loss_layers": loss_layers,
-                    "normalize_hidden": normalize_hidden,
-                    "scale_calibrated": args.scale_calibrated,
-                    "steer_coef": args.steer_coef,
-                    "target_direction": args.target_direction,
-                    "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
-                    "internal_target_config": args.internal_target_config,
-                    "probe_direction_sign": (
-                        args.probe_direction_sign if args.target_direction == "joint_probe" else None
-                    ),
-                    "direction_metadata": direction_metadata,
-                    "retain_cosine_weight": args.retain_cosine_weight,
-                    "steps": args.steps, "lr": args.lr,
-                    "alpha_forget": args.alpha_forget,
-                    "alpha_retain": effective_alpha_retain,
-                    "requested_alpha_retain": requested_alpha_retain,
-                    "batch_size": args.batch_size, "max_length": args.max_length,
-                    "forget_csv": args.forget_csv,
-                    "retain_csv": args.retain_csv,
-                    "seed": args.seed,
-                    "localized_layers_path": args.localized_layers_path,
-                    "parent_run": run_name,
-                }, f, indent=2)
+            write_metadata(
+                os.path.join(step_dir, "meta.json"),
+                build_rmu_metadata(
+                    args=args,
+                    layers=layers,
+                    loss_layers=loss_layers,
+                    requested_target_layer=requested_target_layer,
+                    normalize_hidden=normalize_hidden,
+                    direction_metadata=direction_metadata,
+                    effective_alpha_retain=effective_alpha_retain,
+                    requested_alpha_retain=requested_alpha_retain,
+                    save_steps=sorted(save_steps),
+                    checkpoint_step=current_step,
+                    parent_run=run_name,
+                ),
+            )
 
     elapsed = time.time() - t0
     for hook in train_hooks.values():
@@ -739,35 +789,21 @@ def main() -> None:
     print(f"[RMU] done in {elapsed:.1f}s")
 
     save_block_deltas(model, layers=layers, out_path=os.path.join(run_dir, "weights.safetensors"))
-    with open(os.path.join(run_dir, "meta.json"), "w") as f:
-        json.dump({
-            "method": "rmu",
-            "condition": args.condition,
-            "layers": layers,
-            "target_layer": requested_target_layer,
-            "loss_layers": loss_layers,
-            "normalize_hidden": normalize_hidden,
-            "scale_calibrated": args.scale_calibrated,
-            "steer_coef": args.steer_coef,
-            "target_direction": args.target_direction,
-            "direction_seqs": args.direction_seqs if args.target_direction == "nonhuman" else None,
-            "internal_target_config": args.internal_target_config,
-            "probe_direction_sign": (
-                args.probe_direction_sign if args.target_direction == "joint_probe" else None
-            ),
-            "direction_metadata": direction_metadata,
-            "retain_cosine_weight": args.retain_cosine_weight,
-            "steps": args.steps, "lr": args.lr,
-            "alpha_forget": args.alpha_forget,
-            "alpha_retain": effective_alpha_retain,
-            "requested_alpha_retain": requested_alpha_retain,
-            "batch_size": args.batch_size, "max_length": args.max_length,
-            "forget_csv": args.forget_csv,
-            "retain_csv": args.retain_csv,
-            "seed": args.seed, "elapsed_sec": elapsed,
-            "save_steps": sorted(save_steps),
-            "localized_layers_path": args.localized_layers_path,
-        }, f, indent=2)
+    write_metadata(
+        os.path.join(run_dir, "meta.json"),
+        build_rmu_metadata(
+            args=args,
+            layers=layers,
+            loss_layers=loss_layers,
+            requested_target_layer=requested_target_layer,
+            normalize_hidden=normalize_hidden,
+            direction_metadata=direction_metadata,
+            effective_alpha_retain=effective_alpha_retain,
+            requested_alpha_retain=requested_alpha_retain,
+            save_steps=sorted(save_steps),
+            elapsed_sec=elapsed,
+        ),
+    )
     with open(os.path.join(run_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)
     print(f"[RMU] saved to {run_dir}")

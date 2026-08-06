@@ -36,7 +36,29 @@ from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from phase2.run_metadata import file_sha256
+
 DEFAULT_LOCALIZED_LAYERS = [5, 6, 7, 8, 9]
+
+PREDICTION_FIELDS = [
+    "sample_id",
+    "task",
+    "split",
+    "split_seed",
+    "checkpoint_name",
+    "method_family",
+    "checkpoint_path",
+    "probe_protocol",
+    "probe_type",
+    "probe_seed",
+    "model_name",
+    "layer",
+    "label",
+    "score",
+    "score_type",
+    "source_artifact",
+    "manifest_hash",
+]
 
 
 def get_localized_layers(path: str) -> List[int]:
@@ -244,6 +266,7 @@ def train_fresh_probe(
     max_iter: int,
     seed: int,
     n_bootstrap: int = 0,
+    return_probs: bool = False,
 ) -> dict:
     masks = {name: splits == name for name in ("train", "val", "test")}
     for split, mask in masks.items():
@@ -298,7 +321,56 @@ def train_fresh_probe(
         low, high = bootstrap_auc_ci(labels[mask], probs, n_bootstrap, seed + {"train": 101, "val": 202, "test": 303}[split])
         result[f"fresh_{split}_auroc_ci_low"] = low
         result[f"fresh_{split}_auroc_ci_high"] = high
+    if return_probs:
+        result["fresh_all_probs"] = clf.predict_proba(scaled)[:, 1].astype(np.float32, copy=False)
     return result
+
+
+def prediction_sample_id(record, idx: int) -> str:
+    return getattr(record, "record_id", "") or f"row_{idx:06d}"
+
+
+def append_prediction_rows(
+    rows: list[dict],
+    *,
+    records,
+    labels: np.ndarray,
+    splits: np.ndarray,
+    scores: np.ndarray,
+    task: str,
+    checkpoint_name: str,
+    checkpoint_path: str,
+    method_family: str,
+    probe_protocol: str,
+    probe_type: str,
+    probe_seed: int,
+    model_name: str,
+    layer: int,
+    source_artifact: str,
+    manifest_hash: str,
+) -> None:
+    for idx, score in enumerate(scores):
+        rows.append(
+            {
+                "sample_id": prediction_sample_id(records[idx], idx),
+                "task": task,
+                "split": str(splits[idx]),
+                "split_seed": "",
+                "checkpoint_name": checkpoint_name,
+                "method_family": method_family,
+                "checkpoint_path": checkpoint_path,
+                "probe_protocol": probe_protocol,
+                "probe_type": probe_type,
+                "probe_seed": probe_seed,
+                "model_name": model_name,
+                "layer": layer,
+                "label": int(labels[idx]),
+                "score": float(score),
+                "score_type": "predict_proba_positive",
+                "source_artifact": source_artifact,
+                "manifest_hash": manifest_hash,
+            }
+        )
 
 
 def load_target_specs(args) -> List[dict]:
@@ -387,7 +459,8 @@ def summarize_target_rows(rows: List[dict], localized_layers: List[int]) -> dict
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ckpt", required=True, help="Path to weights.safetensors")
+    parser.add_argument("--ckpt", required=True, help="Path to weights.safetensors, or 'base' with --base-checkpoint.")
+    parser.add_argument("--base-checkpoint", action="store_true", help="Evaluate the unmodified base model as the checkpoint.")
     parser.add_argument(
         "--out-dir",
         default="",
@@ -448,6 +521,18 @@ def main() -> None:
         default=0.60,
         help="Fresh-probe separability threshold used for the internal fresh gate.",
     )
+    parser.add_argument(
+        "--export-predictions",
+        action="store_true",
+        help="Write per-sample fixed/fresh probe probabilities for MCC audits.",
+    )
+    parser.add_argument(
+        "--prediction-output",
+        default="",
+        help="Optional path for exported per-sample predictions. Defaults to <out-dir>/eval_predictions.csv.",
+    )
+    parser.add_argument("--checkpoint-name", default="", help="Checkpoint name to write into exported predictions.")
+    parser.add_argument("--method-family", default="", help="Method family to write into exported predictions.")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--localized-layers-path",
@@ -464,7 +549,8 @@ def main() -> None:
     modified_model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     if args.init_ckpt:
         apply_checkpoint(modified_model, args.init_ckpt, checkpoint_format="auto")
-    apply_checkpoint(modified_model, args.ckpt, checkpoint_format=args.checkpoint_format)
+    if not args.base_checkpoint:
+        apply_checkpoint(modified_model, args.ckpt, checkpoint_format=args.checkpoint_format)
     modified_model.eval()
     tokenizer = CharLevelTokenizer(512)
 
@@ -532,7 +618,11 @@ def main() -> None:
 
     auroc_rows = []
     rep_rows = []
+    prediction_rows = []
     internal_targets = {}
+    modified_checkpoint_name = args.checkpoint_name or ("base" if args.base_checkpoint else Path(args.ckpt).parent.name or Path(args.ckpt).stem)
+    modified_method_family = args.method_family or ("base" if args.base_checkpoint else "unknown")
+    modified_checkpoint_path = "" if args.base_checkpoint else args.ckpt
 
     for cache in target_caches:
         spec = cache["spec"]
@@ -564,6 +654,44 @@ def main() -> None:
                 row["fixed_probe_path"] = probe["path"]
                 modified_probs = probe_probs(cache["modified_features"][layer_idx], probe)
                 base_probs = probe_probs(base_features[layer_idx], probe)
+                if args.export_predictions:
+                    manifest_hash = file_sha256(spec["manifest"]) if os.path.exists(spec["manifest"]) else "missing"
+                    append_prediction_rows(
+                        prediction_rows,
+                        records=cache["records"],
+                        labels=cache["labels"],
+                        splits=cache["splits"],
+                        scores=base_probs,
+                        task=spec["name"],
+                        checkpoint_name="base",
+                        checkpoint_path="",
+                        method_family="base",
+                        probe_protocol="fixed_probe",
+                        probe_type=args.probe_target_type,
+                        probe_seed=args.seed,
+                        model_name="fixed_base_probe",
+                        layer=layer_idx,
+                        source_artifact=probe["path"],
+                        manifest_hash=manifest_hash,
+                    )
+                    append_prediction_rows(
+                        prediction_rows,
+                        records=cache["records"],
+                        labels=cache["labels"],
+                        splits=cache["splits"],
+                        scores=modified_probs,
+                        task=spec["name"],
+                        checkpoint_name=modified_checkpoint_name,
+                        checkpoint_path=modified_checkpoint_path,
+                        method_family=modified_method_family,
+                        probe_protocol="fixed_probe",
+                        probe_type=args.probe_target_type,
+                        probe_seed=args.seed,
+                        model_name="fixed_base_probe",
+                        layer=layer_idx,
+                        source_artifact=probe["path"],
+                        manifest_hash=manifest_hash,
+                    )
                 for split in ("val", "test"):
                     mask = cache["splits"] == split
                     if mask.sum() == 0:
@@ -597,15 +725,37 @@ def main() -> None:
                             args.fresh_max_iter,
                             probe_seed,
                             args.n_bootstrap,
+                            return_probs=args.export_predictions,
                         )
                     )
+                    if args.export_predictions and seed_row.get("fresh_probe_status") == "ok" and "fresh_all_probs" in seed_row:
+                        manifest_hash = file_sha256(spec["manifest"]) if os.path.exists(spec["manifest"]) else "missing"
+                        append_prediction_rows(
+                            prediction_rows,
+                            records=cache["records"],
+                            labels=cache["labels"],
+                            splits=cache["splits"],
+                            scores=seed_row["fresh_all_probs"],
+                            task=spec["name"],
+                            checkpoint_name=modified_checkpoint_name,
+                            checkpoint_path=modified_checkpoint_path,
+                            method_family=modified_method_family,
+                            probe_protocol="fresh_probe",
+                            probe_type=args.probe_target_type,
+                            probe_seed=probe_seed,
+                            model_name="fresh_logistic_probe",
+                            layer=layer_idx,
+                            source_artifact=f"fresh_probe:C={seed_row.get('fresh_C', '')}",
+                            manifest_hash=manifest_hash,
+                        )
+                        del seed_row["fresh_all_probs"]
                     rows_for_layer.append(seed_row)
             else:
                 row["seed"] = args.seed
                 rows_for_layer.append(row)
 
             for seed_row in rows_for_layer:
-                seed_row["checkpoint"] = args.ckpt
+                seed_row["checkpoint"] = modified_checkpoint_path
                 seed_row["target_alias"] = spec["name"]
                 seed_row["probe_target_type"] = args.probe_target_type
                 seed_row["probe_type"] = "fixed_and_fresh" if args.fresh_probe else "fixed"
@@ -699,7 +849,7 @@ def main() -> None:
         else None
     )
 
-    out_dir = args.out_dir or os.path.dirname(args.ckpt)
+    out_dir = args.out_dir or ("." if args.base_checkpoint else os.path.dirname(args.ckpt))
     os.makedirs(out_dir, exist_ok=True)
     auroc_path = os.path.join(out_dir, "eval_auroc.csv")
     auroc_fields = [
@@ -774,6 +924,14 @@ def main() -> None:
             row["passed_formal_gate"] = bool(fresh_sep is not None and fresh_sep != "" and fresh_sep <= args.fresh_gate_threshold)
             writer.writerow({field: row.get(field, "") for field in auroc_fields})
     print(f"[eval] wrote AUROC to {auroc_path}")
+
+    if args.export_predictions:
+        prediction_path = args.prediction_output or os.path.join(out_dir, "eval_predictions.csv")
+        with open(prediction_path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=PREDICTION_FIELDS)
+            writer.writeheader()
+            writer.writerows({field: row.get(field, "") for field in PREDICTION_FIELDS} for row in prediction_rows)
+        print(f"[eval] wrote predictions to {prediction_path}")
 
     ppl_path = os.path.join(out_dir, "eval_ppl.json")
     with open(ppl_path, "w") as f:

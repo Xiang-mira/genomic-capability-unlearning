@@ -16,7 +16,7 @@ import numpy as np
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from phase2.run_metadata import file_sha256, git_info, stable_hash
+from phase2.run_metadata import build_run_metadata, file_sha256, git_info, stable_hash, write_metadata
 
 
 def now() -> str:
@@ -169,6 +169,38 @@ def smoke_summary_signature(candidate_index: Path, smoke_root: Path) -> dict[str
     }
 
 
+def write_smoke_summary_metadata(
+    *,
+    args: argparse.Namespace,
+    out_dir: Path,
+    signature: dict[str, Any],
+    row_count: int,
+    selected: dict[str, Any] | None,
+) -> None:
+    write_metadata(
+        out_dir / "summary_metadata.json",
+        build_run_metadata(
+            args=args,
+            source_checkpoint="clean_gate_smoke_summary",
+            data_paths=[args.candidate_index, args.smoke_root],
+            extra={
+                "phase": "clean_gate_smoke_summary",
+                "task": "clean_capability_gate_smoke_summary",
+                "out_dir": str(out_dir),
+                "row_count": row_count,
+                "selected_candidate_name": selected.get("candidate_name") if selected else None,
+                "run_signature": signature,
+                "outputs": [
+                    "clean_gate_smoke_summary.csv",
+                    "clean_gate_smoke_summary.json",
+                    "clean_gate_smoke_summary_signature.json",
+                    "clean_gate_smoke_summary.md",
+                ],
+            },
+        ),
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate-index", required=True)
@@ -205,6 +237,13 @@ def main() -> None:
     }
     write_json(out_dir / "clean_gate_smoke_summary.json", payload)
     write_json(out_dir / "clean_gate_smoke_summary_signature.json", signature)
+    write_smoke_summary_metadata(
+        args=args,
+        out_dir=out_dir,
+        signature=signature,
+        row_count=len(rows),
+        selected=selected,
+    )
     lines = [
         "# Clean Capability Gate Smoke Summary",
         "",

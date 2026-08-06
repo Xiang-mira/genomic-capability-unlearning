@@ -1,0 +1,236 @@
+[followup] seed=45 checkpoint=base
+[followup] command: python -u phase2/eval_benchmarks.py --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] resume enabled: loaded 4 completed task rows
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] skip task 1/4 task=gue_mouse_3: already complete
+[bench-lora] skip task 2/4 task=hvue_human_host_tropism: already complete
+[bench-lora] skip task 3/4 task=hvue_human_virus_pathogenicity_cini: already complete
+[bench-lora] skip task 4/4 task=virobench_dna_taxon_genus: already complete
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/eval_benchmarks_summary.json
+[followup] seed=45 checkpoint=gd_random_control
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] applied 70 checkpoint tensors from /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=0.8068 val_loss=0.6972 auroc=0.5073179271708683
+[bench-lora] task=gue_mouse_3 step=400 train_loss=0.2005 val_loss=0.9701 auroc=0.6014005602240896
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.2669 val_loss=0.8816 auroc=0.4851540616246499
+[bench-lora] finished task=gue_mouse_3 best_step=400 test_auroc=0.49978991596638656 test_mcc=0.0 test_f1=0.3342618384401114 test_acc=0.502092050209205
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.2863 val_loss=0.8343 auroc=0.510016
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=1.6080 val_loss=1.0382 auroc=0.538516
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.1385 val_loss=1.0649 auroc=0.46995000000000003
+[bench-lora] finished task=hvue_human_host_tropism best_step=400 test_auroc=0.3656437944891078 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0359 val_loss=1.4143 auroc=0.6205043057353521
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0589 val_loss=1.1645 auroc=0.640161535430855
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=1.5415 val_loss=0.7149 auroc=0.6321410480103563
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=400 test_auroc=0.6032782775812605 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=1.2344 val_loss=4.4006 mcc=0.0
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=3.1155 val_loss=4.0500 mcc=0.0
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=0.4311 val_loss=3.8254 mcc=0.13495936121806884
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=600 test_auroc=None test_mcc=0.11285054417735994 test_f1=0.011151571922018618 test_acc=0.23863636363636365
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45/eval_benchmarks_summary.json
+[followup] seed=45 checkpoint=projection_rank32
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt /home/teacher1/UT-project1/project1/data/phase2/checkpoints_projection_adaptive_rank32/projopt_host5_9_coro0_10_adaptive_basis_rank32/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] applied 33 checkpoint tensors from /home/teacher1/UT-project1/project1/data/phase2/checkpoints_projection_adaptive_rank32/projopt_host5_9_coro0_10_adaptive_basis_rank32/weights.safetensors
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=0.8064 val_loss=0.6978 auroc=0.4334733893557423
+[bench-lora] task=gue_mouse_3 step=400 train_loss=0.2028 val_loss=0.9692 auroc=0.5046218487394958
+[bench-lora] task=gue_mouse_3 step=600 train_loss=1.8545 val_loss=1.0066 auroc=0.494327731092437
+[bench-lora] finished task=gue_mouse_3 best_step=400 test_auroc=0.5723039215686274 test_mcc=0.0 test_f1=0.3342618384401114 test_acc=0.502092050209205
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4456 val_loss=0.7533 auroc=0.5476639999999999
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=2.7759 val_loss=1.3935 auroc=0.793738
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=4.2281 val_loss=0.9753 auroc=0.772672
+[bench-lora] finished task=hvue_human_host_tropism best_step=400 test_auroc=0.7498628974987531 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0318 val_loss=1.4646 auroc=0.5396591996397816
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0538 val_loss=1.2173 auroc=0.5577615804581527
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=1.6494 val_loss=0.7837 auroc=0.5763423763156413
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.567591844692644 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=0.1481 val_loss=4.2358 mcc=0.14709519628017853
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=2.4663 val_loss=3.7700 mcc=0.18649284812137515
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=3.1332 val_loss=3.7097 mcc=0.2597974972955581
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=600 test_auroc=None test_mcc=0.2636411288298298 test_f1=0.01921311357549832 test_acc=0.2784090909090909
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_45/eval_benchmarks_summary.json
+[followup] seed=45 checkpoint=gd_loc_s1000
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] applied 66 checkpoint tensors from /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000/weights.safetensors
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=0.8574 val_loss=0.7033 auroc=0.4852240896358543
+[bench-lora] task=gue_mouse_3 step=400 train_loss=0.2128 val_loss=0.9511 auroc=0.5735994397759103
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.4812 val_loss=0.7230 auroc=0.5382703081232494
+[bench-lora] finished task=gue_mouse_3 best_step=400 test_auroc=0.5134453781512605 test_mcc=0.0 test_f1=0.3342618384401114 test_acc=0.502092050209205
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.0522 val_loss=1.0955 auroc=0.6158239999999999
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=2.0761 val_loss=1.0507 auroc=0.662632
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.1385 val_loss=1.3971 auroc=0.698324
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.744782343792818 test_mcc=0.35038580841002237 test_f1=0.6567999099522968 test_acc=0.6657758938444527
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0344 val_loss=1.4313 auroc=0.534474024877582
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0600 val_loss=1.1875 auroc=0.5990037710361907
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=1.5279 val_loss=0.7107 auroc=0.6166910564529745
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.5976937860345932 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=0.1127 val_loss=4.3481 mcc=0.12150515824286184
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=2.8294 val_loss=4.0819 mcc=0.1963020172930627
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=0.2237 val_loss=3.6772 mcc=0.2168079116129304
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=600 test_auroc=None test_mcc=0.24516310569760438 test_f1=0.018549717919032656 test_acc=0.30113636363636365
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_45/eval_benchmarks_summary.json
+[followup] seed=46 checkpoint=base
+[followup] command: python -u phase2/eval_benchmarks.py --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46 --seed 46 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=3.1498 val_loss=1.6633 auroc=0.5215686274509804
+[bench-lora] task=gue_mouse_3 step=400 train_loss=4.4353 val_loss=2.0229 auroc=0.5554621848739496
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.0363 val_loss=1.6164 auroc=0.5300420168067227
+[bench-lora] finished task=gue_mouse_3 best_step=400 test_auroc=0.509313725490196 test_mcc=0.09224821411348244 test_f1=0.35266337940134734 test_acc=0.5104602510460251
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5340 val_loss=0.6982 auroc=0.738208
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0010 val_loss=1.2329 auroc=0.793732
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=2.5607 val_loss=1.0367 auroc=0.836326
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.8493278326127399 test_mcc=0.5549656256732863 test_f1=0.7774513788474353 test_acc=0.7774603759675636
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.1306 val_loss=0.9299 auroc=0.6205465188270389
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=1.8067 val_loss=0.7925 auroc=0.7118112230539764
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=0.0144 val_loss=1.7718 auroc=0.44919654415489385
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=400 test_auroc=0.6856947887363172 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=7.5693 val_loss=3.8169 mcc=0.09845810183980692
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=7.8565 val_loss=4.1973 mcc=0.2853086619734376
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=3.6872 val_loss=3.7459 mcc=0.2881787459130631
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=600 test_auroc=None test_mcc=0.26204330380661867 test_f1=0.013314072469002047 test_acc=0.24431818181818182
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_46/eval_benchmarks_summary.json
+[followup] seed=46 checkpoint=gd_random_control
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46 --seed 46 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] applied 70 checkpoint tensors from /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=3.0835 val_loss=1.6135 auroc=0.5409663865546219
+[bench-lora] task=gue_mouse_3 step=400 train_loss=4.0259 val_loss=2.0191 auroc=0.5108543417366946
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.0358 val_loss=1.7453 auroc=0.48228291316526606
+[bench-lora] finished task=gue_mouse_3 best_step=200 test_auroc=0.5558823529411765 test_mcc=0.0 test_f1=0.3342618384401114 test_acc=0.502092050209205
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5611 val_loss=0.7015 auroc=0.515112
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0613 val_loss=1.5160 auroc=0.5094259999999999
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.0557 val_loss=1.7319 auroc=0.54582
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.5532595920123027 test_mcc=0.0 test_f1=0.3333333333333333 test_acc=0.5
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.3653 val_loss=0.7009 auroc=0.48272077446952216
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=2.6711 val_loss=1.0161 auroc=0.5332920583103506
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=0.0064 val_loss=1.6308 auroc=0.6228400968086902
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.6422026014539175 test_mcc=0.22640578629693425 test_f1=0.498749820907801 test_acc=0.634862385321101
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=9.7629 val_loss=4.4213 mcc=0.0
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=8.1944 val_loss=4.1849 mcc=0.06187686418568858
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=4.3808 val_loss=4.3673 mcc=0.05959857606057829
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=400 test_auroc=None test_mcc=0.08970968481299398 test_f1=0.010808450808450809 test_acc=0.23863636363636365
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_46/eval_benchmarks_summary.json
+[followup] seed=46 checkpoint=projection_rank32
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt /home/teacher1/UT-project1/project1/data/phase2/checkpoints_projection_adaptive_rank32/projopt_host5_9_coro0_10_adaptive_basis_rank32/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46 --seed 46 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] applied 33 checkpoint tensors from /home/teacher1/UT-project1/project1/data/phase2/checkpoints_projection_adaptive_rank32/projopt_host5_9_coro0_10_adaptive_basis_rank32/weights.safetensors
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=3.1044 val_loss=1.6198 auroc=0.5284313725490196
+[bench-lora] task=gue_mouse_3 step=400 train_loss=4.1288 val_loss=2.0540 auroc=0.524124649859944
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.0375 val_loss=1.7276 auroc=0.5795518207282914
+[bench-lora] finished task=gue_mouse_3 best_step=600 test_auroc=0.6675070028011205 test_mcc=0.0 test_f1=0.3342618384401114 test_acc=0.502092050209205
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5396 val_loss=0.7001 auroc=0.708032
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0029 val_loss=1.0817 auroc=0.727192
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.7353 val_loss=1.0906 auroc=0.7455999999999999
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.7580135927967742 test_mcc=0.417253706159701 test_f1=0.7086239407119679 test_acc=0.7086251382233689
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.1306 val_loss=0.9230 auroc=0.5754770079360613
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=2.1054 val_loss=0.8933 auroc=0.6553441774075534
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=0.0083 val_loss=1.5176 auroc=0.6771964878707716
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.6217586274127511 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=11.9579 val_loss=3.9411 mcc=0.07234612090345373
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=7.8173 val_loss=4.1448 mcc=0.2966311819230082
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=4.1785 val_loss=3.6945 mcc=0.2871160017332994
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=400 test_auroc=None test_mcc=0.2755603994795342 test_f1=0.01327890169040491 test_acc=0.23295454545454544
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/projection_rank32/seed_46/eval_benchmarks_summary.json
+[followup] seed=46 checkpoint=gd_loc_s1000
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000/weights.safetensors --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46 --seed 46 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] applied 66 checkpoint tensors from /home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000/weights.safetensors
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=3.2026 val_loss=1.6849 auroc=0.48095238095238096
+[bench-lora] task=gue_mouse_3 step=400 train_loss=4.4741 val_loss=1.5088 auroc=0.6144257703081232
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.0395 val_loss=1.7087 auroc=0.46862745098039216
+[bench-lora] finished task=gue_mouse_3 best_step=400 test_auroc=0.5686274509803921 test_mcc=0.08333451438150846 test_f1=0.4946568375335733 test_acc=0.5355648535564853
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.5463 val_loss=0.7005 auroc=0.594144
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=0.0082 val_loss=1.4626 auroc=0.67508
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=3.6946 val_loss=1.2539 auroc=0.729744
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.7593780114828482 test_mcc=0.3693950571679691 test_f1=0.6841272008385292 test_acc=0.6843899741983045
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.1516 val_loss=0.8975 auroc=0.5491360387234762
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=2.0300 val_loss=0.8771 auroc=0.6157342263747396
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=0.0077 val_loss=1.9254 auroc=0.6272865424663703
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.6307690165167256 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=8.9002 val_loss=4.2155 mcc=0.06897209918682043
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=4.9437 val_loss=3.9467 mcc=0.2052505413367585
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=3.5651 val_loss=3.5612 mcc=0.23364354890597797
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=600 test_auroc=None test_mcc=0.19090619802108624 test_f1=0.024837193045574902 test_acc=0.26704545454545453
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_loc_s1000/seed_46/eval_benchmarks_summary.json

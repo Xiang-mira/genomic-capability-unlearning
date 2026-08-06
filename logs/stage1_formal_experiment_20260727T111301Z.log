@@ -1,0 +1,12 @@
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[stage1-formal] wrote /home/teacher1/UT-project1/project1/data/phase2/stage1_formal_experiment_20260727/stage1_formal_experiment_plan.json
+[stage1-formal] available tasks: ['hvue_human_host_tropism']
+[stage1-formal] blocked tasks: ['hvue_human_virus_pathogenicity_cini']
+[stage1-formal] step=probe_vs_sft_lr_1e-5
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+/home/teacher1/miniconda3/envs/UT-p1/lib/python3.11/site-packages/torch/cuda/__init__.py:789: UserWarning: Can't initialize NVML
+  warnings.warn("Can't initialize NVML")
+[bench] extract task=hvue_human_host_tropism done=2372/2372 batches=38 batch_size=64 seq_per_sec=19.8 eta_min=0.0
+[bench] wrote feature cache data/phase2/stage1_formal_experiment_20260727/probe_vs_sft/feature_cache/base/hvue_human_host_tropism_d941ff0d1912143758c0.npz compression=compressed

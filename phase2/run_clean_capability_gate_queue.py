@@ -22,7 +22,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from phase2.build_clean_capability_candidates import build_signature as candidate_build_signature
 from phase2.eval_capability_probe import probe_signature as capability_probe_signature
 from phase2.probe_validity_audit import HARD_STOP_ACTIONS, probe_validity_signature
-from phase2.run_metadata import file_sha256
+from phase2.run_metadata import build_run_metadata, file_sha256, stable_hash, write_metadata
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT
 from phase2.summarize_clean_capability_gate_smoke import smoke_summary_signature
 from phase2.summarize_identity_capability_calibration import summary_signature as calibration_summary_signature
@@ -49,6 +49,92 @@ def read_json(path: Path) -> dict[str, Any]:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+
+
+def queue_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.out_root) / "clean_gate_queue_metadata.json"
+
+
+def base_manifest_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.out_root) / "manifests" / "base_only_checkpoint_manifest_metadata.json"
+
+
+def mini_manifest_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.out_root) / "manifests" / "mini_task5b_checkpoint_manifest_metadata.json"
+
+
+def write_queue_metadata(args: argparse.Namespace) -> None:
+    write_metadata(
+        queue_metadata_path(args),
+        build_run_metadata(
+            args=args,
+            source_checkpoint=args.model_dir,
+            data_paths=[
+                args.source_queue_status,
+                args.config_path,
+                args.task7_calibration,
+                Path(args.source_task7r_dir) / "capability_dataset_manifest.csv",
+                Path(args.source_task7r_dir) / "identity_capability_calibration.json",
+                Path(args.task5a_out_dir) / "task5a_for_task7_checkpoint_manifest.json",
+                Path(args.task5a_out_dir) / "task5a_identity_reaudit_summary.json",
+            ],
+            extra={
+                "phase": "clean_capability_gate_queue",
+                "task": "clean_capability_gate_queue",
+                "task3_context": TASK3_CONTEXT,
+                "out_root": args.out_root,
+                "source_task7r_dir": args.source_task7r_dir,
+                "source_queue_status": args.source_queue_status,
+                "task5a_out_dir": args.task5a_out_dir,
+                "task7_calibration": args.task7_calibration,
+                "stop_on_low_disk_gb": args.stop_on_low_disk_gb,
+                "match_quantiles": args.match_quantiles,
+                "smoke_layers": args.smoke_layers,
+                "mini_layers": args.mini_layers,
+                "probe_seeds": args.probe_seeds,
+                "c_grid": args.c_grid,
+                "validity_c_grid": args.validity_c_grid,
+                "n_bootstrap": args.n_bootstrap,
+                "batch_size": args.batch_size,
+                "device": args.device,
+                "cuda_visible_devices": args.cuda_visible_devices,
+                "checkpoint_format": args.checkpoint_format,
+                "python": args.python,
+            },
+        ),
+    )
+
+
+def write_manifest_metadata(
+    *,
+    args: argparse.Namespace,
+    path: Path,
+    phase: str,
+    task: str,
+    entries: list[dict[str, Any]],
+    extra_data_paths: list[str | Path],
+) -> None:
+    checkpoint_names = [str(entry.get("checkpoint_name", "")) for entry in entries]
+    source_names = [str(entry.get("source_checkpoint_name", entry.get("checkpoint_name", ""))) for entry in entries]
+    metadata_path = base_manifest_metadata_path(args) if task == "clean_gate_base_only_manifest" else mini_manifest_metadata_path(args)
+    write_metadata(
+        metadata_path,
+        build_run_metadata(
+            args=args,
+            source_checkpoint=f"{task}_builder",
+            data_paths=[*extra_data_paths, path],
+            extra={
+                "phase": phase,
+                "task": task,
+                "manifest_path": str(path),
+                "checkpoint_count": len(entries),
+                "checkpoint_names": checkpoint_names,
+                "source_checkpoint_names": source_names,
+                "checkpoint_name_hash": stable_hash(checkpoint_names),
+                "source_checkpoint_name_hash": stable_hash(source_names),
+            },
+        ),
+    )
 
 
 def same_signature(path: Path, expected: dict[str, Any]) -> bool:
@@ -81,6 +167,7 @@ def write_status(args: argparse.Namespace, status: str, **extra: Any) -> None:
         "out_root": args.out_root,
         "source_task7r_dir": args.source_task7r_dir,
         "task5a_out_dir": args.task5a_out_dir,
+        "queue_metadata_path": str(queue_metadata_path(args)),
         **extra,
     }
     write_json(Path(args.out_root) / "clean_gate_queue_status.json", payload)
@@ -139,22 +226,31 @@ def base_only_manifest(args: argparse.Namespace) -> Path:
     path = Path(args.out_root) / "manifests" / "base_only_checkpoint_manifest.json"
     if path.exists() and args.resume:
         return path
+    entries = [
+        {
+            "checkpoint_name": "base",
+            "source_checkpoint_name": "base",
+            "method_family": "base",
+            "checkpoint_path": "",
+            "checkpoint_exists": True,
+            "source_selection_role": "base_reference",
+        }
+    ]
     write_json(
         path,
         {
             "created_at": now(),
             "task": "clean_gate_base_only_manifest",
-            "checkpoints": [
-                {
-                    "checkpoint_name": "base",
-                    "source_checkpoint_name": "base",
-                    "method_family": "base",
-                    "checkpoint_path": "",
-                    "checkpoint_exists": True,
-                    "source_selection_role": "base_reference",
-                }
-            ],
+            "checkpoints": entries,
         },
+    )
+    write_manifest_metadata(
+        args=args,
+        path=path,
+        phase="clean_gate_base_only_manifest",
+        task="clean_gate_base_only_manifest",
+        entries=entries,
+        extra_data_paths=[],
     )
     return path
 
@@ -202,6 +298,17 @@ def mini_checkpoint_manifest(args: argparse.Namespace) -> Path:
             "task": "mini_task5b_checkpoint_manifest",
             "checkpoints": entries,
         },
+    )
+    write_manifest_metadata(
+        args=args,
+        path=path,
+        phase="mini_task5b_checkpoint_manifest",
+        task="mini_task5b_checkpoint_manifest",
+        entries=entries,
+        extra_data_paths=[
+            Path(args.task5a_out_dir) / "task5a_for_task7_checkpoint_manifest.json",
+            Path(args.task5a_out_dir) / "task5a_identity_reaudit_summary.json",
+        ],
     )
     return path
 
@@ -592,6 +699,7 @@ def main() -> None:
     Path(args.out_root).mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+    write_queue_metadata(args)
     write_status(args, "running", started_at=now())
 
     diagnosis = write_failure_diagnosis(args)

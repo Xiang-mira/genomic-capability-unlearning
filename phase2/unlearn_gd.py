@@ -28,7 +28,7 @@ from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from phase1.utils import load_local_checkpoint, read_manifest
+from phase1 import utils as phase1_utils
 from evo.tokenizer import CharLevelTokenizer
 from phase2.probe_utils import (
     apply_checkpoint,
@@ -36,15 +36,18 @@ from phase2.probe_utils import (
     load_target_specs,
     normalized_standard_probe_direction,
 )
-from phase2.utils import (
-    PROBE_LAYERS,
-    count_trainable,
-    freeze_all,
-    get_localized_layers,
-    iterate_batches,
-    set_block_grad,
-    tokenize_batch,
-)
+from phase2.run_metadata import build_run_metadata, write_metadata
+from phase2 import utils as phase2_utils
+
+load_local_checkpoint = phase1_utils.load_local_checkpoint
+read_manifest = getattr(phase1_utils, "read_manifest", None)
+PROBE_LAYERS = getattr(phase2_utils, "PROBE_LAYERS", list(range(11)))
+count_trainable = getattr(phase2_utils, "count_trainable", None)
+freeze_all = getattr(phase2_utils, "freeze_all", None)
+get_localized_layers = getattr(phase2_utils, "get_localized_layers", None)
+iterate_batches = getattr(phase2_utils, "iterate_batches", None)
+set_block_grad = getattr(phase2_utils, "set_block_grad", None)
+tokenize_batch = getattr(phase2_utils, "tokenize_batch", None)
 
 
 def parse_save_steps(spec: str) -> set[int]:
@@ -165,7 +168,62 @@ def save_block_deltas(model, ref_state, layers: List[int], out_path: str) -> Non
     save_file(delta, out_path)
 
 
+def build_gd_metadata(
+    *,
+    args,
+    layers: List[int],
+    loss_layers: List[int],
+    target_specs: List[dict],
+    init_source: str,
+    init_ckpt: str | None,
+    save_steps: List[int],
+    elapsed_sec: float | None = None,
+    checkpoint_step: int | None = None,
+    parent_run: str | None = None,
+) -> dict:
+    extra = {
+        "method": "gradient_difference",
+        "loss_type": "probe_guided_representation",
+        "condition": args.condition,
+        "layers": layers,
+        "loss_layers": loss_layers,
+        "target_names": [spec["name"] for spec in target_specs],
+        "internal_target_config": args.internal_target_config,
+        "steps": args.steps,
+        "lr": args.lr,
+        "alpha_forget": args.alpha_forget,
+        "alpha_retain": args.alpha_retain,
+        "retain_cosine_weight": args.retain_cosine_weight,
+        "batch_size": args.batch_size,
+        "max_length": args.max_length,
+        "forget_csv": args.forget_csv,
+        "retain_csv": args.retain_csv,
+        "seed": args.seed,
+        "save_steps": save_steps,
+        "localized_layers_path": args.localized_layers_path,
+        "init_source": init_source,
+        "init_ckpt": init_ckpt,
+    }
+    if elapsed_sec is not None:
+        extra["elapsed_sec"] = elapsed_sec
+    if checkpoint_step is not None:
+        extra["checkpoint_step"] = checkpoint_step
+    if parent_run is not None:
+        extra["parent_run"] = parent_run
+    return build_run_metadata(
+        args=args,
+        source_checkpoint=init_ckpt or args.model_dir,
+        init_checkpoint=init_ckpt or "",
+        data_paths=[args.internal_target_config, args.forget_csv, args.retain_csv, args.localized_layers_path],
+        loss_layers=loss_layers,
+        seed=args.seed,
+        extra=extra,
+    )
+
+
 def main() -> None:
+    if read_manifest is None:
+        raise ImportError("phase1.utils.read_manifest is required to run unlearn_gd.py")
     parser = argparse.ArgumentParser()
     parser.add_argument("--forget-csv", default="data/phase2/splits/forget.csv")
     parser.add_argument("--retain-csv", default="data/phase2/splits/retain.csv")
@@ -390,27 +448,20 @@ def main() -> None:
             step_dir = os.path.join(run_dir, f"step_{current_step:06d}")
             save_block_deltas(model, ref_state=None, layers=layers,
                               out_path=os.path.join(step_dir, "weights.safetensors"))
-            with open(os.path.join(step_dir, "meta.json"), "w") as f:
-                json.dump({
-                    "method": "gradient_difference",
-                    "loss_type": "probe_guided_representation",
-                    "condition": args.condition,
-                    "layers": layers,
-                    "loss_layers": loss_layers,
-                    "target_names": [spec["name"] for spec in target_specs],
-                    "internal_target_config": args.internal_target_config,
-                    "checkpoint_step": current_step,
-                    "steps": args.steps, "lr": args.lr,
-                    "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
-                    "retain_cosine_weight": args.retain_cosine_weight,
-                    "batch_size": args.batch_size, "max_length": args.max_length,
-                    "forget_csv": args.forget_csv,
-                    "retain_csv": args.retain_csv,
-                    "seed": args.seed,
-                    "init_source": init_source,
-                    "init_ckpt": init_ckpt,
-                    "parent_run": run_name,
-                }, f, indent=2)
+            write_metadata(
+                os.path.join(step_dir, "meta.json"),
+                build_gd_metadata(
+                    args=args,
+                    layers=layers,
+                    loss_layers=loss_layers,
+                    target_specs=target_specs,
+                    init_source=init_source,
+                    init_ckpt=init_ckpt,
+                    save_steps=sorted(save_steps),
+                    checkpoint_step=current_step,
+                    parent_run=run_name,
+                ),
+            )
 
     elapsed = time.time() - t0
     print(f"[GD] done in {elapsed:.1f}s")
@@ -418,27 +469,19 @@ def main() -> None:
     # Save deltas
     save_block_deltas(model, ref_state=None, layers=layers,
                       out_path=os.path.join(run_dir, "weights.safetensors"))
-    with open(os.path.join(run_dir, "meta.json"), "w") as f:
-        json.dump({
-            "method": "gradient_difference",
-            "loss_type": "probe_guided_representation",
-            "condition": args.condition,
-            "layers": layers,
-            "loss_layers": loss_layers,
-            "target_names": [spec["name"] for spec in target_specs],
-            "internal_target_config": args.internal_target_config,
-            "steps": args.steps, "lr": args.lr,
-            "alpha_forget": args.alpha_forget, "alpha_retain": args.alpha_retain,
-            "retain_cosine_weight": args.retain_cosine_weight,
-            "batch_size": args.batch_size, "max_length": args.max_length,
-            "forget_csv": args.forget_csv,
-            "retain_csv": args.retain_csv,
-            "seed": args.seed, "elapsed_sec": elapsed,
-            "save_steps": sorted(save_steps),
-            "localized_layers_path": args.localized_layers_path,
-            "init_source": init_source,
-            "init_ckpt": init_ckpt,
-        }, f, indent=2)
+    write_metadata(
+        os.path.join(run_dir, "meta.json"),
+        build_gd_metadata(
+            args=args,
+            layers=layers,
+            loss_layers=loss_layers,
+            target_specs=target_specs,
+            init_source=init_source,
+            init_ckpt=init_ckpt,
+            save_steps=sorted(save_steps),
+            elapsed_sec=elapsed,
+        ),
+    )
     with open(os.path.join(run_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)
     model_capture.close()

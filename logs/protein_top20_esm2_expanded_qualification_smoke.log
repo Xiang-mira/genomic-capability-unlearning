@@ -1,0 +1,20 @@
+[2026-08-05T10:18:41.793327+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_frozen_protocol.json
+[2026-08-05T10:18:41.854258+00:00] complete proteingym_data_validation: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_48h_proteingym_download_report.json
+[2026-08-05T10:18:41.914479+00:00] complete top20_inventory: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_candidate_inventory.csv
+[2026-08-05T10:18:41.951481+00:00] complete split_creation: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_split_audit.json
+[2026-08-05T10:18:41.967939+00:00] complete evolutionary_baseline_resources: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_evolutionary_baseline_report.json
+[2026-08-05T10:18:42.590090+00:00] complete baseline_evaluation: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_baseline_results.csv
+[2026-08-05T10:18:42.598080+00:00] complete resume_validation: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_resume_validation.json
+[2026-08-05T10:18:46.298449+00:00] complete esm2_low_cost_screening: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_esm2_screening_metrics.csv
+[2026-08-05T10:18:46.301317+00:00] complete headroom_ranking: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_candidate_headroom_ranking.csv
+[2026-08-05T10:18:46.303321+00:00] complete qualification_evidence: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_qualification_evidence.json
+[2026-08-05T10:18:49.162092+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_frozen_protocol.json
+[2026-08-05T10:18:49.162824+00:00] skip proteingym_data_validation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_48h_proteingym_download_report.json
+[2026-08-05T10:18:49.163370+00:00] skip top20_inventory: output already valid at data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_candidate_inventory.csv
+[2026-08-05T10:18:49.165388+00:00] skip split_creation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_split_audit.json
+[2026-08-05T10:18:49.181996+00:00] complete evolutionary_baseline_resources: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_evolutionary_baseline_report.json
+[2026-08-05T10:18:49.575817+00:00] complete baseline_evaluation: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_baseline_results.csv
+[2026-08-05T10:18:49.806920+00:00] complete resume_validation: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_resume_validation.json
+[2026-08-05T10:18:53.490969+00:00] complete esm2_low_cost_screening: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_esm2_screening_metrics.csv
+[2026-08-05T10:18:53.493973+00:00] complete headroom_ranking: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_candidate_headroom_ranking.csv
+[2026-08-05T10:18:53.496305+00:00] complete qualification_evidence: data/phase2/protein_top20_esm2_expanded_qualification_smoke/protein_top20_qualification_evidence.json

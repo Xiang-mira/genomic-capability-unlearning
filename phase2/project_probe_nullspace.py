@@ -28,6 +28,7 @@ from phase2.probe_utils import (
     parse_layers,
     projection_matrix,
 )
+from phase2.run_metadata import build_run_metadata, write_metadata
 
 
 ALLOWED_RESIDUAL_WRITER_SUFFIXES = (
@@ -248,6 +249,51 @@ def load_projection_vectors(
     return [(spec["name"], normalized_raw_probe_direction(probe))], [probe["path"]]
 
 
+def build_probe_nullspace_metadata(
+    *,
+    args,
+    layers: List[int],
+    target_names: List[str],
+    target_strengths: Dict[str, float],
+    suffixes: Tuple[str, ...],
+    projection_ranks: Dict[str, int],
+    projection_modules: Dict[str, List[str]],
+    layer_basis_meta: Dict[str, List[dict]],
+    layer_probe_paths: Dict[str, Dict[str, List[str]]],
+    elapsed_sec: float,
+) -> dict:
+    return build_run_metadata(
+        args=args,
+        source_checkpoint=args.model_dir,
+        data_paths=[args.internal_target_config, args.forget_csv, args.retain_csv, args.basis_dir, args.config_path],
+        loss_layers=layers,
+        extra={
+            "method": "probe_nullspace",
+            "phase": "project_probe_nullspace",
+            "task": "probe_nullspace",
+            "condition": "localized",
+            "layers": layers,
+            "target_names": target_names,
+            "internal_target_config": args.internal_target_config,
+            "layer_override": args.layers,
+            "target_layer_overrides": parse_target_map(args.target_layers),
+            "projection_strength": args.projection_strength,
+            "target_strengths": target_strengths,
+            "basis_dir": args.basis_dir,
+            "module_scope": args.module_scope,
+            "module_suffixes": list(suffixes),
+            "projection_ranks": projection_ranks,
+            "projection_modules": projection_modules,
+            "layer_basis_meta": layer_basis_meta,
+            "layer_probe_paths": layer_probe_paths,
+            "forget_csv": args.forget_csv,
+            "retain_csv": args.retain_csv,
+            "init_source": "base_model",
+            "elapsed_sec": elapsed_sec,
+        },
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--internal-target-config", default="phase2/internal_eval_targets.json")
@@ -403,30 +449,21 @@ def main() -> None:
 
     ckpt_path = os.path.join(run_dir, "weights.safetensors")
     save_file(saved_tensors, ckpt_path)
-    meta = {
-        "method": "probe_nullspace",
-        "condition": "localized",
-        "layers": layers,
-        "target_names": target_names,
-        "internal_target_config": args.internal_target_config,
-        "layer_override": args.layers,
-        "target_layer_overrides": parse_target_map(args.target_layers),
-        "projection_strength": args.projection_strength,
-        "target_strengths": target_strengths,
-        "basis_dir": args.basis_dir,
-        "module_scope": args.module_scope,
-        "module_suffixes": list(suffixes),
-        "projection_ranks": projection_ranks,
-        "projection_modules": projection_modules,
-        "layer_basis_meta": layer_basis_meta,
-        "layer_probe_paths": layer_target_paths,
-        "forget_csv": args.forget_csv,
-        "retain_csv": args.retain_csv,
-        "init_source": "base_model",
-        "elapsed_sec": time.time() - t0,
-    }
-    with open(os.path.join(run_dir, "meta.json"), "w") as f:
-        json.dump(meta, f, indent=2)
+    write_metadata(
+        os.path.join(run_dir, "meta.json"),
+        build_probe_nullspace_metadata(
+            args=args,
+            layers=layers,
+            target_names=target_names,
+            target_strengths=target_strengths,
+            suffixes=suffixes,
+            projection_ranks=projection_ranks,
+            projection_modules=projection_modules,
+            layer_basis_meta=layer_basis_meta,
+            layer_probe_paths=layer_target_paths,
+            elapsed_sec=time.time() - t0,
+        ),
+    )
     with open(os.path.join(run_dir, "log.json"), "w") as f:
         json.dump(
             {

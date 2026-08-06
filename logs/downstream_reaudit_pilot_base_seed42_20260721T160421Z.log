@@ -1,0 +1,12 @@
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=1701660 tasks=44 scope=all
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/44 task=gue_emp_h3 rows=14965
+[bench-lora] task=gue_emp_h3 step=100 train_loss=0.0418 val_loss=1.2171 auroc=0.7922938204153053
+[bench-lora] task=gue_emp_h3 step=200 train_loss=0.0013 val_loss=1.1981 auroc=0.8045896048708198
+[bench-lora] task=gue_emp_h3 step=300 train_loss=0.0016 val_loss=1.1199 auroc=0.812159194386416
+[bench-lora] task=gue_emp_h3 step=400 train_loss=0.0136 val_loss=0.9135 auroc=0.827713500098202
+[bench-lora] task=gue_emp_h3 step=500 train_loss=0.9469 val_loss=1.3477 auroc=0.829024050565108
+[bench-lora] task=gue_emp_h3 step=600 train_loss=0.0220 val_loss=1.0776 auroc=0.8259306872355241
+[bench-lora] task=gue_emp_h3 step=700 train_loss=0.0012 val_loss=1.2490 auroc=0.8186280286392772
+[bench-lora] task=gue_emp_h3 step=800 train_loss=0.0019 val_loss=1.2757 auroc=0.8367962933204778

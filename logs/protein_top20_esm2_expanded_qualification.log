@@ -1,0 +1,732 @@
+[2026-08-05T10:19:48.522255+00:00] launcher cmd=/home/teacher1/miniconda3/bin/python -u phase2/proteingym_esm2_top20_expansion.py run --out-root data/phase2/protein_top20_esm2_expanded_qualification --source-root data/phase2/protein_48h_esm2_qualification --dms-dir data/proteingym/DMS_substitutions --metadata-csv data/proteingym/DMS_substitutions.csv --public-predictions-dir data/proteingym/public_predictions --msa-dir data/proteingym/MSA_files --esm2-model facebook/esm2_t30_150M_UR50D --device cuda:0 --cuda-visible-devices 0 --proteingym-source-api https://zenodo.org/api/records/15293562 --resume --formal
+[2026-08-05T10:19:51.088738+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_frozen_protocol.json
+[2026-08-05T10:19:51.088738+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_frozen_protocol.json
+[2026-08-05T10:24:30.668417+00:00] complete proteingym_data_validation: data/phase2/protein_top20_esm2_expanded_qualification/protein_48h_proteingym_download_report.json
+[2026-08-05T10:24:30.668417+00:00] complete proteingym_data_validation: data/phase2/protein_top20_esm2_expanded_qualification/protein_48h_proteingym_download_report.json
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+[2026-08-05T10:24:59.716637+00:00] complete top20_inventory: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_inventory.csv
+[2026-08-05T10:24:59.716637+00:00] complete top20_inventory: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_inventory.csv
+[2026-08-05T10:26:31.274852+00:00] complete split_creation: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_split_audit.json
+[2026-08-05T10:26:31.274852+00:00] complete split_creation: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_split_audit.json
+[2026-08-05T10:26:53.764410+00:00] failed evolutionary_baseline_resources attempt=0: RuntimeError: failed to fetch ProteinGym record metadata from https://zenodo.org/api/records/15293562
+[2026-08-05T10:26:53.764410+00:00] failed evolutionary_baseline_resources attempt=0: RuntimeError: failed to fetch ProteinGym record metadata from https://zenodo.org/api/records/15293562
+[2026-08-05T10:28:04.970602+00:00] failed evolutionary_baseline_resources attempt=1: RuntimeError: failed range request for https://zenodo.org/api/records/15293562/files/zero_shot_substitutions_scores.zip/content bytes=77191315-77319808
+[2026-08-05T10:28:04.970602+00:00] failed evolutionary_baseline_resources attempt=1: RuntimeError: failed range request for https://zenodo.org/api/records/15293562/files/zero_shot_substitutions_scores.zip/content bytes=77191315-77319808
+Traceback (most recent call last):
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 1319, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              encode_chunked=req.has_header('Transfer-encoding'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/http/client.py", line 1358, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/http/client.py", line 1404, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/http/client.py", line 1353, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/http/client.py", line 1113, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/http/client.py", line 1057, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "/home/teacher1/miniconda3/lib/python3.13/http/client.py", line 1499, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+                ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+                                          server_hostname=server_hostname)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/ssl.py", line 455, in wrap_socket
+    return self.sslsocket_class._create(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sock=sock,
+        ^^^^^^^^^^
+    ...<5 lines>...
+        session=session
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/teacher1/miniconda3/lib/python3.13/ssl.py", line 1076, in _create
+    self.do_handshake()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/home/teacher1/miniconda3/lib/python3.13/ssl.py", line 1372, in do_handshake
+    self._sslobj.do_handshake()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+ssl.SSLEOFError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py", line 1008, in fetch_url_range
+    with urllib.request.urlopen(request, timeout=120) as response:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 489, in open
+    response = self._open(req, data)
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 506, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 466, in _call_chain
+    result = func(*args)
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 1367, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        context=self._context)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/miniconda3/lib/python3.13/urllib/request.py", line 1322, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)>
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 212, in run_top20_stage
+    result = func()
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1273, in <lambda>
+    lambda: run_top20_evolutionary_resources(args),
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 421, in run_top20_evolutionary_resources
+    payload = base.ensure_evolutionary_baseline_resources(args)
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py", line 1240, in ensure_evolutionary_baseline_resources
+    extraction = extract_zip_member_by_range(archive_url, entry, target_path, retries=args.download_retries)
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py", line 1097, in extract_zip_member_by_range
+    compressed = fetch_url_range(url, data_start, data_start + int(entry["compressed_size"]) - 1, retries=retries)
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py", line 1022, in fetch_url_range
+    raise RuntimeError(f"failed range request for {url} bytes={start}-{end}") from last_exc
+RuntimeError: failed range request for https://zenodo.org/api/records/15293562/files/zero_shot_substitutions_scores.zip/content bytes=77191315-77319808
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1521, in <module>
+    main()
+    ~~~~^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1517, in main
+    run_workflow(args)
+    ~~~~~~~~~~~~^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1267, in run_workflow
+    run_top20_stage(
+    ~~~~~~~~~~~~~~~^
+        args,
+        ^^^^^
+    ...<6 lines>...
+        skippable=False,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 234, in run_top20_stage
+    raise RuntimeError(f"Stage {stage} failed after retries") from last_exc
+RuntimeError: Stage evolutionary_baseline_resources failed after retries
+[2026-08-05T11:42:43.869138+00:00] launcher cmd=/home/teacher1/miniconda3/bin/python -u phase2/proteingym_esm2_top20_expansion.py run --out-root data/phase2/protein_top20_esm2_expanded_qualification --source-root data/phase2/protein_48h_esm2_qualification --dms-dir data/proteingym/DMS_substitutions --metadata-csv data/proteingym/DMS_substitutions.csv --public-predictions-dir data/proteingym/public_predictions --msa-dir data/proteingym/MSA_files --esm2-model facebook/esm2_t30_150M_UR50D --device cuda:0 --cuda-visible-devices 0 --proteingym-source-api https://zenodo.org/api/records/15293562 --resume --formal
+[2026-08-05T11:42:46.891731+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_frozen_protocol.json
+[2026-08-05T11:42:46.891731+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_frozen_protocol.json
+[2026-08-05T11:42:46.893150+00:00] skip proteingym_data_validation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_48h_proteingym_download_report.json
+[2026-08-05T11:42:46.893150+00:00] skip proteingym_data_validation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_48h_proteingym_download_report.json
+[2026-08-05T11:42:46.893770+00:00] skip top20_inventory: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_inventory.csv
+[2026-08-05T11:42:46.893770+00:00] skip top20_inventory: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_inventory.csv
+[2026-08-05T11:42:46.912020+00:00] skip split_creation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_split_audit.json
+[2026-08-05T11:42:46.912020+00:00] skip split_creation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_split_audit.json
+[2026-08-05T11:52:59.193488+00:00] complete evolutionary_baseline_resources: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_evolutionary_baseline_report.json
+[2026-08-05T11:52:59.193488+00:00] complete evolutionary_baseline_resources: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_evolutionary_baseline_report.json
+[2026-08-05T11:53:33.631417+00:00] failed baseline_evaluation attempt=0: ValueError: insufficient split rows for baseline
+[2026-08-05T11:53:33.631417+00:00] failed baseline_evaluation attempt=0: ValueError: insufficient split rows for baseline
+[2026-08-05T11:54:06.605655+00:00] failed baseline_evaluation attempt=1: ValueError: insufficient split rows for baseline
+[2026-08-05T11:54:06.605655+00:00] failed baseline_evaluation attempt=1: ValueError: insufficient split rows for baseline
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 212, in run_top20_stage
+    result = func()
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1539, in <lambda>
+    lambda: run_top20_baselines(args),
+            ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 595, in run_top20_baselines
+    payload = evaluate_top20_baselines(args)
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 630, in evaluate_top20_baselines
+    meta, pred = base.fit_ridge_baseline(records, y, splits, baseline_name)
+                 ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py", line 2300, in fit_ridge_baseline
+    raise ValueError("insufficient split rows for baseline")
+ValueError: insufficient split rows for baseline
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1777, in <module>
+    main()
+    ~~~~^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1773, in main
+    run_workflow(args)
+    ~~~~~~~~~~~~^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 1533, in run_workflow
+    run_top20_stage(
+    ~~~~~~~~~~~~~~~^
+        args,
+        ^^^^^
+    ...<6 lines>...
+        skippable=False,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_top20_expansion.py", line 234, in run_top20_stage
+    raise RuntimeError(f"Stage {stage} failed after retries") from last_exc
+RuntimeError: Stage baseline_evaluation failed after retries
+[2026-08-05T11:57:54.954181+00:00] launcher cmd=/home/teacher1/miniconda3/bin/python -u phase2/proteingym_esm2_top20_expansion.py run --out-root data/phase2/protein_top20_esm2_expanded_qualification --source-root data/phase2/protein_48h_esm2_qualification --dms-dir data/proteingym/DMS_substitutions --metadata-csv data/proteingym/DMS_substitutions.csv --public-predictions-dir data/proteingym/public_predictions --msa-dir data/proteingym/MSA_files --esm2-model facebook/esm2_t30_150M_UR50D --device cuda:0 --cuda-visible-devices 0 --proteingym-source-api https://zenodo.org/api/records/15293562 --resume --formal
+[2026-08-05T11:57:57.538022+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_frozen_protocol.json
+[2026-08-05T11:57:57.538022+00:00] complete frozen_protocol: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_frozen_protocol.json
+[2026-08-05T11:57:57.539228+00:00] skip proteingym_data_validation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_48h_proteingym_download_report.json
+[2026-08-05T11:57:57.539228+00:00] skip proteingym_data_validation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_48h_proteingym_download_report.json
+[2026-08-05T11:57:57.539910+00:00] skip top20_inventory: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_inventory.csv
+[2026-08-05T11:57:57.539910+00:00] skip top20_inventory: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_inventory.csv
+[2026-08-05T11:57:57.556769+00:00] skip split_creation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_split_audit.json
+[2026-08-05T11:57:57.556769+00:00] skip split_creation: output already valid at data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_split_audit.json
+[2026-08-05T11:58:13.844705+00:00] complete evolutionary_baseline_resources: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_evolutionary_baseline_report.json
+[2026-08-05T11:58:13.844705+00:00] complete evolutionary_baseline_resources: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_evolutionary_baseline_report.json
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+/home/teacher1/UT-project1/project1/phase2/proteingym_esm2_qualification.py:562: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  value = spearmanr(y_true, pred, nan_policy="omit").correlation
+[2026-08-05T12:01:41.754478+00:00] complete baseline_evaluation: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_baseline_results.csv
+[2026-08-05T12:01:41.754478+00:00] complete baseline_evaluation: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_baseline_results.csv
+[2026-08-05T12:01:47.632038+00:00] complete resume_validation: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_resume_validation.json
+[2026-08-05T12:01:47.632038+00:00] complete resume_validation: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_resume_validation.json
+/home/teacher1/miniconda3/lib/python3.13/site-packages/torch/cuda/__init__.py:1061: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.5397008940331034e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.677143129403703e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.0321408434351724e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.7455126999930144e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.400374565780794e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.6906079142463568e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.1755638119079777e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.639823731305114e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: b83bda6a-322d-4864-844b-fb39379247ef)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 025fd090-1539-4ac1-8ceb-272217fbfc61)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.055179582072242e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.178376412587113e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1866c164-e535-4669-8d8f-fe930436f2ac)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 36cc42cb-127d-44b7-b117-90c20ed3ec3b)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 5b61aa14-d41b-4da4-8969-15e9b22b1f16)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: c3fe4d5a-8a79-4ca2-8f7f-05dea090362d)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: dc81a7a3-9347-427d-a5e7-f23d16e2c79d)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 5/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 7.316096173326514e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.652029327369746e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.1196087107711037e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.1685034212737264e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.5781899927230825e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.797811380465646e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: fb098c09-4d35-4c8b-a3e3-c0cc08cb6e79)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1edd72bf-1d2a-4c32-8142-487e264b5191)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 53513d1f-6069-4a7a-b137-4ae70460aed8)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 24da1fec-d45d-4b48-814c-35007bbb6876)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1b471676-bc1f-4311-bd44-592529f968dd)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 8s [Retry 4/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: c1d34e7a-4d6b-439a-b3a9-78c311f61be6)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1d73cc82-56a4-44fa-85d7-07164e10624c)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 727070c2-9000-491e-a6f8-d9369b36e286)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 5aec530d-08cf-4cfb-87a3-87ebf3d3169c)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 88ea27ae-5316-4935-b80b-2302d31e3343)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.531061830765793e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.7960206472907885e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.380289991308018e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.796819297325783e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 0b2ecafa-b784-4486-988a-1c6b41bdda66)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.9596113882444115e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.874208414662462e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 09699676-72ec-4c18-be87-eec0906462ae)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 436a97d7-4b60-4dc0-9e54-03078b12a8ae)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.8106223005106585e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.647759155318454e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 308551ab-6688-4693-b7bd-1a71d89cd209)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: e7b4001a-5b20-4975-b322-442b56ffe788)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: c3c8008b-4dad-4bfa-b789-3b728735dfae)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 6d6f1649-2d34-4251-a8c3-27b74fe01b8c)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.391029844759032e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 9c729cf3-1a04-4e2a-9286-156725357f95)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.5348613753048994e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.3023693880049905e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.923988328187079e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: bc2b4183-98f4-46aa-ac0e-aec180113b7d)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: d609516c-71d8-4ec6-9a62-5a5f489f9895)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 9.83733805526299e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0029955177515149e-07.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: d45ee4d7-d4fb-4c13-b649-29288896f3e3)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 7bd9bd0a-9372-4173-9651-06f471ba3b87)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 86661e49-3922-4b52-bd34-899d89870ef5)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 22ffb517-1abd-47f5-8396-bb555be9e931)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.5800431185652997e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0175975617698896e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0035901709670725e-07.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.5720504009664182e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: ef1d5c86-5ce9-496c-bb1c-b0cfb9a6aa90)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 53b88bf9-09df-48af-8ef5-013a1ef8ace9)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 7eda2dc2-4f9a-48d5-b3e8-30b77a2f712b)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: a1fc7f61-a142-4a7e-a924-ce74897f484b)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0939346095639735e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.1313812997570949e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.1395855636919805e-07.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.563023571156009e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.858984338161008e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.097205992728334e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.1479304617978414e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.1765913399131023e-07.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.408141019927257e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.8772317861580632e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.1771338893094025e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.5899955008744655e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.0782208721168445e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.7186542673216536e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.250076874294905e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.422055172563887e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.50589388023559e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.7534445712926754e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.7929585311170513e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.068151599450175e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.635857197068162e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.715843170468361e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.031211726067795e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.2031621799433196e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.3952225737295976e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.725172596588891e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: a4d3cb8e-3977-4034-8d82-9b2cb7da5c01)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.314624657553168e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.8401250179731505e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 2ba75a58-ea06-43e9-a5a5-b566b853813e)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: f7d1ed6e-9fef-4f2f-9a65-8e99d423f71d)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: eee8f5da-ce9d-4afb-ab6b-d4b5c5b02945)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 9213f5da-1134-4434-b538-23fcaa145461)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 0c096a22-0be5-448b-87b3-0bcac2310779)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 79ceed34-16d0-4793-a278-d25ced6a312f)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 8s [Retry 5/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 8775d714-bc42-4341-8d8a-7ea3869bfefa)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.2943248956817115e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.824588373253391e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.422221173110529e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.8078116659789885e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.44754499895339e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.790062035908704e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 2658f5b9-c256-44cf-8599-790f84db0a26)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 7.010285241193515e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 7.162062587440232e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 5c7b640d-092a-477e-b599-242a17e89f66)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0089940438717804e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0217206636298215e-07.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 3ab751a7-42ff-442f-8944-b273d8be6280)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 08a1138d-e193-46dc-b272-0d869325c387)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: f0c49bac-0911-4417-b055-e993a68e0bff)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 4a87b9ed-0f25-4acd-bbd5-7532b813b22f)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: c2c4a1c6-9817-483b-8789-997f5bfe2faa)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 7.232737075923978e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 7.376117139301641e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.1253398213284527e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 1.0659962157433256e-07.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 54c569e0-2246-4fe7-bd91-d9199add5795)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 734c47ba-9abd-417f-b625-e30a47e3bb29)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.1487155166255434e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 5b90808f-06c6-4fb1-acf9-1f7d43ee29f3)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 6e13be73-927d-41d1-8fe7-9b03a359244a)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: dd836525-79e8-4e24-830d-bd00635cf01d)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: d374ca61-ef15-4a9e-8782-c617c9ba53c3)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 52e186ae-c61f-406f-b6df-3c859278ad7e)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 8s [Retry 5/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 96f81816-401d-41fc-bd41-a6c7d7fc39a6)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.50953036129431e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: c4e232c0-86b0-4cad-a2e9-f595281fe832)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.3340334109889227e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.5993690755399257e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.206905490633517e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.385230312209387e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: b2185a19-d7af-4614-b8d6-e8b78f6d010d)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 37ba7ee1-8845-4d13-98d7-0f929e34c588)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.335329428784007e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.00071344333719e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 7c6a96d1-5263-476a-9401-efc91f21b27c)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 18d64cd0-78cd-434d-aad0-2d1ef3390157)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 0d2153d0-a861-4d63-9b60-bd4c32d7ff5f)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 04f600e4-8af8-4888-b514-c3e0cc524014)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 88619fd8-fe06-4ac6-9a67-cb8200865f07)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 7643dc60-c075-4f41-a6e8-a00912093e91)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 8c07cc2b-68fb-4a3c-8f23-1aa75301dbb6)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 4d7e4ce1-a63c-4b60-b929-dea506a27ce4)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: be3b9882-6b77-42ba-92b4-b1ae98a33dd9)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 433d8b09-6e3b-4390-8a86-88316d3a5227)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json
+Retrying in 8s [Retry 4/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 4dbb62ba-9203-4a1d-8591-26726be58a2a)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json
+Retrying in 8s [Retry 5/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: af3a6100-70bf-4e2a-80f0-29c79353e7f8)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/config.json
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.906766021799513e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.13684908551204e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.903919048615535e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.653814755783969e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.1272088535084777e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.05832417776719e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.6818362520184564e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.9282778746828626e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.1715540476918704e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 2.07959072184849e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.925367225183663e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.994680580239219e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1829e273-0718-464d-8737-bfa1514efbd5)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 2f53c61b-a916-4d01-9c7d-123bdc7342c7)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1748ee67-3891-43e0-ae25-f72774cc350c)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 1a4231ed-bbc6-45ed-9bca-312bea7b49f1)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 24f4bbc6-d13c-4fbd-879c-3e1ff4e6c9be)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: ed9b4d87-0cad-48af-b0b2-c77d543cf725)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 4s [Retry 3/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.5700735701027497e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.49047617476117e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.7913292767229905e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.842972766207822e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.172150320196465e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.373898849190482e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.470723512563836e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 6.56614815852663e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.998660513815366e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.452272506227928e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 962f7784-fe13-4b11-b6cd-6ef3fa4ebb07)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 529264ad-f522-464b-954a-2e601664aebb)')' thrown while requesting HEAD https://huggingface.co/facebook/esm2_t30_150M_UR50D/resolve/main/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: b6a90617-54bb-4e89-a3a9-f7fae6449074)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 1s [Retry 1/5].
+'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"), '(Request ID: 0b0fee7b-3b12-4215-bbf9-a6deb0b3571d)')' thrown while requesting HEAD https://huggingface.co/api/resolve-cache/models/facebook/esm2_t30_150M_UR50D/a695f6045e2e32885fa60af20c13cb35398ce30c/tokenizer_config.json
+Retrying in 2s [Retry 2/5].
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t30_150M_UR50D and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.86990500650586e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.419378013016285e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 3.918724456042355e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 4.4645410923749296e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.453183238302017e-09.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+/home/teacher1/miniconda3/lib/python3.13/site-packages/sklearn/linear_model/_ridge.py:228: LinAlgWarning: An ill-conditioned matrix detected: slice 0 has rcond = 5.397916069682651e-08.
+  return linalg.solve(A, Xy, assume_a="pos", overwrite_a=True).T
+[2026-08-05T21:45:22.652742+00:00] complete esm2_low_cost_screening: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_esm2_screening_metrics.csv
+[2026-08-05T21:45:22.652742+00:00] complete esm2_low_cost_screening: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_esm2_screening_metrics.csv
+[2026-08-05T21:45:22.680038+00:00] complete headroom_ranking: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_headroom_ranking.csv
+[2026-08-05T21:45:22.680038+00:00] complete headroom_ranking: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_candidate_headroom_ranking.csv
+[2026-08-05T21:45:22.682274+00:00] complete qualification_evidence: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_qualification_evidence.json
+[2026-08-05T21:45:22.682274+00:00] complete qualification_evidence: data/phase2/protein_top20_esm2_expanded_qualification/protein_top20_qualification_evidence.json

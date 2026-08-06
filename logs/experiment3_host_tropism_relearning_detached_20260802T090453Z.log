@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 1162, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 1158, in main
+    run_controller(args)
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 1105, in run_controller
+    enforce_artifact_retention_for_arm(args, suite, arm)
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 802, in enforce_artifact_retention_for_arm
+    raise RuntimeError(f"full-FT canonical artifact validation failed for {suite['suite_id']} {arm}")
+RuntimeError: full-FT canonical artifact validation failed for full_ft random_layer_control_eta2

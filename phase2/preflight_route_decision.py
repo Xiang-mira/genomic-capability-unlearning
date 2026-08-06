@@ -41,6 +41,7 @@ CHECKPOINTS = {
 
 REQUIRED_SCRIPTS = [
     "phase2/preflight_route_decision.py",
+    "phase2/freeze_workspace_state.py",
     "phase2/run_route_decision_pipeline.py",
     "phase2/summarize_route_decision.py",
     "phase2/eval_benchmarks.py",
@@ -83,6 +84,47 @@ def load_manifest_tasks(path: Path) -> list[str]:
     return sorted(set(tasks))
 
 
+def relative_to_project(path: Path, project_root: Path) -> str:
+    try:
+        return str(path.relative_to(project_root))
+    except ValueError:
+        return str(path)
+
+
+def resolve_workspace_snapshot_dir(
+    project_root: Path,
+    preflight_dir: Path,
+    requested: str,
+) -> Path:
+    if requested:
+        candidate = Path(requested)
+        if not candidate.is_absolute():
+            candidate = (project_root / candidate).resolve()
+        else:
+            candidate = candidate.resolve()
+        return candidate
+    return (preflight_dir / "workspace_state").resolve()
+
+
+def workspace_snapshot_command(
+    *,
+    args: argparse.Namespace,
+    project_root: Path,
+    preflight_dir: Path,
+) -> tuple[list[str], Path]:
+    snapshot_dir = resolve_workspace_snapshot_dir(project_root, preflight_dir, args.workspace_snapshot_out_dir)
+    command = [
+        args.python_bin,
+        "-u",
+        "phase2/freeze_workspace_state.py",
+        "--project-root",
+        str(project_root),
+        "--out-dir",
+        relative_to_project(snapshot_dir, project_root),
+    ]
+    return command, snapshot_dir
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-root", default=str(PROJECT_ROOT))
@@ -96,6 +138,7 @@ def main() -> None:
     parser.add_argument("--task5b-summary", default="data/phase2/audits/task5b_capability_reaudit_20260713/task5b_capability_reaudit_summary.csv")
     parser.add_argument("--task7r-dir", default="data/phase2/audits/task7r_capability_probe_20260714")
     parser.add_argument("--task7s-dir", default="data/phase2/audits/task7s_clean_gate_20260715")
+    parser.add_argument("--workspace-snapshot-out-dir", default="")
     parser.add_argument("--cpu-threads", type=int, default=16)
     parser.add_argument("--train-batch-size", type=int, default=8)
     parser.add_argument("--eval-batch-size", type=int, default=32)
@@ -209,6 +252,17 @@ def main() -> None:
         compile_result = run_command([args.python_bin, "-m", "py_compile", rel], project_root)
         assert_ok(compile_result.returncode == 0, f"py_compile failed for {rel}:\n{compile_result.stderr}")
 
+    workspace_snapshot_cmd, workspace_snapshot_dir = workspace_snapshot_command(
+        args=args,
+        project_root=project_root,
+        preflight_dir=preflight_dir,
+    )
+    workspace_snapshot = run_command(workspace_snapshot_cmd, project_root)
+    assert_ok(
+        workspace_snapshot.returncode == 0,
+        f"freeze_workspace_state failed:\nSTDOUT:\n{workspace_snapshot.stdout}\nSTDERR:\n{workspace_snapshot.stderr}",
+    )
+
     batch_preflight_cmd = [
         args.python_bin,
         "-u",
@@ -259,6 +313,13 @@ def main() -> None:
                 "sha256": file_sha256(benchmark_manifest),
                 "tasks": manifest_tasks,
             },
+            "workspace_snapshot": {
+                "command": workspace_snapshot_cmd,
+                "returncode": workspace_snapshot.returncode,
+                "out_dir": str(workspace_snapshot_dir),
+                "stdout_tail": workspace_snapshot.stdout.splitlines()[-20:],
+                "stderr_tail": workspace_snapshot.stderr.splitlines()[-20:],
+            },
             "batch_preflight": {
                 "command": batch_preflight_cmd,
                 "returncode": batch_preflight.returncode,
@@ -282,6 +343,7 @@ def main() -> None:
         "task5b_summary": str((project_root / args.task5b_summary).resolve()),
         "task7r_dir": str((project_root / args.task7r_dir).resolve()),
         "task7s_dir": str((project_root / args.task7s_dir).resolve()),
+        "workspace_state_snapshot_dir": str(workspace_snapshot_dir),
         "checkpoints": {
             name: (None if rel is None else str((project_root / rel).resolve())) for name, rel in CHECKPOINTS.items()
         },
@@ -334,8 +396,11 @@ def main() -> None:
         preflight_dir / "preflight_metadata.json",
         build_run_metadata(
             args=args,
-            data_paths=[args.benchmark_manifest, args.retain_csv, args.task5a_summary, args.task5b_summary],
-            extra={"phase": "route_decision_preflight"},
+            data_paths=[args.benchmark_manifest, args.retain_csv, args.task5a_summary, args.task5b_summary, str(workspace_snapshot_dir)],
+            extra={
+                "phase": "route_decision_preflight",
+                "workspace_state_snapshot_dir": str(workspace_snapshot_dir),
+            },
         ),
     )
     print(f"[route-preflight] complete: {preflight_dir}", flush=True)

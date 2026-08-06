@@ -1,0 +1,4 @@
+[2026-07-31T17:21:36Z] monitor_start child=4023671 parent=4020170 new_log=logs/experiment3_host_tropism_relearning_no_disk_gate_20260731T172136Z.log
+[2026-07-31T18:18:38Z] child_zombie_safe_boundary stat=ZN
+[2026-07-31T18:18:42Z] launching_new_controller
+[2026-07-31T18:18:42Z] new_controller_pid=4038180

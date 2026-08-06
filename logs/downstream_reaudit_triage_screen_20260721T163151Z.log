@@ -1,0 +1,19 @@
+[triage] stage=smoke seed=42 checkpoints=['base', 'projection_rank32']
+[triage] exec: /home/teacher1/miniconda3/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus,virobench_rna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit_triage/global_host_tropism/base/seed_42 --seed 42 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/eval_benchmarks.py", line 39, in <module>
+    from evo.tokenizer import CharLevelTokenizer
+ModuleNotFoundError: No module named 'evo'
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_downstream_reaudit_triage.py", line 667, in <module>
+    main()
+    ~~~~^^
+  File "/home/teacher1/UT-project1/project1/phase2/run_downstream_reaudit_triage.py", line 634, in main
+    run_stage(out_dir, args.python_bin, smoke_checkpoints, 42, SMOKE_TASKS, "smoke")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/run_downstream_reaudit_triage.py", line 611, in run_stage
+    run_command(cmd, log_path)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/teacher1/UT-project1/project1/phase2/run_downstream_reaudit_triage.py", line 206, in run_command
+    raise RuntimeError(f"command failed with exit code {return_code}: {shell_join(cmd)}")
+RuntimeError: command failed with exit code 1: /home/teacher1/miniconda3/bin/python -u phase2/eval_benchmarks.py --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus,virobench_rna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit_triage/global_host_tropism/base/seed_42 --seed 42 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume

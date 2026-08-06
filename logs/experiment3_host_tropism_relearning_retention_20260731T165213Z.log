@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 1120, in <module>
+    main()
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 1116, in main
+    run_controller(args)
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 1021, in run_controller
+    enforce_artifact_retention_for_arm(args, suite, arm)
+  File "/home/teacher1/UT-project1/project1/phase2/run_experiment3_host_tropism_relearning.py", line 713, in enforce_artifact_retention_for_arm
+    raise RuntimeError(f"LoRA artifact validation failed for {suite['suite_id']} {arm}")
+RuntimeError: LoRA artifact validation failed for same_family_fresh_lora base

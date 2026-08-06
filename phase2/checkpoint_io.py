@@ -5,6 +5,7 @@ delta checkpoints, disk guards, and atomic writes for new probe-guided runs.
 """
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import uuid
@@ -153,6 +154,8 @@ def infer_checkpoint_policy(path: str, requested: str = "auto") -> tuple[str, st
     tensor_mode = metadata.get("tensor_mode")
     if tensor_mode == "delta" or policy == "delta":
         return "delta", "delta"
+    if policy == "standalone_lora_reverse":
+        return policy, "custom"
     if policy == "adapter":
         return "adapter", "absolute"
     if policy == "full":
@@ -270,6 +273,127 @@ def save_checkpoint(
     )
 
 
+def _load_compact_lora_payload(ckpt_path: str) -> tuple[dict[str, str], dict[str, object]]:
+    metadata = read_safetensors_metadata(ckpt_path)
+    provenance_path = Path(ckpt_path).with_name("provenance.json")
+    if not provenance_path.exists():
+        raise FileNotFoundError(f"Missing compact checkpoint provenance file: {provenance_path}")
+    payload = json.loads(provenance_path.read_text())
+    return metadata, payload
+
+
+def _module_name_from_adapter_key(key: str) -> str:
+    module = key[len("base_model.") :] if key.startswith("base_model.") else key
+    if module.endswith(".lora_A"):
+        return module[: -len(".lora_A")]
+    if module.endswith(".lora_B"):
+        return module[: -len(".lora_B")]
+    raise ValueError(f"Unsupported adapter key: {key}")
+
+
+def _load_adapter_updates(adapter_path: str, scale: float) -> dict[str, torch.Tensor]:
+    payload = torch.load(adapter_path, map_location="cpu")
+    state = payload["state_dict"]
+    modules = sorted({_module_name_from_adapter_key(key) for key in state if key.endswith(".lora_A")})
+    updates: dict[str, torch.Tensor] = {}
+    for module in modules:
+        A = state[f"base_model.{module}.lora_A"].float()
+        B = state[f"base_model.{module}.lora_B"].float()
+        updates[module] = (B @ A) * scale
+    return updates
+
+
+def _build_random_orientation(delta: torch.Tensor, *, seed: int) -> torch.Tensor:
+    singular_values = torch.linalg.svdvals(delta.float())
+    rank = int((singular_values > 0).sum().item())
+    if rank == 0:
+        return torch.zeros_like(delta)
+    generator = torch.Generator(device="cpu")
+    generator.manual_seed(seed)
+    left = torch.randn(delta.shape[0], rank, generator=generator)
+    right = torch.randn(delta.shape[1], rank, generator=generator)
+    q_left, _ = torch.linalg.qr(left, mode="reduced")
+    q_right, _ = torch.linalg.qr(right, mode="reduced")
+    return (q_left[:, :rank] * singular_values[:rank].unsqueeze(0)) @ q_right[:, :rank].T
+
+
+def _build_random_orientation_from_singular_values(
+    *,
+    out_dim: int,
+    in_dim: int,
+    singular_values: Sequence[float],
+    seed: int,
+) -> torch.Tensor:
+    rank = len([value for value in singular_values if float(value) > 0])
+    if rank == 0:
+        return torch.zeros((out_dim, in_dim), dtype=torch.float32)
+    s = torch.tensor([float(value) for value in singular_values[:rank]], dtype=torch.float32)
+    generator = torch.Generator(device="cpu")
+    generator.manual_seed(seed)
+    left = torch.randn(out_dim, rank, generator=generator)
+    right = torch.randn(in_dim, rank, generator=generator)
+    q_left, _ = torch.linalg.qr(left, mode="reduced")
+    q_right, _ = torch.linalg.qr(right, mode="reduced")
+    return (q_left[:, :rank] * s.unsqueeze(0)) @ q_right[:, :rank].T
+
+
+def _apply_compact_reverse_lora_checkpoint(
+    model: torch.nn.Module,
+    ckpt_path: str,
+    *,
+    log_prefix: str,
+) -> ApplyResult:
+    metadata, payload = _load_compact_lora_payload(ckpt_path)
+    adapter_path = str(payload["source_adapter_path"])
+    eta = float(payload["eta"])
+    scale = float(payload.get("lora_scale", 1.0))
+    mappings = list(payload.get("mappings") or [])
+    state_dict = model.state_dict()
+    applied = 0
+    missing: list[str] = []
+    updates: dict[str, torch.Tensor] = {}
+    full_updates: dict[str, torch.Tensor] | None = None
+    for idx, row in enumerate(mappings):
+        source_module = str(row["source_module"])
+        target_module = str(row["target_module"])
+        policy = str(row.get("policy", "reverse_source_direction"))
+        weight_key = f"{target_module}.weight"
+        if weight_key not in state_dict:
+            missing.append(weight_key)
+            continue
+        if policy == "random_orientation_same_slot" and row.get("singular_values"):
+            delta = _build_random_orientation_from_singular_values(
+                out_dim=state_dict[weight_key].shape[0],
+                in_dim=state_dict[weight_key].shape[1],
+                singular_values=row["singular_values"],
+                seed=int(row["orientation_seed"]),
+            )
+        else:
+            if source_module not in updates:
+                if full_updates is None:
+                    full_updates = _load_adapter_updates(adapter_path, scale)
+                updates[source_module] = full_updates[source_module]
+            base_delta = updates[source_module]
+            if policy == "random_orientation_same_slot":
+                seed = int(row["orientation_seed"])
+                delta = _build_random_orientation(base_delta, seed=seed)
+            else:
+                delta = base_delta
+        state_dict[weight_key].add_((-eta * delta).to(state_dict[weight_key].dtype).to(state_dict[weight_key].device))
+        applied += 1
+    print(
+        f"[{log_prefix}] applied {applied} compact reverse-LoRA module deltas from {ckpt_path} "
+        f"policy={metadata.get('checkpoint_policy','')} source={adapter_path}"
+    )
+    return ApplyResult(
+        path=ckpt_path,
+        checkpoint_policy="standalone_lora_reverse",
+        tensor_mode="custom",
+        applied_count=applied,
+        missing_keys=missing,
+    )
+
+
 def apply_checkpoint(
     model: torch.nn.Module,
     ckpt_path: str,
@@ -279,6 +403,8 @@ def apply_checkpoint(
     log_prefix: str = "checkpoint",
 ) -> ApplyResult:
     policy, tensor_mode = infer_checkpoint_policy(ckpt_path, checkpoint_format)
+    if policy == "standalone_lora_reverse":
+        return _apply_compact_reverse_lora_checkpoint(model, ckpt_path, log_prefix=log_prefix)
     tensors = load_file(ckpt_path)
     state_dict = model.state_dict()
     missing = []

@@ -1,0 +1,67 @@
+[followup] seed=45 checkpoint=base
+[followup] command: python -u phase2/eval_benchmarks.py --benchmark-manifest /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+[bench-lora] runtime config: device=cuda:0 cpu_threads=16
+[bench-lora] loaded rows=77071 tasks=4 scope=all
+[bench-lora] evaluating base model without unlearning checkpoint
+[bench-lora] task 1/4 task=gue_mouse_3 rows=2382
+[bench-lora] task=gue_mouse_3 step=200 train_loss=0.7937 val_loss=0.6964 auroc=0.5465686274509804
+[bench-lora] task=gue_mouse_3 step=400 train_loss=0.1837 val_loss=0.9712 auroc=0.5800070028011205
+[bench-lora] task=gue_mouse_3 step=600 train_loss=0.3939 val_loss=0.7209 auroc=0.517436974789916
+[bench-lora] finished task=gue_mouse_3 best_step=400 test_auroc=0.6085434173669468 test_mcc=0.06509215707911625 test_f1=0.3435288640595903 test_acc=0.5062761506276151
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/checkpoints/gue_mouse_3/best.pt
+[bench-lora] task 2/4 task=hvue_human_host_tropism rows=69302
+[bench-lora] task=hvue_human_host_tropism validation subset rows=1000/11256 labels={'0': 500, '1': 500}
+[bench-lora] task=hvue_human_host_tropism step=200 train_loss=0.4320 val_loss=0.7755 auroc=0.359942
+[bench-lora] task=hvue_human_host_tropism step=400 train_loss=2.6888 val_loss=1.4542 auroc=0.579192
+[bench-lora] task=hvue_human_host_tropism step=600 train_loss=0.6701 val_loss=0.6786 auroc=0.6576380000000001
+[bench-lora] finished task=hvue_human_host_tropism best_step=600 test_auroc=0.7362280851680126 test_mcc=0.27609794680525285 test_f1=0.5992292534009331 test_acc=0.6216365646885367
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/checkpoints/hvue_human_host_tropism/best.pt
+[bench-lora] task 3/4 task=hvue_human_virus_pathogenicity_cini rows=3628
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=200 train_loss=0.0321 val_loss=1.4632 auroc=0.42772415151685705
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=400 train_loss=0.0547 val_loss=1.2077 auroc=0.612469747284291
+[bench-lora] task=hvue_human_virus_pathogenicity_cini step=600 train_loss=1.3942 val_loss=0.7253 auroc=0.6195474756571171
+[bench-lora] finished task=hvue_human_virus_pathogenicity_cini best_step=600 test_auroc=0.6522853243461548 test_mcc=0.0 test_f1=0.37139561707035756 test_acc=0.5908256880733945
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/checkpoints/hvue_human_virus_pathogenicity_cini/best.pt
+[bench-lora] task 4/4 task=virobench_dna_taxon_genus rows=1759
+[bench-lora] task=virobench_dna_taxon_genus step=200 train_loss=0.1402 val_loss=4.1781 mcc=0.13383151080277253
+[bench-lora] task=virobench_dna_taxon_genus step=400 train_loss=3.8560 val_loss=3.8081 mcc=0.20485784100706875
+[bench-lora] task=virobench_dna_taxon_genus step=600 train_loss=0.0164 val_loss=3.8794 mcc=0.19623574623113713
+[bench-lora] finished task=virobench_dna_taxon_genus best_step=400 test_auroc=None test_mcc=0.2341004767519684 test_f1=0.02167780640181154 test_acc=0.29545454545454547
+[bench-lora] removed temporary checkpoint /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/checkpoints/virobench_dna_taxon_genus/best.pt
+[bench-lora] wrote benchmark results to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/eval_benchmarks.csv
+[bench-lora] wrote benchmark summary to /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/base/seed_45/eval_benchmarks_summary.json
+[followup] seed=45 checkpoint=gd_random_control
+[followup] command: python -u phase2/eval_benchmarks.py --ckpt :/home/teacher1/UT-project1/project1/data/phase2/checkpoints_tuned/refseq_gd_projinit_random_ar5_s1000/weights.safetensors /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv --benchmark-scope all --task-filter hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_mouse_3,virobench_dna_taxon_genus --out-dir /home/teacher1/UT-project1/project1/data/phase2/downstream_followup_minimal/global_host_tropism/gd_random_control/seed_45 --seed 45 --epochs 3 --max-steps 600 --eval-every 200 --validation-max-rows 1000 --lora-rank 8 --lora-alpha 16 --lora-dropout 0.0 --train-batch-size 1 --eval-batch-size 1 --max-length 512 --device cuda:0 --cpu-threads 16 --discard-task-checkpoint --resume
+usage: eval_benchmarks.py [-h] [--ckpt CKPT]
+                          [--benchmark-manifest BENCHMARK_MANIFEST]
+                          [--benchmark-scope {hvue,all,task}]
+                          [--task-filter TASK_FILTER]
+                          [--default-benchmark DEFAULT_BENCHMARK]
+                          [--default-task DEFAULT_TASK]
+                          [--default-group DEFAULT_GROUP]
+                          [--model-dir MODEL_DIR] [--config-path CONFIG_PATH]
+                          [--model-name MODEL_NAME] [--device DEVICE]
+                          [--cpu-threads CPU_THREADS]
+                          [--batch-size BATCH_SIZE]
+                          [--train-batch-size TRAIN_BATCH_SIZE]
+                          [--eval-batch-size EVAL_BATCH_SIZE]
+                          [--validation-max-rows VALIDATION_MAX_ROWS]
+                          [--discard-task-checkpoint] [--preflight-only]
+                          [--max-length MAX_LENGTH] [--epochs EPOCHS]
+                          [--max-steps MAX_STEPS] [--lr LR]
+                          [--weight-decay WEIGHT_DECAY]
+                          [--grad-clip GRAD_CLIP] [--lora-rank LORA_RANK]
+                          [--lora-alpha LORA_ALPHA]
+                          [--lora-dropout LORA_DROPOUT] [--patience PATIENCE]
+                          [--min-delta MIN_DELTA] [--eval-every EVAL_EVERY]
+                          [--metric-for-best {auto,accuracy,f1,mcc,auroc,auprc,mse,rmse,r2,pearson,loss,val_loss}]
+                          [--problem-type {auto,classification,regression}]
+                          [--seed SEED] [--out-dir OUT_DIR] [--resume]
+                          [--progress-every PROGRESS_EVERY]
+                          [--notify-webhook NOTIFY_WEBHOOK] [--notify-sound]
+                          [--notify-on-complete]
+                          [--compare-base-dir COMPARE_BASE_DIR]
+                          [--compare-gd-dir COMPARE_GD_DIR]
+                          [--compare-rmu-dir COMPARE_RMU_DIR]
+                          [--comparison-out COMPARISON_OUT]
+eval_benchmarks.py: error: unrecognized arguments: /home/teacher1/UT-project1/project1/data/phase2/downstream_reaudit/downstream_reaudit_eval_manifest.csv

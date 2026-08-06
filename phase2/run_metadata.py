@@ -13,8 +13,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Mapping
 
-import torch
-
 
 def canonical_json(payload: object) -> str:
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
@@ -63,6 +61,21 @@ def git_info() -> dict[str, object]:
 
 
 def runtime_environment() -> dict[str, object]:
+    try:
+        import torch
+    except Exception:
+        return {
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "python": sys.version.replace("\n", " "),
+            "platform": platform.platform(),
+            "hostname": socket.gethostname(),
+            "cwd": os.getcwd(),
+            "torch": "unavailable",
+            "cuda_available": False,
+            "cuda_device_count": 0,
+            "cuda_devices": [],
+        }
+
     cuda_available = torch.cuda.is_available()
     return {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),

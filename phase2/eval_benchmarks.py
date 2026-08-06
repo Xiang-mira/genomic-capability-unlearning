@@ -27,7 +27,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 import numpy as np
 import torch
 import torch.nn.functional as F
-from safetensors.torch import load_file
+from sklearn.metrics import matthews_corrcoef
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(line_buffering=True)
@@ -39,16 +39,22 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from evo.tokenizer import CharLevelTokenizer
 from phase1.utils import load_local_checkpoint
 from phase2.lora_utils import (
+    LabelEncoding,
     PooledEvoClassifier,
     classification_metrics,
     count_total,
     count_trainable,
+    freeze_all,
     encode_labels,
     inject_lora_all_blocks,
+    merge_lora_adapters,
     regression_metrics,
     remove_lora_adapters,
 )
+from phase2.next_steps_common import RESULT_SCHEMA_FIELDS
 from phase2.notify import notify
+from phase2.checkpoint_io import save_checkpoint, snapshot_state
+from phase2.run_metadata import build_run_metadata, write_metadata
 from phase2.utils import tokenize_batch
 
 csv.field_size_limit(sys.maxsize)
@@ -77,12 +83,14 @@ RESULT_FIELDNAMES = [
     "n_val_full",
     "n_val_early_stop",
     "n_test",
+    "n_test_eval",
     "train_loss",
     "val_loss",
     "validation_metric",
     "metric_for_best",
     "best_step",
     "best_checkpoint",
+    "exported_attack_checkpoint",
     "accuracy",
     "f1",
     "mcc",
@@ -95,12 +103,23 @@ RESULT_FIELDNAMES = [
     "lora_rank",
     "lora_alpha",
     "lora_dropout",
+    "training_mode",
     "train_batch_size",
     "eval_batch_size",
     "checkpoint_retained",
     "lora_modules",
     "trainable_params",
     "total_params",
+    "validation_selected_mcc_threshold",
+    "validation_prediction_path",
+    "test_prediction_path",
+    "global_seed",
+    "seed_controls",
+    "lora_init_hash",
+    "head_init_hash",
+    "first_batch_ids",
+    "training_data_order_hash",
+    *RESULT_SCHEMA_FIELDS,
 ]
 
 
@@ -143,6 +162,15 @@ def parse_task_filter(spec: str) -> Optional[set[str]]:
     return {part.strip() for part in spec.split(",") if part.strip()}
 
 
+def normalize_split_type(value: str) -> str:
+    split_type = str(value or "").strip().lower()
+    if not split_type:
+        return ""
+    if split_type in {"cluster-disjoint", "cluster_disjoint", "disjoint"}:
+        return "cluster_disjoint"
+    return split_type
+
+
 def read_benchmark_manifest(
     path: str,
     benchmark_scope: str = "hvue",
@@ -150,6 +178,7 @@ def read_benchmark_manifest(
     default_benchmark: str = "host_tropism_hiyata",
     default_task: str = "host_tropism_hiyata",
     default_group: str = "host_tropism_adaptation",
+    requested_split_type: str = "",
 ) -> List[BenchmarkRecord]:
     records: List[BenchmarkRecord] = []
     with open(path, newline="") as f:
@@ -159,6 +188,12 @@ def read_benchmark_manifest(
         missing = required - set(reader.fieldnames or [])
         if missing:
             raise ValueError(f"Benchmark manifest missing required columns: {sorted(missing)}")
+        normalized_requested_split = normalize_split_type(requested_split_type)
+        if normalized_requested_split and "split_type" not in fields:
+            raise ValueError(
+                f"Benchmark manifest {path} does not contain a split_type column, "
+                f"so --split-type={normalized_requested_split} cannot be enforced"
+            )
         for row in reader:
             label = normalize_label(row["label"])
             if label is None:
@@ -168,6 +203,9 @@ def read_benchmark_manifest(
             group = row.get("group", "") or infer_group(task, benchmark)
             if group == "unspecified" and "benchmark" not in fields:
                 group = default_group
+            row_split_type = normalize_split_type(row.get("split_type", ""))
+            if normalized_requested_split and row_split_type != normalized_requested_split:
+                continue
             if task_filter is not None and task not in task_filter:
                 continue
             if benchmark_scope == "hvue" and benchmark.lower() != "hvue" and group != "hvue_forget":
@@ -192,17 +230,14 @@ def read_benchmark_manifest(
 
 
 def apply_checkpoint(model, ckpt_path: str) -> None:
-    delta = load_file(ckpt_path)
-    sd = model.state_dict()
-    missing = []
-    for key, val in delta.items():
-        if key not in sd:
-            missing.append(key)
-            continue
-        sd[key].copy_(val.to(sd[key].dtype).to(sd[key].device))
-    if missing:
-        print(f"[bench-lora] skipped {len(missing)} checkpoint tensors not present in model")
-    print(f"[bench-lora] applied {len(delta) - len(missing)} checkpoint tensors from {ckpt_path}")
+    from phase2.checkpoint_io import apply_checkpoint as apply_phase2_checkpoint
+
+    apply_phase2_checkpoint(
+        model,
+        ckpt_path,
+        checkpoint_format="auto",
+        log_prefix="bench-lora",
+    )
 
 
 def tune_runtime(device: str, cpu_threads: int) -> None:
@@ -373,6 +408,31 @@ def trainable_state_dict(module: torch.nn.Module) -> Dict[str, torch.Tensor]:
     }
 
 
+def hash_named_tensors(named_tensors: Iterable[Tuple[str, torch.Tensor]]) -> str:
+    digest = hashlib.sha256()
+    for name, tensor in sorted(named_tensors, key=lambda item: item[0]):
+        detached = tensor.detach().cpu().contiguous()
+        digest.update(name.encode())
+        digest.update(str(tuple(detached.shape)).encode())
+        digest.update(str(detached.dtype).encode())
+        digest.update(detached.numpy().tobytes())
+    return digest.hexdigest()
+
+
+def hash_record_order(records: List[BenchmarkRecord], indices: List[int]) -> str:
+    digest = hashlib.sha256()
+    for idx in indices:
+        record = records[idx]
+        stable_id = record.record_id or f"{record.benchmark}|{record.task}|{record.split}|{record.label}|{idx}"
+        digest.update(str(stable_id).encode())
+        digest.update(b"\n")
+    return digest.hexdigest()
+
+
+def record_id_for_audit(record: BenchmarkRecord, idx: int) -> str:
+    return record.record_id or f"{record.benchmark}:{record.task}:{record.split}:{record.label}:{idx}"
+
+
 def load_trainable_state_dict(module: torch.nn.Module, state: Dict[str, torch.Tensor], device: str) -> None:
     named_params = dict(module.named_parameters())
     for name, value in state.items():
@@ -385,6 +445,137 @@ def load_trainable_state_dict(module: torch.nn.Module, state: Dict[str, torch.Te
 def save_best_checkpoint(path: str, module: torch.nn.Module, meta: Dict[str, object]) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     torch.save({"state_dict": trainable_state_dict(module), "meta": meta}, path)
+
+
+def parse_layers_spec(spec: str) -> list[int]:
+    layers: list[int] = []
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            start, end = [int(value) for value in part.split("-", 1)]
+            layers.extend(range(start, end + 1))
+        else:
+            layers.append(int(part))
+    return sorted(set(layers))
+
+
+def maybe_export_attack_checkpoint(
+    *,
+    args,
+    model,
+    task: str,
+    checkpoint_label: str,
+    best_payload: dict,
+    init_state: Dict[str, torch.Tensor] | None,
+) -> str:
+    export_root = args.export_attack_ckpt_dir.strip()
+    if not export_root:
+        return ""
+    export_policy = args.export_attack_policy.strip() or "delta"
+    export_layers = parse_layers_spec(args.export_attack_layers)
+    if export_policy != "full" and not export_layers:
+        raise ValueError("Attack checkpoint export requires --export-attack-layers unless policy=full")
+
+    merged_modules = []
+    if getattr(args, "training_mode", "lora") == "lora":
+        merged_modules = merge_lora_adapters(model)
+    task_dir = os.path.join(export_root, task)
+    os.makedirs(task_dir, exist_ok=True)
+    weights_path = os.path.join(task_dir, "weights.safetensors")
+    save_result = save_checkpoint(
+        model,
+        weights_path,
+        policy=export_policy,
+        layers=None if export_policy == "full" else export_layers,
+        suffixes=args.export_attack_suffixes,
+        init_state=init_state if export_policy == "delta" else None,
+        metadata={
+            "method_family": "stage2_attack_checkpoint",
+            "task": task,
+            "attack_recipe_id": args.attack_recipe_id,
+            "source_checkpoint": checkpoint_label,
+            "metric_for_best": best_payload.get("metric_for_best", ""),
+            "best_step": best_payload.get("step", ""),
+            "selection_value": best_payload.get("selection_value", ""),
+        },
+    )
+    export_meta = build_run_metadata(
+        args=args,
+        source_checkpoint=checkpoint_label,
+        output_checkpoint=weights_path if save_result.saved else "",
+        data_paths=[args.benchmark_manifest, args.ckpt] if args.ckpt else [args.benchmark_manifest],
+        trainable_modules=[args.export_attack_suffixes],
+        trainable_param_count=0,
+        loss_layers=export_layers,
+        seed=args.seed,
+        checkpoint_policy=export_policy,
+        extra={
+            "phase": "eval_benchmarks_attack_export",
+            "training_mode": getattr(args, "training_mode", "lora"),
+            "task": task,
+            "attack_recipe_id": args.attack_recipe_id,
+            "weights_path": weights_path,
+            "checkpoint_policy": export_policy,
+            "export_layers": export_layers,
+            "export_suffixes": args.export_attack_suffixes,
+            "merged_lora_modules": merged_modules,
+            "best_payload": best_payload,
+            "save_result": {
+                "saved": save_result.saved,
+                "tensor_count": save_result.tensor_count,
+                "checkpoint_policy": save_result.checkpoint_policy,
+            },
+        },
+    )
+    write_metadata(os.path.join(task_dir, "meta.json"), export_meta)
+    print(
+        f"[bench-lora] exported attacked checkpoint task={task} "
+        f"recipe={args.attack_recipe_id or '<none>'} path={weights_path}"
+    )
+    return weights_path
+
+
+def write_eval_run_metadata(
+    *,
+    args,
+    out_dir: str,
+    checkpoint_label: str,
+    task_items: List[Tuple[str, List[BenchmarkRecord]]],
+    rows: List[dict],
+    results_path: str,
+    summary_path: str,
+    progress_path: str,
+) -> None:
+    metadata = build_run_metadata(
+        args=args,
+        source_checkpoint=checkpoint_label,
+        output_checkpoint="",
+        data_paths=[args.benchmark_manifest, args.ckpt] if args.ckpt else [args.benchmark_manifest],
+        seed=args.seed,
+        extra={
+            "phase": "eval_benchmarks",
+            "checkpoint_label": checkpoint_label,
+            "out_dir": out_dir,
+            "benchmark_scope": args.benchmark_scope,
+            "task_filter": sorted(parse_task_filter(args.task_filter) or []),
+            "split_type": args.split_type,
+            "task_count": len(task_items),
+            "task_names": [task for task, _records in task_items],
+            "completed_row_count": len(rows),
+            "completed_tasks": sorted({row.get("task", "") for row in rows if row.get("task")}),
+            "results_path": results_path,
+            "summary_path": summary_path,
+            "progress_path": progress_path,
+            "export_attack_ckpt_dir": args.export_attack_ckpt_dir,
+            "export_attack_policy": args.export_attack_policy,
+            "export_attack_layers": args.export_attack_layers,
+            "export_attack_suffixes": args.export_attack_suffixes,
+            "attack_recipe_id": args.attack_recipe_id,
+        },
+    )
+    write_metadata(os.path.join(out_dir, "eval_benchmarks_metadata.json"), metadata)
 
 
 def select_metric_name(metric_for_best: str, metrics: Dict[str, Optional[float]], problem_type: str) -> str:
@@ -441,7 +632,8 @@ def evaluate_model(
     device: str,
     problem_type: str,
     num_classes: int,
-) -> Tuple[float, Dict[str, Optional[float]]]:
+    return_predictions: bool = False,
+) -> Tuple[float, Dict[str, Optional[float]]] | Tuple[float, Dict[str, Optional[float]], Dict[str, np.ndarray]]:
     model.eval()
     losses: List[float] = []
     preds: List[np.ndarray] = []
@@ -474,8 +666,110 @@ def evaluate_model(
     y_pred = np.concatenate(preds, axis=0) if preds else np.array([])
     if problem_type == "classification":
         y_score = np.concatenate(scores, axis=0) if scores else None
-        return mean_loss, classification_metrics(y_true, y_pred, y_score, num_classes)
-    return mean_loss, regression_metrics(y_true.astype(float), y_pred.astype(float))
+        metrics = classification_metrics(y_true, y_pred, y_score, num_classes)
+        if return_predictions:
+            payload: Dict[str, np.ndarray] = {
+                "y_true": y_true,
+                "y_pred": y_pred,
+            }
+            if y_score is not None:
+                payload["y_score"] = y_score
+            return mean_loss, metrics, payload
+        return mean_loss, metrics
+    metrics = regression_metrics(y_true.astype(float), y_pred.astype(float))
+    if return_predictions:
+        return mean_loss, metrics, {"y_true": y_true.astype(float), "y_pred": y_pred.astype(float)}
+    return mean_loss, metrics
+
+
+def select_mcc_threshold_from_validation(y_true: np.ndarray, probabilities: np.ndarray) -> tuple[float, float]:
+    thresholds = sorted({0.5, *[float(value) for value in probabilities]})
+    best_threshold = 0.5
+    best_mcc = -2.0
+    for threshold in thresholds:
+        predicted = (probabilities >= threshold).astype(np.int64)
+        mcc = float(matthews_corrcoef(y_true, predicted))
+        if mcc > best_mcc + 1e-12:
+            best_threshold = threshold
+            best_mcc = mcc
+    return best_threshold, best_mcc
+
+
+def write_prediction_export(
+    path: str,
+    *,
+    task: str,
+    split: str,
+    records: List[BenchmarkRecord],
+    predictions: Dict[str, np.ndarray],
+    label_encoding: LabelEncoding | None,
+    threshold: float | None,
+    threshold_policy: str,
+    checkpoint_label: str,
+    seed: int,
+    max_length: int,
+) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    y_true = predictions["y_true"]
+    y_pred = predictions["y_pred"]
+    y_score = predictions.get("y_score")
+    fieldnames = [
+        "sample_id",
+        "task",
+        "split",
+        "checkpoint",
+        "seed",
+        "label",
+        "label_id",
+        "predicted_label",
+        "predicted_label_id",
+        "probability_positive",
+        "selected_threshold",
+        "threshold_policy",
+        "raw_sequence_length",
+        "retained_raw_start",
+        "retained_raw_end",
+        "truncated",
+    ]
+    with open(path, "w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for idx, record in enumerate(records):
+            label_id = int(y_true[idx]) if len(y_true) > idx else ""
+            pred_id = int(y_pred[idx]) if len(y_pred) > idx else ""
+            probability_positive = ""
+            if y_score is not None:
+                if y_score.ndim == 2 and y_score.shape[1] >= 2:
+                    probability_positive = float(y_score[idx, 1])
+                elif y_score.ndim == 1:
+                    probability_positive = float(y_score[idx])
+            if (
+                threshold is not None
+                and label_encoding is not None
+                and label_encoding.num_classes == 2
+                and probability_positive != ""
+            ):
+                pred_id = int(float(probability_positive) >= float(threshold))
+            writer.writerow(
+                {
+                    "sample_id": record.record_id,
+                    "task": task,
+                    "split": split,
+                    "checkpoint": checkpoint_label,
+                    "seed": seed,
+                    "label": "" if label_encoding is None or label_id == "" else label_encoding.id_to_label[label_id],
+                    "label_id": label_id,
+                    "predicted_label": "" if label_encoding is None or pred_id == "" else label_encoding.id_to_label[pred_id],
+                    "predicted_label_id": pred_id,
+                    "probability_positive": probability_positive,
+                    "selected_threshold": "" if threshold is None else threshold,
+                    "threshold_policy": threshold_policy,
+                    "raw_sequence_length": len(record.sequence),
+                    "retained_raw_start": 0,
+                    "retained_raw_end": min(len(record.sequence), max_length),
+                    "truncated": len(record.sequence) > max_length,
+                }
+            )
 
 
 def labels_for_split(
@@ -520,6 +814,21 @@ def train_task(
             f"[bench-lora] task={task} validation subset "
             f"rows={n_val_early_stop}/{n_val_full} labels={dict(sorted(label_counts.items()))}"
         )
+    test_records = deterministic_stratified_subset(
+        splits["test"],
+        args.test_max_rows,
+        args.seed,
+        f"{task}:test",
+    )
+    n_test_eval = len(test_records)
+    if n_test_eval != n_test:
+        label_counts: Dict[str, int] = defaultdict(int)
+        for record in test_records:
+            label_counts[record.label] += 1
+        print(
+            f"[bench-lora] task={task} test subset "
+            f"rows={n_test_eval}/{n_test} labels={dict(sorted(label_counts.items()))}"
+        )
 
     problem_type = infer_problem_type([record.label for record in task_records], args.problem_type)
     label_encoding = None
@@ -530,26 +839,48 @@ def train_task(
             return None
         train_labels = labels_for_split(splits["train"], label_encoding.label_to_id, problem_type)
         val_labels = labels_for_split(validation_records, label_encoding.label_to_id, problem_type)
-        test_labels = labels_for_split(splits["test"], label_encoding.label_to_id, problem_type)
+        test_labels = labels_for_split(test_records, label_encoding.label_to_id, problem_type)
         output_dim = label_encoding.num_classes
     else:
         train_labels = labels_for_split(splits["train"], None, problem_type)
         val_labels = labels_for_split(validation_records, None, problem_type)
-        test_labels = labels_for_split(splits["test"], None, problem_type)
+        test_labels = labels_for_split(test_records, None, problem_type)
         output_dim = 1
 
     task_model = None
     optimizer = None
-    adapter_params, lora_modules = inject_lora_all_blocks(
-        model,
-        rank=args.lora_rank,
-        alpha=args.lora_alpha,
-        dropout=args.lora_dropout,
-    )
+    export_init_state = snapshot_state(model) if args.export_attack_ckpt_dir else None
+    training_mode = getattr(args, "training_mode", "lora")
+    adapter_params: List[torch.nn.Parameter] = []
+    lora_modules: List[str] = []
+    if training_mode == "lora":
+        adapter_params, lora_modules = inject_lora_all_blocks(
+            model,
+            rank=args.lora_rank,
+            alpha=args.lora_alpha,
+            dropout=args.lora_dropout,
+        )
+    elif training_mode == "full_ft":
+        for param in model.parameters():
+            param.requires_grad_(True)
+    else:
+        raise ValueError(f"Unsupported training mode: {training_mode}")
     hidden_dim = int(model.blocks[0].pre_norm.scale.shape[0])
     task_model = PooledEvoClassifier(model, hidden_dim, output_dim, problem_type).to(args.device)
     for param in task_model.head.parameters():
         param.requires_grad_(True)
+    if training_mode == "lora":
+        lora_init_hash = hash_named_tensors(
+            (name, param)
+            for name, param in task_model.named_parameters()
+            if ".lora_A" in name or ".lora_B" in name
+        )
+    else:
+        lora_init_hash = "not_applicable_full_ft"
+    head_init_hash = hash_named_tensors(
+        (name, param)
+        for name, param in task_model.head.named_parameters()
+    )
 
     optimizer = torch.optim.AdamW(
         [param for param in task_model.parameters() if param.requires_grad],
@@ -561,6 +892,13 @@ def train_task(
     best_path = os.path.join(task_dir, "best.pt")
     log_path = os.path.join(out_dir, "logs", f"{task}.jsonl")
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+    order_preview_rng = random.Random(args.seed)
+    first_epoch_indices = list(range(n_train))
+    order_preview_rng.shuffle(first_epoch_indices)
+    first_batch_indices = first_epoch_indices[: args.train_batch_size]
+    first_batch_ids = [record_id_for_audit(splits["train"][idx], idx) for idx in first_batch_indices]
+    training_data_order_hash = hash_record_order(splits["train"], first_epoch_indices)
 
     rng = random.Random(args.seed)
     best_score = -float("inf")
@@ -709,9 +1047,17 @@ def train_task(
 
         best_ckpt = torch.load(best_path, map_location="cpu")
         load_trainable_state_dict(task_model, best_ckpt["state_dict"], args.device)
+        exported_attack_checkpoint = maybe_export_attack_checkpoint(
+            args=args,
+            model=model,
+            task=task,
+            checkpoint_label=checkpoint_label,
+            best_payload=best_payload,
+            init_state=export_init_state,
+        )
         test_loss, test_metrics = evaluate_model(
             task_model,
-            splits["test"],
+            test_records,
             test_labels,
             tokenizer,
             args.eval_batch_size,
@@ -720,10 +1066,87 @@ def train_task(
             problem_type,
             output_dim,
         )
+        exported_prediction_paths: dict[str, str] = {}
+        validation_selected_threshold = None
+        if args.export_predictions:
+            prediction_dir = args.prediction_dir or os.path.join(out_dir, "predictions")
+            val_export = evaluate_model(
+                task_model,
+                validation_records,
+                val_labels,
+                tokenizer,
+                args.eval_batch_size,
+                args.max_length,
+                args.device,
+                problem_type,
+                output_dim,
+                return_predictions=True,
+            )
+            test_export = evaluate_model(
+                task_model,
+                test_records,
+                test_labels,
+                tokenizer,
+                args.eval_batch_size,
+                args.max_length,
+                args.device,
+                problem_type,
+                output_dim,
+                return_predictions=True,
+            )
+            _val_loss_export, _val_metrics_export, val_predictions = val_export
+            _test_loss_export, _test_metrics_export, test_predictions = test_export
+            threshold_policy = "not_applicable"
+            if problem_type == "classification" and output_dim == 2 and "y_score" in val_predictions:
+                validation_selected_threshold, _validation_mcc = select_mcc_threshold_from_validation(
+                    val_predictions["y_true"],
+                    val_predictions["y_score"][:, 1],
+                )
+                thresholded_test_pred = (
+                    test_predictions["y_score"][:, 1] >= validation_selected_threshold
+                ).astype(np.int64)
+                thresholded_test_metrics = classification_metrics(
+                    test_predictions["y_true"],
+                    thresholded_test_pred,
+                    test_predictions["y_score"],
+                    output_dim,
+                )
+                test_metrics.update(
+                    {
+                        "accuracy": thresholded_test_metrics.get("accuracy"),
+                        "f1": thresholded_test_metrics.get("f1"),
+                        "mcc": thresholded_test_metrics.get("mcc"),
+                    }
+                )
+                threshold_policy = "validation_selected_mcc"
+            for split_name, split_records_out, split_predictions in (
+                ("val", validation_records, val_predictions),
+                ("test", test_records, test_predictions),
+            ):
+                prediction_path = os.path.join(prediction_dir, f"{task}_{split_name}_predictions.csv")
+                write_prediction_export(
+                    prediction_path,
+                    task=task,
+                    split=split_name,
+                    records=split_records_out,
+                    predictions=split_predictions,
+                    label_encoding=label_encoding,
+                    threshold=validation_selected_threshold,
+                    threshold_policy=threshold_policy,
+                    checkpoint_label=checkpoint_label,
+                    seed=args.seed,
+                    max_length=args.max_length,
+                )
+                exported_prediction_paths[split_name] = prediction_path
 
         benchmark = task_records[0].benchmark
         explicit_groups = {record.group for record in task_records if record.group}
         group = explicit_groups.pop() if len(explicit_groups) == 1 else infer_group(task, benchmark)
+        selected_metric_value = test_metrics.get(selected_metric_name)
+        metric_excess_over_kmer = None
+        if args.kmer_baseline_score is not None and selected_metric_value not in (None, ""):
+            metric_excess_over_kmer = float(selected_metric_value) - float(args.kmer_baseline_score)
+
         row = {
             "benchmark": benchmark,
             "task": task,
@@ -737,12 +1160,14 @@ def train_task(
             "n_val_full": n_val_full,
             "n_val_early_stop": n_val_early_stop,
             "n_test": n_test,
+            "n_test_eval": n_test_eval,
             "train_loss": best_payload.get("train_loss"),
             "val_loss": best_payload.get("val_loss"),
             "validation_metric": best_payload.get("selection_value"),
             "metric_for_best": best_payload.get("metric_for_best"),
             "best_step": best_payload.get("step"),
             "best_checkpoint": "" if args.discard_task_checkpoint else best_path,
+            "exported_attack_checkpoint": exported_attack_checkpoint,
             "accuracy": test_metrics.get("accuracy"),
             "f1": test_metrics.get("f1"),
             "mcc": test_metrics.get("mcc"),
@@ -761,7 +1186,23 @@ def train_task(
             "lora_modules": len(lora_modules),
             "trainable_params": count_trainable(task_model),
             "total_params": count_total(task_model),
+            "training_mode": training_mode,
+            "split_type": args.split_type,
+            "kmer_baseline_score": args.kmer_baseline_score,
+            "metric_excess_over_kmer": metric_excess_over_kmer,
+            "attack_recipe_id": args.attack_recipe_id,
+            "post_attack_fresh_head_score": args.post_attack_fresh_head_score,
+            "readout_disruption_flag": args.readout_disruption_flag,
             "test_loss": test_loss,
+            "validation_selected_mcc_threshold": validation_selected_threshold,
+            "validation_prediction_path": exported_prediction_paths.get("val", ""),
+            "test_prediction_path": exported_prediction_paths.get("test", ""),
+            "global_seed": args.seed,
+            "seed_controls": "python_random,numpy,torch_cpu,torch_cuda,lora_init,head_init,dataloader_order,dropout,sampler",
+            "lora_init_hash": lora_init_hash,
+            "head_init_hash": head_init_hash,
+            "first_batch_ids": ";".join(first_batch_ids),
+            "training_data_order_hash": training_data_order_hash,
         }
         if args.discard_task_checkpoint:
             row["_cleanup_checkpoint"] = best_path
@@ -775,7 +1216,10 @@ def train_task(
         if task_model is not None:
             task_model.close()
         del task_model, optimizer, adapter_params
-        remove_lora_adapters(model)
+        if training_mode == "lora":
+            remove_lora_adapters(model)
+        else:
+            freeze_all(model)
         if args.device.startswith("cuda"):
             torch.cuda.empty_cache()
 
@@ -786,12 +1230,16 @@ def run_batch_preflight(args) -> None:
     task_model = None
     adapter_params: List[torch.nn.Parameter] = []
     try:
-        adapter_params, _lora_modules = inject_lora_all_blocks(
-            model,
-            rank=args.lora_rank,
-            alpha=args.lora_alpha,
-            dropout=args.lora_dropout,
-        )
+        if getattr(args, "training_mode", "lora") == "lora":
+            adapter_params, _lora_modules = inject_lora_all_blocks(
+                model,
+                rank=args.lora_rank,
+                alpha=args.lora_alpha,
+                dropout=args.lora_dropout,
+            )
+        else:
+            for param in model.parameters():
+                param.requires_grad_(True)
         hidden_dim = int(model.blocks[0].pre_norm.scale.shape[0])
         task_model = PooledEvoClassifier(model, hidden_dim, 2, "classification").to(args.device)
         for param in task_model.head.parameters():
@@ -827,14 +1275,16 @@ def run_batch_preflight(args) -> None:
         if args.device.startswith("cuda"):
             torch.cuda.synchronize()
         print(
-            f"[bench-lora] preflight passed train_batch={args.train_batch_size} "
-            f"eval_batch={args.eval_batch_size} max_length={args.max_length}"
+            f"[bench-lora] preflight passed mode={getattr(args, 'training_mode', 'lora')} "
+            f"train_batch={args.train_batch_size} eval_batch={args.eval_batch_size} "
+            f"max_length={args.max_length}"
         )
     finally:
         if task_model is not None:
             task_model.close()
         del task_model, adapter_params
-        remove_lora_adapters(model)
+        if getattr(args, "training_mode", "lora") == "lora":
+            remove_lora_adapters(model)
         del model
         if args.device.startswith("cuda"):
             torch.cuda.empty_cache()
@@ -922,6 +1372,12 @@ def main() -> None:
         help="Maximum deterministic stratified validation rows used for early stopping; 0 keeps all.",
     )
     parser.add_argument(
+        "--test-max-rows",
+        type=int,
+        default=0,
+        help="Maximum deterministic stratified test rows used for smoke evaluation; 0 keeps all.",
+    )
+    parser.add_argument(
         "--discard-task-checkpoint",
         action="store_true",
         help="Delete each temporary best.pt after its test result is durably appended.",
@@ -940,6 +1396,12 @@ def main() -> None:
     parser.add_argument("--lora-rank", type=int, default=8)
     parser.add_argument("--lora-alpha", type=int, default=16)
     parser.add_argument("--lora-dropout", type=float, default=0.0)
+    parser.add_argument(
+        "--training-mode",
+        choices=["lora", "full_ft"],
+        default="lora",
+        help="Supervised benchmark training mode. Default preserves fresh LoRA finetuning.",
+    )
     parser.add_argument("--patience", type=int, default=3)
     parser.add_argument("--min-delta", type=float, default=0.0)
     parser.add_argument("--eval-every", type=int, default=100)
@@ -953,6 +1415,56 @@ def main() -> None:
     parser.add_argument("--out-dir", default=None)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--progress-every", type=int, default=1, help="Task-level progress write interval")
+    parser.add_argument(
+        "--export-predictions",
+        action="store_true",
+        help="Export validation and test prediction tables for the final best checkpoint.",
+    )
+    parser.add_argument(
+        "--prediction-dir",
+        default="",
+        help="Optional prediction output directory used with --export-predictions.",
+    )
+    parser.add_argument("--split-type", default="", help="Optional split label, e.g. random or cluster_disjoint.")
+    parser.add_argument(
+        "--kmer-baseline-score",
+        type=float,
+        default=None,
+        help="Optional per-run baseline score used to emit metric_excess_over_kmer for the selected metric.",
+    )
+    parser.add_argument("--attack-recipe-id", default="", help="Optional attack recipe identifier for post-attack runs.")
+    parser.add_argument(
+        "--export-attack-ckpt-dir",
+        default="",
+        help="Optional directory root where the best post-attack model state is exported as weights.safetensors.",
+    )
+    parser.add_argument(
+        "--export-attack-policy",
+        choices=["selected_modules", "delta", "full"],
+        default="delta",
+        help="Checkpoint export policy for --export-attack-ckpt-dir.",
+    )
+    parser.add_argument(
+        "--export-attack-layers",
+        default="",
+        help="Comma/range layer spec used when exporting selected_modules or delta attacked checkpoints, e.g. 5-9.",
+    )
+    parser.add_argument(
+        "--export-attack-suffixes",
+        default="all",
+        help="Module suffix filter used when exporting selected_modules or delta attacked checkpoints.",
+    )
+    parser.add_argument(
+        "--post-attack-fresh-head-score",
+        type=float,
+        default=None,
+        help="Optional post-attack fresh-head score written into the result schema.",
+    )
+    parser.add_argument(
+        "--readout-disruption-flag",
+        default="",
+        help="Optional label such as readout_disruption when fresh-head recovery invalidates erasure claims.",
+    )
     parser.add_argument("--notify-webhook", default=os.environ.get("FEISHU_WEBHOOK", ""))
     parser.add_argument("--notify-sound", action="store_true")
     parser.add_argument("--notify-on-complete", action="store_true")
@@ -967,6 +1479,8 @@ def main() -> None:
         parser.error("train/eval batch sizes must be positive")
     if args.validation_max_rows < 0:
         parser.error("--validation-max-rows must be non-negative")
+    if args.test_max_rows < 0:
+        parser.error("--test-max-rows must be non-negative")
 
     if args.compare_base_dir and args.compare_gd_dir and args.compare_rmu_dir:
         out_csv = args.comparison_out or os.path.join(args.compare_base_dir, "..", "hvue_lora_comparison.csv")
@@ -1001,6 +1515,7 @@ def main() -> None:
         default_benchmark=args.default_benchmark,
         default_task=args.default_task,
         default_group=args.default_group,
+        requested_split_type=args.split_type,
     )
     tasks = defaultdict(list)
     for record in records:
@@ -1022,6 +1537,16 @@ def main() -> None:
     if rows:
         write_summary(summary_path, rows)
         print(f"[bench-lora] resume enabled: loaded {len(rows)} completed task rows")
+    write_eval_run_metadata(
+        args=args,
+        out_dir=out_dir,
+        checkpoint_label=checkpoint_label,
+        task_items=task_items,
+        rows=rows,
+        results_path=results_path,
+        summary_path=summary_path,
+        progress_path=progress_path,
+    )
 
     model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     if args.ckpt:
@@ -1119,6 +1644,16 @@ def main() -> None:
                     )
             completed.add(task)
             write_summary(summary_path, rows)
+            write_eval_run_metadata(
+                args=args,
+                out_dir=out_dir,
+                checkpoint_label=checkpoint_label,
+                task_items=task_items,
+                rows=rows,
+                results_path=results_path,
+                summary_path=summary_path,
+                progress_path=progress_path,
+            )
             report_progress(
                 "running",
                 phase="task_complete",
@@ -1128,6 +1663,16 @@ def main() -> None:
             )
 
         write_summary(summary_path, rows)
+        write_eval_run_metadata(
+            args=args,
+            out_dir=out_dir,
+            checkpoint_label=checkpoint_label,
+            task_items=task_items,
+            rows=rows,
+            results_path=results_path,
+            summary_path=summary_path,
+            progress_path=progress_path,
+        )
         report_progress("complete", phase="complete")
         notify_run("[bench-lora] complete", "exit_reason: complete")
         print(f"[bench-lora] wrote benchmark results to {results_path}")

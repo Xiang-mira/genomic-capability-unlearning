@@ -5,9 +5,10 @@ cd "$(dirname "$0")/.."
 
 PYTHON_BIN="${PHASE2_PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}"
 
-# Candidate selection must cover the complete valid HVUE task set. The existing
-# host-tropism and GUE rows are resumed; only missing tasks are trained.
-SELECTION_TASKS="hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,hvue_human_virus_pathogenicity_bvbrc_cov,hvue_human_transmissibility_coronaviridae,hvue_human_transmissibility_orthomyxoviridae,gue_human_tf_0"
+# Candidate selection now follows the route switch: only the formal target
+# tasks participate in ranking. Confounded transmissibility tasks remain
+# available for separate control-only diagnostics, not for selection.
+SELECTION_TASKS="hvue_human_host_tropism,hvue_human_virus_pathogenicity_cini,gue_human_tf_0"
 
 "$PYTHON_BIN" -u phase2/run_benchmark_pilot.py pilot \
   --pilot-manifest data/benchmarks/hvue_gue_pilot_manifest.csv \

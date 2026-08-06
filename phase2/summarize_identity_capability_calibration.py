@@ -22,8 +22,9 @@ import numpy as np
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from phase2.capability_probe_metadata import build_identity_capability_summary_metadata
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT
-from phase2.run_metadata import file_sha256, git_info, stable_hash
+from phase2.run_metadata import file_sha256, git_info, stable_hash, write_metadata
 
 
 CAPABILITY_SUMMARY_FIELDS = [
@@ -409,6 +410,26 @@ def summary_signature(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def write_summary_metadata(
+    *,
+    args: argparse.Namespace,
+    out_dir: Path,
+    signature: dict[str, Any],
+    phase: str,
+    extra: dict[str, Any],
+) -> None:
+    write_metadata(
+        out_dir / "summary_metadata.json",
+        build_identity_capability_summary_metadata(
+            args=args,
+            out_dir=out_dir,
+            signature=signature,
+            phase=phase,
+            extra=extra,
+        ),
+    )
+
+
 def task5a_family_probe(path: Path) -> dict[str, Any]:
     payload = read_json(path)
     rows = payload.get("rows", [])
@@ -509,6 +530,24 @@ def run_task7(args: argparse.Namespace) -> None:
     }
     write_json(out_dir / "identity_capability_calibration.json", calibration)
     write_json(out_dir / "identity_capability_calibration_signature.json", signature)
+    write_summary_metadata(
+        args=args,
+        out_dir=out_dir,
+        signature=signature,
+        phase="task7_identity_capability_summary",
+        extra={
+            "metric_row_count": len(metric_rows),
+            "summary_row_count": len(summary_rows),
+            "capability_probe_status": calibration["decision"]["capability_probe_status"],
+            "formal_success_allowed": False,
+            "summary_outputs": [
+                "capability_probe_summary.csv",
+                "identity_capability_calibration.json",
+                "identity_capability_calibration_signature.json",
+                "task7_decision.md",
+            ],
+        },
+    )
     write_task7_decision(out_dir, calibration)
     print(f"[task7-summary] wrote calibration to {out_dir / 'identity_capability_calibration.json'}")
 
@@ -614,6 +653,28 @@ def run_task5b(args: argparse.Namespace) -> None:
             "capability_probe_status": capability_probe_status,
             "formal_success_allowed": formal_gate,
             "candidates": p5_candidates if formal_gate else [],
+        },
+    )
+    write_summary_metadata(
+        args=args,
+        out_dir=out_dir,
+        signature=signature,
+        phase="task5b_identity_capability_summary",
+        extra={
+            "metric_row_count": len(metric_rows),
+            "summary_row_count": len(rows),
+            "capability_probe_status": capability_probe_status,
+            "formal_success_allowed": formal_gate,
+            "p5_candidate_count": len(p5_candidates if formal_gate else []),
+            "summary_outputs": [
+                "capability_probe_summary.csv",
+                "task5b_capability_reaudit_summary.csv",
+                "task5b_capability_reaudit_summary.json",
+                "task5b_capability_reaudit_signature.json",
+                "p5_initialization_candidates.json",
+                "task5b_decision.md",
+                "task5ab7_joint_decision.md",
+            ],
         },
     )
     write_task5b_decisions(out_dir, rows, calibration)

@@ -19,6 +19,7 @@ from typing import Any
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from phase2.run_metadata import build_run_metadata, stable_hash, write_metadata
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT, TASK5A_CHECKPOINTS
 
 
@@ -36,6 +37,89 @@ def read_json(path: Path) -> dict[str, Any]:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+
+
+def queue_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.task5b_out_dir) / "task5ab7_queue_metadata.json"
+
+
+def task5b_manifest_metadata_path(args: argparse.Namespace) -> Path:
+    return Path(args.task5b_out_dir) / "task5b_checkpoint_manifest_metadata.json"
+
+
+def write_queue_metadata(args: argparse.Namespace) -> None:
+    write_metadata(
+        queue_metadata_path(args),
+        build_run_metadata(
+            args=args,
+            source_checkpoint=args.model_dir,
+            data_paths=[
+                args.config_path,
+                args.task7_ready_flag,
+                task7_manifest_path(args),
+                Path(args.task5a_out_dir) / "task5a_identity_reaudit_summary.json",
+                Path(args.task7_out_dir) / "capability_dataset_manifest.csv",
+                Path(args.task7_out_dir) / "capability_dataset_audit.json",
+                Path(args.task7_out_dir) / "identity_capability_calibration.json",
+            ],
+            extra={
+                "phase": "task5ab7_queue",
+                "task": "task5ab7_queue",
+                "task3_context": TASK3_CONTEXT,
+                "task5a_out_dir": args.task5a_out_dir,
+                "task7_out_dir": args.task7_out_dir,
+                "task5b_out_dir": args.task5b_out_dir,
+                "stop_on_low_disk_gb": args.stop_on_low_disk_gb,
+                "wait_for_task7_ready": args.wait_for_task7_ready,
+                "ready_poll_seconds": args.ready_poll_seconds,
+                "retry_on_failure": args.retry_on_failure,
+                "oom_retry_batch_size": args.oom_retry_batch_size,
+                "batch_size": args.batch_size,
+                "max_eval": args.max_eval,
+                "layers": args.layers,
+                "probe_seeds": args.probe_seeds,
+                "fresh_c_grid": args.fresh_c_grid,
+                "n_bootstrap": args.n_bootstrap,
+                "device": args.device,
+                "cuda_visible_devices": args.cuda_visible_devices,
+                "checkpoint_format": args.checkpoint_format,
+                "queue_checkpoint_names": [spec.checkpoint_name for spec in TASK5A_CHECKPOINTS],
+            },
+        ),
+    )
+
+
+def write_task5b_manifest_metadata(
+    args: argparse.Namespace,
+    manifest_path: Path,
+    entries: list[dict[str, Any]],
+) -> None:
+    checkpoint_names = [str(entry.get("checkpoint_name", "")) for entry in entries]
+    source_names = [str(entry.get("source_checkpoint_name", entry.get("checkpoint_name", ""))) for entry in entries]
+    write_metadata(
+        task5b_manifest_metadata_path(args),
+        build_run_metadata(
+            args=args,
+            source_checkpoint="task5b_checkpoint_manifest_builder",
+            data_paths=[
+                task7_manifest_path(args),
+                Path(args.task5a_out_dir) / "task5a_identity_reaudit_summary.json",
+                manifest_path,
+            ],
+            extra={
+                "phase": "task5b_checkpoint_manifest",
+                "task": "task5b_capability_reaudit_checkpoint_manifest",
+                "manifest_path": str(manifest_path),
+                "source_task5a_manifest": str(task7_manifest_path(args)),
+                "task3_context": TASK3_CONTEXT,
+                "checkpoint_count": len(entries),
+                "checkpoint_names": checkpoint_names,
+                "source_checkpoint_names": source_names,
+                "checkpoint_name_hash": stable_hash(checkpoint_names),
+                "source_checkpoint_name_hash": stable_hash(source_names),
+            },
+        ),
+    )
 
 
 def free_disk_gb(path: Path) -> float:
@@ -56,6 +140,7 @@ def write_queue_status(args: argparse.Namespace, status: str, **extra: Any) -> N
         "task5a_out_dir": args.task5a_out_dir,
         "task7_out_dir": args.task7_out_dir,
         "task5b_out_dir": args.task5b_out_dir,
+        "queue_metadata_path": str(queue_metadata_path(args)),
         **extra,
     }
     write_json(Path(args.task5b_out_dir) / "task5ab7_queue_status.json", payload)
@@ -302,6 +387,7 @@ def build_task5b_manifest(args: argparse.Namespace) -> Path:
             "checkpoints": entries,
         },
     )
+    write_task5b_manifest_metadata(args, out_path, entries)
     return out_path
 
 
@@ -398,6 +484,7 @@ def main() -> None:
     Path(args.task5b_out_dir).mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+    write_queue_metadata(args)
     write_queue_status(args, "running", started_at=now())
 
     try:

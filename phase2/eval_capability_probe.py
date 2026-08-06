@@ -34,12 +34,14 @@ from phase2.probe_validity_audit import (
     build_raw_features,
     build_raw_plus_metadata_features,
     fit_eval_logistic,
+    safe_auroc,
     safe_log_loss,
     sequence_stats,
 )
 from phase2.build_capability_probe_dataset import family_matrix
+from phase2.capability_probe_metadata import build_capability_probe_run_metadata, capability_probe_task_name
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT
-from phase2.run_metadata import file_sha256, git_info, stable_hash
+from phase2.run_metadata import file_sha256, git_info, stable_hash, write_metadata
 
 
 csv.field_size_limit(sys.maxsize)
@@ -83,6 +85,26 @@ METRIC_FIELDS = [
     "group_heldout_status",
     "group_heldout_generalization_if_feasible",
     "split_column",
+    "manifest_hash",
+]
+
+PREDICTION_FIELDS = [
+    "sample_id",
+    "task",
+    "split",
+    "split_seed",
+    "checkpoint_name",
+    "method_family",
+    "checkpoint_path",
+    "probe_protocol",
+    "probe_type",
+    "probe_seed",
+    "model_name",
+    "layer",
+    "label",
+    "score",
+    "score_type",
+    "source_artifact",
     "manifest_hash",
 ]
 
@@ -252,6 +274,40 @@ def write_checkpoint_manifest_copy(out_dir: Path, checkpoints: list[dict[str, An
     )
 
 
+def write_probe_run_metadata(
+    *,
+    args: argparse.Namespace,
+    out_dir: Path,
+    signature: dict[str, Any],
+    dataset_lineage: dict[str, Any],
+    checkpoints: list[dict[str, Any]],
+    layers: list[int],
+    seeds: list[int],
+    c_grid: list[float],
+    feature_entries: list[dict[str, Any]],
+    metric_row_count: int,
+    prediction_row_count: int,
+    dry_run: bool,
+) -> None:
+    write_metadata(
+        out_dir / "meta.json",
+        build_capability_probe_run_metadata(
+            args=args,
+            out_dir=out_dir,
+            signature=signature,
+            dataset_lineage=dataset_lineage,
+            checkpoints=checkpoints,
+            layers=layers,
+            seeds=seeds,
+            c_grid=c_grid,
+            feature_entries=feature_entries,
+            metric_row_count=metric_row_count,
+            prediction_row_count=prediction_row_count,
+            dry_run=dry_run,
+        ),
+    )
+
+
 def rows_by_task(rows: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
     grouped: dict[str, list[dict[str, str]]] = defaultdict(list)
     for row in rows:
@@ -388,6 +444,22 @@ def write_metrics(path: Path, rows: list[dict[str, Any]]) -> None:
             writer.writerow({field: clean.get(field, "") for field in METRIC_FIELDS})
 
 
+def write_prediction_rows(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=PREDICTION_FIELDS)
+        writer.writeheader()
+        for row in rows:
+            clean = sanitize(row)
+            writer.writerow({field: clean.get(field, "") for field in PREDICTION_FIELDS})
+
+
+def separability(auroc: float) -> float:
+    if math.isnan(auroc):
+        return float("nan")
+    return float(max(auroc, 1.0 - auroc))
+
+
 def baseline_matrices(rows: list[dict[str, str]]):
     raw_matrix, _ = build_raw_features(rows)
     family_only, _ = family_matrix(rows)
@@ -442,6 +514,108 @@ def fit_model(matrix, labels: np.ndarray, splits: np.ndarray, c_grid: list[float
         target=task,
         baseline=model_name,
     )
+
+
+def fit_model_with_scores(
+    matrix,
+    labels: np.ndarray,
+    splits: np.ndarray,
+    c_grid: list[float],
+    seed: int,
+) -> tuple[dict[str, Any], np.ndarray | None]:
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import StandardScaler
+
+    masks = {name: splits == name for name in ("train", "val", "test")}
+    result: dict[str, Any] = {
+        "status": "ok",
+        "n_train": int(masks["train"].sum()),
+        "n_val": int(masks["val"].sum()),
+        "n_test": int(masks["test"].sum()),
+    }
+    if masks["train"].sum() == 0 or len(np.unique(labels[masks["train"]])) < 2:
+        result["status"] = "missing_or_single_class_train"
+        return result, None
+    scaler = StandardScaler(with_mean=False)
+    x_train = scaler.fit_transform(matrix[masks["train"]])
+    x_all = scaler.transform(matrix)
+    selection_split = "val" if masks["val"].sum() and len(np.unique(labels[masks["val"]])) >= 2 else "train"
+    selection_mask = masks[selection_split]
+    result["selection_split"] = selection_split
+    best = None
+    best_score = -float("inf")
+    for c_value in c_grid:
+        clf = LogisticRegression(
+            C=c_value,
+            solver="liblinear",
+            max_iter=1000,
+            class_weight="balanced",
+            random_state=seed,
+        )
+        clf.fit(x_train, labels[masks["train"]])
+        probs = clf.predict_proba(x_all[selection_mask])[:, 1]
+        score = separability(safe_auroc(labels[selection_mask], probs))
+        if not math.isnan(score) and score > best_score:
+            best_score = score
+            best = (c_value, clf)
+    if best is None:
+        result["status"] = "fit_failed"
+        return result, None
+    best_c, clf = best
+    result["best_c"] = float(best_c)
+    all_scores = clf.predict_proba(x_all)[:, 1]
+    for split in ("train", "val", "test"):
+        mask = masks[split]
+        if mask.sum() == 0:
+            result[f"{split}_status"] = "missing"
+            continue
+        if len(np.unique(labels[mask])) < 2:
+            result[f"{split}_status"] = "single_class"
+            continue
+        probs = all_scores[mask]
+        result[f"{split}_auroc"] = safe_auroc(labels[mask], probs)
+        result[f"{split}_separability"] = separability(result[f"{split}_auroc"])
+        result[f"{split}_log_loss"] = safe_log_loss(labels[mask], probs)
+    return result, all_scores.astype(np.float32, copy=False)
+
+
+def append_prediction_rows(
+    rows: list[dict[str, Any]],
+    *,
+    sample_ids: np.ndarray,
+    labels: np.ndarray,
+    splits: np.ndarray,
+    scores: np.ndarray,
+    task: str,
+    checkpoint: dict[str, Any],
+    seed: int,
+    model_name: str,
+    layer: int,
+    source_artifact: str,
+    manifest_hash: str,
+) -> None:
+    for idx, score in enumerate(scores):
+        rows.append(
+            {
+                "sample_id": str(sample_ids[idx]),
+                "task": task,
+                "split": str(splits[idx]),
+                "split_seed": "",
+                "checkpoint_name": checkpoint["source_checkpoint_name"],
+                "method_family": checkpoint["method_family"],
+                "checkpoint_path": checkpoint["checkpoint_path"],
+                "probe_protocol": "fresh_probe_from_feature_cache",
+                "probe_type": "capability_probe",
+                "probe_seed": seed,
+                "model_name": model_name,
+                "layer": layer,
+                "label": int(labels[idx]),
+                "score": float(score),
+                "score_type": "predict_proba_positive",
+                "source_artifact": source_artifact,
+                "manifest_hash": manifest_hash,
+            }
+        )
 
 
 def load_checkpoint_model(args: argparse.Namespace, checkpoint: dict[str, Any]):
@@ -518,6 +692,13 @@ def main() -> None:
     parser.add_argument("--seeds", default="42,43,44")
     parser.add_argument("--c-grid", default="0.001,0.01,0.1,1.0")
     parser.add_argument("--save-feature-cache", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--export-predictions", action="store_true")
+    parser.add_argument("--prediction-output", default="")
+    parser.add_argument(
+        "--prediction-models",
+        default="hidden_only_model",
+        help="Comma-separated capability probe model names to export when --export-predictions is set.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -539,6 +720,7 @@ def main() -> None:
     layers = parse_layers(args.layers)
     seeds = [int(part.strip()) for part in args.seeds.split(",") if part.strip()]
     c_grid = [float(part.strip()) for part in args.c_grid.split(",") if part.strip()]
+    prediction_models = {part.strip() for part in args.prediction_models.split(",") if part.strip()}
     write_checkpoint_manifest_copy(out_dir, checkpoints, checkpoint_manifest_path)
     dataset_lineage = {
         "manifest_hash": manifest_hash,
@@ -556,6 +738,7 @@ def main() -> None:
             out_dir / "capability_feature_cache_manifest.json",
             {
                 "created_at": now(),
+                "task": capability_probe_task_name(out_dir),
                 "dry_run": True,
                 "tasks": sorted(rows_by_task(rows)),
                 "checkpoints": checkpoints,
@@ -568,6 +751,20 @@ def main() -> None:
         )
         write_json(out_dir / "capability_probe_signature.json", signature)
         write_metrics(out_dir / "capability_probe_metrics.csv", [])
+        write_probe_run_metadata(
+            args=args,
+            out_dir=out_dir,
+            signature=signature,
+            dataset_lineage=dataset_lineage,
+            checkpoints=checkpoints,
+            layers=layers,
+            seeds=seeds,
+            c_grid=c_grid,
+            feature_entries=[],
+            metric_row_count=0,
+            prediction_row_count=0,
+            dry_run=True,
+        )
         print(f"[cap-probe] dry-run wrote manifests to {out_dir}")
         return
 
@@ -576,6 +773,7 @@ def main() -> None:
     feature_root = out_dir / "feature_cache"
     tokenizer = CharLevelTokenizer(512)
     all_metric_rows: list[dict[str, Any]] = []
+    all_prediction_rows: list[dict[str, Any]] = []
     feature_entries: list[dict[str, Any]] = []
     grouped = rows_by_task(rows)
 
@@ -637,21 +835,20 @@ def main() -> None:
                     "family_hidden_joint_model": hstack([family, hidden], format="csr"),
                     "raw_family_hidden_joint_model": hstack([raw_family, hidden], format="csr"),
                 }
-                feature_entries.append(
-                    cache_features(
-                        feature_root,
-                        checkpoint,
-                        task,
-                        layer,
-                        hidden_dense,
-                        labels,
-                        splits,
-                        row_ids,
-                        feature_keys,
-                        manifest_hash,
-                        args.save_feature_cache,
-                    )
+                feature_entry = cache_features(
+                    feature_root,
+                    checkpoint,
+                    task,
+                    layer,
+                    hidden_dense,
+                    labels,
+                    splits,
+                    row_ids,
+                    feature_keys,
+                    manifest_hash,
+                    args.save_feature_cache,
                 )
+                feature_entries.append(feature_entry)
                 for seed in seeds:
                     shortcut = task_baselines[(task, seed)]
                     for model_name, baseline_name in (
@@ -688,7 +885,25 @@ def main() -> None:
                             "family_hidden_joint_model": "family_only_model",
                             "raw_family_hidden_joint_model": "shortcut_best",
                         }[model_name]
-                        result = fit_model(matrix, labels, splits, c_grid, seed, task, model_name)
+                        if args.export_predictions and model_name in prediction_models:
+                            result, scores = fit_model_with_scores(matrix, labels, splits, c_grid, seed)
+                            if result.get("status") == "ok" and scores is not None:
+                                append_prediction_rows(
+                                    all_prediction_rows,
+                                    sample_ids=row_ids,
+                                    labels=labels,
+                                    splits=splits,
+                                    scores=scores,
+                                    task=task,
+                                    checkpoint=checkpoint,
+                                    seed=seed,
+                                    model_name=model_name,
+                                    layer=layer,
+                                    source_artifact=str(feature_entry.get("path") or feature_entry.get("reason") or "in_memory_features"),
+                                    manifest_hash=manifest_hash,
+                                )
+                        else:
+                            result = fit_model(matrix, labels, splits, c_grid, seed, task, model_name)
                         all_metric_rows.append(
                             model_result_row(
                                 result,
@@ -711,12 +926,16 @@ def main() -> None:
             torch.cuda.empty_cache()
 
     write_metrics(out_dir / "capability_probe_metrics.csv", all_metric_rows)
+    if args.export_predictions:
+        prediction_path = Path(args.prediction_output) if args.prediction_output else out_dir / "capability_probe_predictions.csv"
+        write_prediction_rows(prediction_path, all_prediction_rows)
+        print(f"[cap-probe] wrote {len(all_prediction_rows)} prediction rows to {prediction_path}")
     write_json(out_dir / "capability_probe_signature.json", signature)
     write_json(
         out_dir / "capability_feature_cache_manifest.json",
         {
             "created_at": now(),
-            "task": "task7_capability_probe" if "task7" in str(out_dir) else "task5b_capability_reaudit",
+            "task": capability_probe_task_name(out_dir),
             "dataset_manifest": args.dataset_manifest,
             "dataset_audit": args.dataset_audit,
             "checkpoint_manifest": args.checkpoint_manifest,
@@ -730,6 +949,20 @@ def main() -> None:
             "entries": feature_entries,
             "metric_rows": len(all_metric_rows),
         },
+    )
+    write_probe_run_metadata(
+        args=args,
+        out_dir=out_dir,
+        signature=signature,
+        dataset_lineage=dataset_lineage,
+        checkpoints=checkpoints,
+        layers=layers,
+        seeds=seeds,
+        c_grid=c_grid,
+        feature_entries=feature_entries,
+        metric_row_count=len(all_metric_rows),
+        prediction_row_count=len(all_prediction_rows),
+        dry_run=False,
     )
     print(f"[cap-probe] wrote {len(all_metric_rows)} metric rows to {out_dir / 'capability_probe_metrics.csv'}")
 
