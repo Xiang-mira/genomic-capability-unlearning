@@ -1,0 +1,16 @@
+{
+  "attempted_replicates": 15778,
+  "bootstrap_unit": "phage_id",
+  "ci95_high": 0.07179410645613148,
+  "ci95_low": -0.11306635154120383,
+  "invalid_reason": "bootstrap sample missing at least one host class",
+  "invalid_replicates": 5778,
+  "mean_delta_saprot_minus_blast": -0.018094981669482122,
+  "median_delta_saprot_minus_blast": -0.0169579959492637,
+  "observed_delta_saprot_minus_blast": -0.020447997983062516,
+  "p_delta_gt_0": 0.3594,
+  "p_delta_lt_0": 0.6406,
+  "requested_valid_replicates": 10000,
+  "status": "complete",
+  "valid_replicates": 10000
+}

@@ -1,0 +1,96 @@
+{
+  "correct_vs_incorrect_hit_stats": {
+    "correct": {
+      "bitscore": {
+        "mean": 199.25901639344264,
+        "median": 167.0
+      },
+      "n": 183,
+      "pident": {
+        "mean": 46.35824590163935,
+        "median": 42.612
+      },
+      "query_coverage": {
+        "mean": 63.404371584699454,
+        "median": 65.0
+      }
+    },
+    "incorrect": {
+      "bitscore": {
+        "mean": 71.16212121212122,
+        "median": 57.4
+      },
+      "n": 134,
+      "pident": {
+        "mean": 35.77258333333333,
+        "median": 31.008
+      },
+      "query_coverage": {
+        "mean": 38.09090909090909,
+        "median": 40.0
+      }
+    }
+  },
+  "per_host_hit_summary": {
+    "acinetobacter": {
+      "accuracy": 0.46540880503144655,
+      "hit_rate": 0.9937106918238994,
+      "queries": 159
+    },
+    "enterobacter": {
+      "accuracy": 0.0,
+      "hit_rate": 0.0,
+      "queries": 1
+    },
+    "enterococcus": {
+      "accuracy": 1.0,
+      "hit_rate": 1.0,
+      "queries": 14
+    },
+    "escherichia": {
+      "accuracy": 0.75,
+      "hit_rate": 1.0,
+      "queries": 12
+    },
+    "klebsiella": {
+      "accuracy": 1.0,
+      "hit_rate": 1.0,
+      "queries": 6
+    },
+    "pseudomonas": {
+      "accuracy": 0.6239316239316239,
+      "hit_rate": 1.0,
+      "queries": 117
+    },
+    "staphylococcus": {
+      "accuracy": 0.875,
+      "hit_rate": 1.0,
+      "queries": 8
+    }
+  },
+  "test": {
+    "blast_tsv": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification/external_baselines/blastp/test.tsv",
+    "blast_tsv_sha256": "186f0d26c7aaca803d3a33d8de8f3a8aca7a01d92550807e771bd3788f25c91a",
+    "fallback_host": "escherichia",
+    "fallback_predictions": 2,
+    "note": "Official frozen BLAST outfmt has qseqid/sseqid/pident/qcovs/evalue/bitscore only; alignment length and subject coverage are unavailable.",
+    "queries": 317,
+    "queries_with_hit": 315
+  },
+  "test_accuracy": 0.5772870662460567,
+  "test_hit_rate": 0.9936908517350158,
+  "test_queries": 317,
+  "unavailable_fields": [
+    "alignment_length",
+    "subject_coverage"
+  ],
+  "validation": {
+    "blast_tsv": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification/external_baselines/blastp/validation.tsv",
+    "blast_tsv_sha256": "5cf2819305798413618f9c75b6986127c3bae638877fbefff2c883f0ad97932e",
+    "fallback_host": "escherichia",
+    "fallback_predictions": 1,
+    "note": "Official frozen BLAST outfmt has qseqid/sseqid/pident/qcovs/evalue/bitscore only; alignment length and subject coverage are unavailable.",
+    "queries": 92,
+    "queries_with_hit": 91
+  }
+}

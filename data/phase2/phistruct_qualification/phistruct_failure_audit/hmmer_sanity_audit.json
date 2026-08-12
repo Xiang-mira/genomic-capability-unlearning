@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "test": {
+    "fallback_host": "escherichia",
+    "fallback_predictions": 316,
+    "hit_queries": 1,
+    "prediction_class_distribution": {
+      "enterobacter": 1,
+      "escherichia": 316
+    },
+    "profile_count": 7,
+    "queries": 317,
+    "split": "test",
+    "status": "pass",
+    "tblout_count": 7
+  },
+  "test_metrics": {
+    "balanced_accuracy": 0.14285714285714285,
+    "macro_f1": 0.010452961672473867,
+    "weighted_f1": 0.002769869969993075
+  },
+  "validation": {
+    "fallback_host": "escherichia",
+    "fallback_predictions": 78,
+    "hit_queries": 14,
+    "prediction_class_distribution": {
+      "enterobacter": 1,
+      "enterococcus": 2,
+      "escherichia": 82,
+      "klebsiella": 5,
+      "staphylococcus": 2
+    },
+    "profile_count": 7,
+    "queries": 92,
+    "split": "validation",
+    "status": "pass",
+    "tblout_count": 7
+  }
+}

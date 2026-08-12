@@ -1,0 +1,8 @@
+model,host_genus,precision,recall,f1,support,tp,fp,fn
+BLASTp_nearest_host,acinetobacter,0.9487179487179487,0.46540880503144655,0.6244725738396625,159,74,4,85
+BLASTp_nearest_host,enterobacter,0.0,0.0,0.0,1,0,8,1
+BLASTp_nearest_host,enterococcus,0.875,1.0,0.9333333333333333,14,14,2,0
+BLASTp_nearest_host,escherichia,0.21428571428571427,0.75,0.3333333333333333,12,9,33,3
+BLASTp_nearest_host,klebsiella,0.15789473684210525,1.0,0.2727272727272727,6,6,32,0
+BLASTp_nearest_host,pseudomonas,0.6239316239316239,0.6239316239316239,0.6239316239316239,117,73,44,44
+BLASTp_nearest_host,staphylococcus,0.3888888888888889,0.875,0.5384615384615384,8,7,11,1

@@ -1,0 +1,18 @@
+{
+  "audit_root": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification/phistruct_failure_audit",
+  "blockers": [
+    "official viral protein/proteome FASTA assets are not present in the EvoMIL checkout",
+    "official/precomputed ESM-1b protein embedding assets are not present in the EvoMIL checkout",
+    "strict EvoMIL dataset adapter, proteome-cluster split, leakage audit, smoke test, and mandatory baselines are not yet implemented in this project"
+  ],
+  "elapsed_sec": 177.18416714668274,
+  "evomil_root": "/home/teacher1/UT-project1/project1/data/phase2/evomil_qualification",
+  "formal_evomil_started": false,
+  "log_file": "/home/teacher1/UT-project1/project1/logs/phistruct_failure_audit_evomil_controller.log",
+  "phistruct_final_status": "PHISTRUCT_FAILURE_NOT_STATISTICALLY_RESOLVED",
+  "phistruct_root": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification",
+  "stage": "workflow_blocked_before_formal_evomil",
+  "status": "blocked",
+  "updated_at": "2026-08-12T11:32:33.006505+00:00",
+  "warnings": []
+}

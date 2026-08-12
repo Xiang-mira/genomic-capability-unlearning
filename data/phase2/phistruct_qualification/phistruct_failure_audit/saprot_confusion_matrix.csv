@@ -1,0 +1,8 @@
+model,true_host,pred_acinetobacter,pred_enterobacter,pred_enterococcus,pred_escherichia,pred_klebsiella,pred_pseudomonas,pred_staphylococcus
+SaProt,acinetobacter,89,8,2,31,16,12,1
+SaProt,enterobacter,0,1,0,0,0,0,0
+SaProt,enterococcus,0,0,14,0,0,0,0
+SaProt,escherichia,3,1,0,3,4,1,0
+SaProt,klebsiella,0,2,1,0,2,1,0
+SaProt,pseudomonas,12,14,0,4,15,72,0
+SaProt,staphylococcus,0,0,0,2,2,0,4

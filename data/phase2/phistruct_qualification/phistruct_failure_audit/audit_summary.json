@@ -1,0 +1,378 @@
+{
+  "blastp": {
+    "hit_summary": {
+      "correct_vs_incorrect_hit_stats": {
+        "correct": {
+          "bitscore": {
+            "mean": 199.25901639344264,
+            "median": 167.0
+          },
+          "n": 183,
+          "pident": {
+            "mean": 46.35824590163935,
+            "median": 42.612
+          },
+          "query_coverage": {
+            "mean": 63.404371584699454,
+            "median": 65.0
+          }
+        },
+        "incorrect": {
+          "bitscore": {
+            "mean": 71.16212121212122,
+            "median": 57.4
+          },
+          "n": 134,
+          "pident": {
+            "mean": 35.77258333333333,
+            "median": 31.008
+          },
+          "query_coverage": {
+            "mean": 38.09090909090909,
+            "median": 40.0
+          }
+        }
+      },
+      "per_host_hit_summary": {
+        "acinetobacter": {
+          "accuracy": 0.46540880503144655,
+          "hit_rate": 0.9937106918238994,
+          "queries": 159
+        },
+        "enterobacter": {
+          "accuracy": 0.0,
+          "hit_rate": 0.0,
+          "queries": 1
+        },
+        "enterococcus": {
+          "accuracy": 1.0,
+          "hit_rate": 1.0,
+          "queries": 14
+        },
+        "escherichia": {
+          "accuracy": 0.75,
+          "hit_rate": 1.0,
+          "queries": 12
+        },
+        "klebsiella": {
+          "accuracy": 1.0,
+          "hit_rate": 1.0,
+          "queries": 6
+        },
+        "pseudomonas": {
+          "accuracy": 0.6239316239316239,
+          "hit_rate": 1.0,
+          "queries": 117
+        },
+        "staphylococcus": {
+          "accuracy": 0.875,
+          "hit_rate": 1.0,
+          "queries": 8
+        }
+      },
+      "test": {
+        "blast_tsv": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification/external_baselines/blastp/test.tsv",
+        "blast_tsv_sha256": "186f0d26c7aaca803d3a33d8de8f3a8aca7a01d92550807e771bd3788f25c91a",
+        "fallback_host": "escherichia",
+        "fallback_predictions": 2,
+        "note": "Official frozen BLAST outfmt has qseqid/sseqid/pident/qcovs/evalue/bitscore only; alignment length and subject coverage are unavailable.",
+        "queries": 317,
+        "queries_with_hit": 315
+      },
+      "test_accuracy": 0.5772870662460567,
+      "test_hit_rate": 0.9936908517350158,
+      "test_queries": 317,
+      "unavailable_fields": [
+        "alignment_length",
+        "subject_coverage"
+      ],
+      "validation": {
+        "blast_tsv": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification/external_baselines/blastp/validation.tsv",
+        "blast_tsv_sha256": "5cf2819305798413618f9c75b6986127c3bae638877fbefff2c883f0ad97932e",
+        "fallback_host": "escherichia",
+        "fallback_predictions": 1,
+        "note": "Official frozen BLAST outfmt has qseqid/sseqid/pident/qcovs/evalue/bitscore only; alignment length and subject coverage are unavailable.",
+        "queries": 92,
+        "queries_with_hit": 91
+      }
+    },
+    "test": {
+      "balanced_accuracy": 0.6734772041375815,
+      "macro_f1": 0.4751799536609663,
+      "weighted_f1": 0.6160942014234353
+    }
+  },
+  "created_at": "2026-08-12T11:32:11.286411+00:00",
+  "dataset": {
+    "created_at": "2026-08-12T09:30:32.246976+00:00",
+    "dataset_manifest": "data/phase2/phistruct_qualification/dataset_manifest.csv",
+    "host_genus_count": 7,
+    "phage_count": 3350,
+    "rbp_count": 7627,
+    "source": "/home/teacher1/UT-project1/project1/data/external/phistruct/experiments/data/inphared/structure/rbp_saprot_eskapee_training.csv",
+    "status": "valid",
+    "with_embedding": 7627,
+    "with_sequence": 7627,
+    "with_structure": 7627
+  },
+  "decision_rule": {
+    "requires_advantage_not_removed_by_excluding_tiny_classes": true,
+    "requires_blast_better_bootstrap_probability_gte_threshold": true,
+    "requires_observed_saprot_minus_blast_delta_lte_0": true,
+    "saturation_probability_threshold": 0.95
+  },
+  "final_phistruct_status": "PHISTRUCT_FAILURE_NOT_STATISTICALLY_RESOLVED",
+  "hmmer_sanity": {
+    "status": "pass",
+    "test": {
+      "fallback_host": "escherichia",
+      "fallback_predictions": 316,
+      "hit_queries": 1,
+      "prediction_class_distribution": {
+        "enterobacter": 1,
+        "escherichia": 316
+      },
+      "profile_count": 7,
+      "queries": 317,
+      "split": "test",
+      "status": "pass",
+      "tblout_count": 7
+    },
+    "test_metrics": {
+      "balanced_accuracy": 0.14285714285714285,
+      "macro_f1": 0.010452961672473867,
+      "weighted_f1": 0.002769869969993075
+    },
+    "validation": {
+      "fallback_host": "escherichia",
+      "fallback_predictions": 78,
+      "hit_queries": 14,
+      "prediction_class_distribution": {
+        "enterobacter": 1,
+        "enterococcus": 2,
+        "escherichia": 82,
+        "klebsiella": 5,
+        "staphylococcus": 2
+      },
+      "profile_count": 7,
+      "queries": 92,
+      "split": "validation",
+      "status": "pass",
+      "tblout_count": 7
+    }
+  },
+  "host_classes": [
+    "acinetobacter",
+    "enterobacter",
+    "enterococcus",
+    "escherichia",
+    "klebsiella",
+    "pseudomonas",
+    "staphylococcus"
+  ],
+  "is_blast_advantage_driven_only_by_tiny_classes": "NO",
+  "next_action": "attempt official EvoMIL acquisition and qualification gate",
+  "paired_bootstrap": {
+    "attempted_replicates": 15778,
+    "bootstrap_unit": "phage_id",
+    "ci95_high": 0.07179410645613148,
+    "ci95_low": -0.11306635154120383,
+    "invalid_reason": "bootstrap sample missing at least one host class",
+    "invalid_replicates": 5778,
+    "mean_delta_saprot_minus_blast": -0.018094981669482122,
+    "median_delta_saprot_minus_blast": -0.0169579959492637,
+    "observed_delta_saprot_minus_blast": -0.020447997983062516,
+    "p_delta_gt_0": 0.3594,
+    "p_delta_lt_0": 0.6406,
+    "requested_valid_replicates": 10000,
+    "status": "complete",
+    "valid_replicates": 10000
+  },
+  "saprot": {
+    "embedding_path": "/home/teacher1/UT-project1/project1/data/external/phistruct/experiments/data/inphared/structure/rbp_saprot_relaxed_r3.csv",
+    "embedding_sha256": "dec424e697fa5983ac4fedcc9b4f103dec09c05c0dc16eafb679509888442ef2",
+    "model": "SaProt",
+    "n_test": 317,
+    "n_train": 7218,
+    "n_validation": 92,
+    "prediction_reconstruction": "frozen_split_retrained_head_fixed_selected_C_no_retuning",
+    "selected_C": 0.01,
+    "test": {
+      "balanced_accuracy": 0.6083523394844149,
+      "macro_f1": 0.4547319556779038,
+      "weighted_f1": 0.6629889659224862
+    },
+    "validation": {
+      "balanced_accuracy": 0.5529478458049887,
+      "macro_f1": 0.49505091183713856,
+      "weighted_f1": 0.5685110776106347
+    }
+  },
+  "scientific_note": "PHIStruct remains unqualified regardless of whether the failure mechanism is statistically resolved.",
+  "source_phistruct_summary": "/home/teacher1/UT-project1/project1/data/phase2/phistruct_qualification/summary_report.json",
+  "source_phistruct_summary_sha256": "4ba5266c1765176d6da65f7fd39967173fc16dd83bca730237dc4083dbb2b248",
+  "split": {
+    "class_balance": {
+      "test": {
+        "acinetobacter": 159,
+        "enterobacter": 1,
+        "enterococcus": 14,
+        "escherichia": 12,
+        "klebsiella": 6,
+        "pseudomonas": 117,
+        "staphylococcus": 8
+      },
+      "train": {
+        "acinetobacter": 190,
+        "enterobacter": 386,
+        "enterococcus": 149,
+        "escherichia": 3424,
+        "klebsiella": 1520,
+        "pseudomonas": 1049,
+        "staphylococcus": 500
+      },
+      "validation": {
+        "acinetobacter": 20,
+        "enterobacter": 1,
+        "enterococcus": 7,
+        "escherichia": 28,
+        "klebsiella": 9,
+        "pseudomonas": 14,
+        "staphylococcus": 13
+      }
+    },
+    "created_at": "2026-08-12T09:30:32.814149+00:00",
+    "formal_note": "Formal split requires BLAST-backed <=40% connected components plus phage-group disjointness.",
+    "leakage_error_count": 0,
+    "overlap": {
+      "phage_id": {
+        "train_test": 0,
+        "train_validation": 0,
+        "validation_test": 0
+      },
+      "rbp_id": {
+        "train_test": 0,
+        "train_validation": 0,
+        "validation_test": 0
+      },
+      "sequence": {
+        "train_test": 0,
+        "train_validation": 0,
+        "validation_test": 0
+      },
+      "sequence_cluster_40": {
+        "train_test": 0,
+        "train_validation": 0,
+        "validation_test": 0
+      },
+      "structure_path": {
+        "train_test": 0,
+        "train_validation": 0,
+        "validation_test": 0
+      }
+    },
+    "per_genus": [
+      {
+        "host_genus": "acinetobacter",
+        "test_count": 159,
+        "test_proportion": 0.501577287066246,
+        "train_count": 190,
+        "train_proportion": 0.02632308118592408,
+        "validation_count": 20,
+        "validation_proportion": 0.21739130434782608
+      },
+      {
+        "host_genus": "enterobacter",
+        "test_count": 1,
+        "test_proportion": 0.0031545741324921135,
+        "train_count": 386,
+        "train_proportion": 0.053477417567193125,
+        "validation_count": 1,
+        "validation_proportion": 0.010869565217391304
+      },
+      {
+        "host_genus": "enterococcus",
+        "test_count": 14,
+        "test_proportion": 0.04416403785488959,
+        "train_count": 149,
+        "train_proportion": 0.020642837351066777,
+        "validation_count": 7,
+        "validation_proportion": 0.07608695652173914
+      },
+      {
+        "host_genus": "escherichia",
+        "test_count": 12,
+        "test_proportion": 0.03785488958990536,
+        "train_count": 3424,
+        "train_proportion": 0.4743696314768634,
+        "validation_count": 28,
+        "validation_proportion": 0.30434782608695654
+      },
+      {
+        "host_genus": "klebsiella",
+        "test_count": 6,
+        "test_proportion": 0.01892744479495268,
+        "train_count": 1520,
+        "train_proportion": 0.21058464948739264,
+        "validation_count": 9,
+        "validation_proportion": 0.09782608695652174
+      },
+      {
+        "host_genus": "pseudomonas",
+        "test_count": 117,
+        "test_proportion": 0.36908517350157727,
+        "train_count": 1049,
+        "train_proportion": 0.14533111665281243,
+        "validation_count": 14,
+        "validation_proportion": 0.15217391304347827
+      },
+      {
+        "host_genus": "staphylococcus",
+        "test_count": 8,
+        "test_proportion": 0.025236593059936908,
+        "train_count": 500,
+        "train_proportion": 0.06927126627874758,
+        "validation_count": 13,
+        "validation_proportion": 0.14130434782608695
+      }
+    ],
+    "sample_counts": {
+      "test": 317,
+      "train": 7218,
+      "validation": 92
+    },
+    "sequence_cluster_audit": {
+      "assigned_rbps": 7627,
+      "cluster_count": 1438,
+      "method": "official_cdhit_complete_struct_40",
+      "sha256": "ce7a7f1847dd589abfd3e19e15dd5ed2aa1c6da7571a27d37b0351c0330b4fe8",
+      "source_path": "/home/teacher1/UT-project1/project1/data/external/phistruct/experiments/data/inphared/fasta/fasta/complete-struct-40.fasta.clstr",
+      "threshold_percent_identity": 40
+    },
+    "sequence_cluster_method": "official_cdhit_complete_struct_40",
+    "split_manifest": "data/phase2/phistruct_qualification/split_manifest.csv",
+    "split_seed": 20260812,
+    "status": "pass"
+  },
+  "test_host_distribution": {
+    "acinetobacter": 159,
+    "enterobacter": 1,
+    "enterococcus": 14,
+    "escherichia": 12,
+    "klebsiella": 6,
+    "pseudomonas": 117,
+    "staphylococcus": 8
+  },
+  "tiny_class_sensitivity": {
+    "blast_macro_f1_without_tiny": 0.6383860201650077,
+    "delta_saprot_minus_blast_without_tiny": -0.027633344136948623,
+    "rows_after_excluding_tiny": 302,
+    "saprot_macro_f1_without_tiny": 0.610752676028059,
+    "tiny_class_support_threshold": 10,
+    "tiny_hosts": [
+      "enterobacter",
+      "klebsiella",
+      "staphylococcus"
+    ]
+  }
+}

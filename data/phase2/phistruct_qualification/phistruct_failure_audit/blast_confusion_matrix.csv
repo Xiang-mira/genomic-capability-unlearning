@@ -1,0 +1,8 @@
+model,true_host,pred_acinetobacter,pred_enterobacter,pred_enterococcus,pred_escherichia,pred_klebsiella,pred_pseudomonas,pred_staphylococcus
+BLASTp_nearest_host,acinetobacter,74,4,0,13,20,42,6
+BLASTp_nearest_host,enterobacter,0,0,0,1,0,0,0
+BLASTp_nearest_host,enterococcus,0,0,14,0,0,0,0
+BLASTp_nearest_host,escherichia,0,1,0,9,0,2,0
+BLASTp_nearest_host,klebsiella,0,0,0,0,6,0,0
+BLASTp_nearest_host,pseudomonas,4,3,1,19,12,73,5
+BLASTp_nearest_host,staphylococcus,0,0,1,0,0,0,7

@@ -1,0 +1,49 @@
+{
+  "blockers": [],
+  "code_candidate_count": 16,
+  "code_candidates": [
+    "Models/attention_mc.py",
+    "Models/evaluation.py",
+    "Models/evaluation_mc.py",
+    "Models/mil_pytorch/__init__.py",
+    "Models/mil_pytorch/mil.py",
+    "Models/mil_pytorch/utils/__init__.py",
+    "Models/mil_pytorch/utils/create_bags.py",
+    "Models/mil_pytorch/utils/create_bags_simple.py",
+    "Models/mil_pytorch/utils/data_utils.py",
+    "Models/mil_pytorch/utils/eval_utils.py",
+    "Models/mil_pytorch/utils/train_utils.py",
+    "Models/model.py",
+    "Models/test.py",
+    "Models/test_mc.py",
+    "Models/train.py",
+    "Models/train_mc.py"
+  ],
+  "created_at": "2026-08-12T11:32:33.005586+00:00",
+  "data_candidate_count": 8,
+  "data_candidates": [
+    ".vscode/ltex.dictionary.en-US.txt",
+    "Data/examples/euk_5fold_cv/hostname_count.csv",
+    "Data/examples/euk_5fold_mc/hostname_count.csv",
+    "Data/examples/pro_5fold_cv/hostname_count.csv",
+    "Data/examples/pro_5fold_mc/hostname_count.csv",
+    "Data/examples/virushostdb_latest.tsv",
+    "Results/euk_binary/virus_testset_5fold_best_AUC_epoch150_10.csv",
+    "Results/pro_binary/virus_testset_5fold_best_AUC_epoch150_10.csv"
+  ],
+  "formal_blockers": [
+    "official viral protein/proteome FASTA assets are not present in the EvoMIL checkout",
+    "official/precomputed ESM-1b protein embedding assets are not present in the EvoMIL checkout",
+    "strict EvoMIL dataset adapter, proteome-cluster split, leakage audit, smoke test, and mandatory baselines are not yet implemented in this project"
+  ],
+  "formal_evomil_started": false,
+  "has_embedding_asset": false,
+  "has_protein_fasta": false,
+  "has_vhdb_table": true,
+  "official_repo": "https://github.com/liudan111/EvoMIL",
+  "reason_not_started": "formal EvoMIL requires a non-empty official dataset manifest, strict split, leakage audit, smoke test, and mandatory baselines",
+  "repository_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL",
+  "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
+  "status": "blocked",
+  "warnings": []
+}
