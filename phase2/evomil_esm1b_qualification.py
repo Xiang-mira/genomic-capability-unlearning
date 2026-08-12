@@ -1473,6 +1473,8 @@ def launch_screen(args: argparse.Namespace) -> None:
         str(args.model_download_timeout),
         "--min-host-support",
         str(args.min_host_support),
+        "--min-resolved-host-support",
+        str(args.min_resolved_host_support),
         "--status-interval",
         str(args.status_interval),
         "--blast-timeout",
@@ -1498,6 +1500,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--max-viruses", type=int, default=0)
     parser.add_argument("--min-host-support", type=int, default=20)
+    parser.add_argument("--min-resolved-host-support", type=int, default=20)
     parser.add_argument("--smoke-min-host-support", type=int, default=4)
     parser.add_argument("--ncbi-timeout", type=int, default=60)
     parser.add_argument("--ncbi-retries", type=int, default=4)
