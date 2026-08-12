@@ -358,6 +358,36 @@ def choose_task(args: argparse.Namespace) -> dict[str, Any]:
     return payload
 
 
+def finalize_task_after_reconstruction(args: argparse.Namespace) -> dict[str, Any]:
+    out = Path(args.out_root) / "evomil_task_definition.json"
+    task = read_json(out)
+    seq_path = Path(args.out_root) / "evomil_sequence_manifest.csv"
+    seq = pd.read_csv(seq_path)
+    resolved = seq[seq["accession_status"] == "resolved"].copy()
+    counts = resolved["host_label"].value_counts()
+    included = [host for host in task.get("included_hosts", []) if int(counts.get(host, 0)) >= args.min_resolved_host_support]
+    excluded = {
+        host: int(counts.get(host, 0))
+        for host in task.get("included_hosts", [])
+        if host not in included
+    }
+    if len(included) < 3:
+        raise RuntimeError(f"not enough reconstructed host classes for multiclass EvoMIL: {included}")
+    final_viruses = int(resolved[resolved["host_label"].isin(included)]["virus_id"].nunique())
+    task.update(
+        {
+            "finalized_after_sequence_reconstruction_at": now_utc(),
+            "final_included_hosts": included,
+            "final_virus_count": final_viruses,
+            "min_resolved_host_support": args.min_resolved_host_support,
+            "excluded_after_reconstruction": excluded,
+            "host_support_after_reconstruction": {host: int(counts.get(host, 0)) for host in task.get("included_hosts", [])},
+        }
+    )
+    write_json(out, task)
+    return task
+
+
 def ncbi_fetch(accessions: Sequence[str], rettype: str, retmode: str, timeout: int, retries: int) -> tuple[str, list[dict[str, Any]]]:
     ids = ",".join(accessions)
     query = urllib.parse.urlencode({"db": "nuccore", "id": ids, "rettype": rettype, "retmode": retmode, "tool": "codex_evomil_reconstruction", "email": "teacher1@example.com"})
@@ -542,6 +572,10 @@ def preprocess_proteins(args: argparse.Namespace) -> dict[str, Any]:
     out_root = Path(args.out_root)
     manifest = pd.read_csv(out_root / "evomil_sequence_manifest.csv")
     resolved = manifest[manifest["accession_status"] == "resolved"].copy()
+    task = read_json(out_root / "evomil_task_definition.json")
+    final_hosts = set(task.get("final_included_hosts") or task.get("included_hosts", []))
+    if final_hosts:
+        resolved = resolved[resolved["host_label"].isin(final_hosts)].copy()
     segment_fasta = out_root / "evomil_preprocessed_segments.faa"
     segment_rows = []
     n_j = n_modified = n_long = n_segmented = n_dropped = 0
@@ -782,6 +816,10 @@ def make_cluster_manifest(args: argparse.Namespace) -> dict[str, Any]:
     out_root = Path(args.out_root)
     seq_df = pd.read_csv(out_root / "evomil_sequence_manifest.csv")
     seq_df = seq_df[seq_df["accession_status"] == "resolved"].copy()
+    task = read_json(out_root / "evomil_task_definition.json")
+    final_hosts = set(task.get("final_included_hosts") or task.get("included_hosts", []))
+    if final_hosts:
+        seq_df = seq_df[seq_df["host_label"].isin(final_hosts)].copy()
     protein_sets = {}
     genome_hashes = {}
     for row in seq_df.itertuples():
@@ -835,32 +873,33 @@ def split_clusters(args: argparse.Namespace) -> dict[str, Any]:
     out_root = Path(args.out_root)
     clusters = pd.read_csv(out_root / "evomil_cluster_manifest.csv")
     rng = random.Random(args.split_seed)
-    cluster_rows = []
+    cluster_rows_by_host: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for cluster, group in clusters.groupby("proteome_cluster"):
         counts = Counter(group["host_label"].astype(str))
         majority = counts.most_common(1)[0][0]
-        cluster_rows.append({"cluster": cluster, "n": len(group), "majority": majority, "hosts": counts})
-    rng.shuffle(cluster_rows)
-    host_totals = Counter(clusters["host_label"].astype(str))
-    target = {"test": 0.15, "validation": 0.15, "train": 0.70}
-    split_counts = {s: Counter() for s in target}
-    split_n = {s: 0 for s in target}
+        cluster_rows_by_host[majority].append({"cluster": cluster, "n": len(group), "majority": majority, "hosts": counts})
     assignment = {}
-    for item in sorted(cluster_rows, key=lambda x: x["n"], reverse=True):
-        best_split = "train"
-        best_score = float("inf")
-        for split in ["test", "validation", "train"]:
-            score = 0.0
-            for host, total in host_totals.items():
-                desired = total * target[split]
-                score += abs((split_counts[split][host] + item["hosts"].get(host, 0)) - desired)
-            score += abs((split_n[split] + item["n"]) - len(clusters) * target[split])
-            if score < best_score:
-                best_score = score
-                best_split = split
-        assignment[item["cluster"]] = best_split
-        split_n[best_split] += item["n"]
-        split_counts[best_split].update(item["hosts"])
+    for host, items in cluster_rows_by_host.items():
+        rng.shuffle(items)
+        items = sorted(items, key=lambda item: stable_hash(f"{args.split_seed}:{host}:{item['cluster']}"))
+        n = len(items)
+        if n >= 3:
+            n_test = max(1, round(n * 0.15))
+            n_val = max(1, round(n * 0.15))
+        elif n == 2:
+            n_test = 1
+            n_val = 0
+        else:
+            n_test = 0
+            n_val = 0
+        for idx, item in enumerate(items):
+            if idx < n_test:
+                split_name = "test"
+            elif idx < n_test + n_val:
+                split_name = "validation"
+            else:
+                split_name = "train"
+            assignment[item["cluster"]] = split_name
     rows = []
     for row in clusters.itertuples():
         rows.append(
@@ -893,6 +932,16 @@ def leakage_audit(args: argparse.Namespace) -> dict[str, Any]:
     path_label_leaks = int(split["virus_id"].astype(str).str.contains("|".join(re.escape(x) for x in split["host_label"].unique()), case=False, regex=True).sum()) if len(split) else 0
     if path_label_leaks:
         problems.append({"field": "host_label_in_virus_id", "overlap_count": path_label_leaks})
+    required_splits = {"train", "validation", "test"}
+    observed_splits = set(split["split"].astype(str))
+    missing_splits = sorted(required_splits - observed_splits)
+    if missing_splits:
+        problems.append({"field": "required_splits", "missing": missing_splits})
+    for host, group in split.groupby("host_label"):
+        host_splits = set(group["split"].astype(str))
+        missing = sorted(required_splits - host_splits)
+        if missing:
+            problems.append({"field": "host_split_coverage", "host_label": host, "missing": missing, "support": int(len(group))})
     payload = {
         "created_at": now_utc(),
         "status": "pass" if not problems else "fail",
@@ -946,8 +995,12 @@ def run_simple_baselines(args: argparse.Namespace) -> dict[str, Any]:
     test = data["split"] == "test"
     y = data["host_label"].astype(str).to_numpy()
     rows = []
+    pred_rows = []
     majority = Counter(y[train]).most_common(1)[0][0]
-    rows.append(metric_row("majority_class", "host_prior", {}, y[test], [majority] * int(test.sum()), labels, 0.0))
+    majority_pred = [majority] * int(test.sum())
+    rows.append(metric_row("majority_class", "host_prior", {}, y[test], majority_pred, labels, 0.0))
+    for virus_id, true, pred in zip(data.loc[test, "virus_id"].astype(str), y[test], majority_pred):
+        pred_rows.append({"model": "majority_class", "representation": "host_prior", "virus_id": virus_id, "true_host": true, "predicted_host": pred})
     x = composition_features(data)
     best = None
     for c in [0.01, 0.1, 1.0, 10.0]:
@@ -958,12 +1011,19 @@ def run_simple_baselines(args: argparse.Namespace) -> dict[str, Any]:
         if best is None or val_f1 > best[0]:
             best = (val_f1, c, clf, time.time() - started)
     assert best is not None
-    rows.append(metric_row("logistic_regression", "proteome_length_aa_composition", {"C": best[1]}, y[test], best[2].predict(x[test]), labels, best[3]))
+    lr_pred = best[2].predict(x[test])
+    rows.append(metric_row("logistic_regression", "proteome_length_aa_composition", {"C": best[1]}, y[test], lr_pred, labels, best[3]))
+    for virus_id, true, pred in zip(data.loc[test, "virus_id"].astype(str), y[test], lr_pred):
+        pred_rows.append({"model": "logistic_regression", "representation": "proteome_length_aa_composition", "virus_id": virus_id, "true_host": true, "predicted_host": pred})
     rf = RandomForestClassifier(n_estimators=300, class_weight="balanced_subsample", random_state=args.split_seed, n_jobs=args.n_jobs)
     started = time.time()
     rf.fit(x[train], y[train])
-    rows.append(metric_row("random_forest", "proteome_length_aa_composition", {"n_estimators": 300}, y[test], rf.predict(x[test]), labels, time.time() - started))
+    rf_pred = rf.predict(x[test])
+    rows.append(metric_row("random_forest", "proteome_length_aa_composition", {"n_estimators": 300}, y[test], rf_pred, labels, time.time() - started))
+    for virus_id, true, pred in zip(data.loc[test, "virus_id"].astype(str), y[test], rf_pred):
+        pred_rows.append({"model": "random_forest", "representation": "proteome_length_aa_composition", "virus_id": virus_id, "true_host": true, "predicted_host": pred})
     write_csv(Path(args.out_root) / "evomil_simple_baselines.csv", rows, ["model", "representation", "hyperparameters", "test_macro_f1", "test_weighted_f1", "test_balanced_accuracy", "runtime"])
+    write_csv(Path(args.out_root) / "evomil_simple_baseline_predictions.csv", pred_rows, ["model", "representation", "virus_id", "true_host", "predicted_host"])
     return {"status": "complete", "rows": len(rows)}
 
 
@@ -987,6 +1047,7 @@ def run_kmer_baselines(args: argparse.Namespace) -> dict[str, Any]:
     test = data["split"] == "test"
     y = data["host_label"].astype(str).to_numpy()
     rows = []
+    pred_rows = []
     specs = [("aa", [1, 2, 3, 4]), ("dna", [3, 4, 5, 6, 7, 8]), ("pc", [3])]
     for kind, ks in specs:
         texts = virus_texts(data, kind)
@@ -1000,8 +1061,13 @@ def run_kmer_baselines(args: argparse.Namespace) -> dict[str, Any]:
                 if best is None or val_f1 > best[0]:
                     best = (val_f1, c, clf, time.time() - started)
             assert best is not None
-            rows.append(metric_row("logistic_regression", f"{kind}_{k}mer_tfidf", {"C": best[1], "k": k}, y[test], best[2].predict(np.array(texts)[test]), labels, best[3]))
+            representation = f"{kind}_{k}mer_tfidf"
+            pred = best[2].predict(np.array(texts)[test])
+            rows.append(metric_row("logistic_regression", representation, {"C": best[1], "k": k}, y[test], pred, labels, best[3]))
+            for virus_id, true, pred_label in zip(data.loc[test, "virus_id"].astype(str), y[test], pred):
+                pred_rows.append({"model": "logistic_regression", "representation": representation, "virus_id": virus_id, "true_host": true, "predicted_host": pred_label})
     write_csv(Path(args.out_root) / "evomil_kmer_baselines.csv", rows, ["model", "representation", "hyperparameters", "test_macro_f1", "test_weighted_f1", "test_balanced_accuracy", "runtime"])
+    write_csv(Path(args.out_root) / "evomil_kmer_baseline_predictions.csv", pred_rows, ["model", "representation", "virus_id", "true_host", "predicted_host"])
     return {"status": "complete", "rows": len(rows)}
 
 
@@ -1017,6 +1083,8 @@ def run_taxonomy_baseline(args: argparse.Namespace) -> dict[str, Any]:
     preds = [family_to_host.get(str(row.virus_family), majority) for row in test.itertuples()]
     rows = [metric_row("train_family_majority", "virus_taxonomy_family_only", {"fallback": majority}, test["host_label"].astype(str), preds, labels, 0.0)]
     write_csv(Path(args.out_root) / "evomil_taxonomy_baseline.csv", rows, ["model", "representation", "hyperparameters", "test_macro_f1", "test_weighted_f1", "test_balanced_accuracy", "runtime"])
+    pred_rows = [{"model": "train_family_majority", "representation": "virus_taxonomy_family_only", "virus_id": virus_id, "true_host": true, "predicted_host": pred} for virus_id, true, pred in zip(test["virus_id"].astype(str), test["host_label"].astype(str), preds)]
+    write_csv(Path(args.out_root) / "evomil_taxonomy_baseline_predictions.csv", pred_rows, ["model", "representation", "virus_id", "true_host", "predicted_host"])
     return {"status": "complete", "rows": len(rows)}
 
 
@@ -1064,6 +1132,8 @@ def run_homology_baseline(args: argparse.Namespace) -> dict[str, Any]:
         preds.append(counter.most_common(1)[0][0] if counter else train_majority)
     rows = [metric_row("blastp_protein_host_vote", "protein_homology_bitscore_sum", {"max_targets": args.blast_max_targets, "fallback": train_majority}, test["host_label"].astype(str), preds, labels, time.time() - started)]
     write_csv(out_root / "evomil_homology_baselines.csv", rows, ["model", "representation", "hyperparameters", "test_macro_f1", "test_weighted_f1", "test_balanced_accuracy", "runtime"])
+    pred_rows = [{"model": "blastp_protein_host_vote", "representation": "protein_homology_bitscore_sum", "virus_id": virus_id, "true_host": true, "predicted_host": pred} for virus_id, true, pred in zip(test["virus_id"].astype(str), test["host_label"].astype(str), preds)]
+    write_csv(out_root / "evomil_homology_baseline_predictions.csv", pred_rows, ["model", "representation", "virus_id", "true_host", "predicted_host"])
     write_json(out_root / "evomil_homology_hit_summary.json", {"hit_records": len(hit_stats), "query_viruses_with_hits": len(score_by_virus_host), "test_viruses": int(len(test)), "hit_rate": len(score_by_virus_host) / len(test) if len(test) else 0.0})
     return {"status": "complete", "rows": len(rows)}
 
@@ -1171,25 +1241,27 @@ def predict_mil(model, frame: pd.DataFrame, arrays: Mapping[str, np.ndarray], en
 
 
 def collect_baseline_predictions(args: argparse.Namespace) -> tuple[pd.DataFrame, str, float]:
-    # Refit strongest non-foundation model on frozen split for paired bootstrap.
     out_root = Path(args.out_root)
-    data = load_split_data(args)
-    labels = sorted(data["host_label"].astype(str).unique())
-    test = data["split"] == "test"
-    y = data["host_label"].astype(str).to_numpy()
     candidates = []
-    for path in ["evomil_simple_baselines.csv", "evomil_kmer_baselines.csv", "evomil_homology_baselines.csv", "evomil_taxonomy_baseline.csv"]:
+    prediction_paths = {
+        "evomil_simple_baselines.csv": "evomil_simple_baseline_predictions.csv",
+        "evomil_kmer_baselines.csv": "evomil_kmer_baseline_predictions.csv",
+        "evomil_homology_baselines.csv": "evomil_homology_baseline_predictions.csv",
+        "evomil_taxonomy_baseline.csv": "evomil_taxonomy_baseline_predictions.csv",
+    }
+    for path, pred_path in prediction_paths.items():
         p = out_root / path
         if p.exists():
             for row in csv.DictReader(p.open()):
                 try:
-                    candidates.append((float(row["test_macro_f1"]), row["model"], row["representation"]))
+                    candidates.append((float(row["test_macro_f1"]), row["model"], row["representation"], out_root / pred_path))
                 except Exception:
                     pass
-    strongest = max(candidates, default=(0.0, "majority_class", "host_prior"))
-    majority = data[data["split"] == "train"]["host_label"].value_counts().idxmax()
-    pred = [majority] * int(test.sum())
-    return pd.DataFrame({"virus_id": data.loc[test, "virus_id"].astype(str), "true_host": y[test], "baseline_pred": pred}), f"{strongest[1]}:{strongest[2]}", strongest[0]
+    strongest = max(candidates, default=(0.0, "majority_class", "host_prior", out_root / "evomil_simple_baseline_predictions.csv"))
+    pred_df = pd.read_csv(strongest[3])
+    pred_df = pred_df[(pred_df["model"] == strongest[1]) & (pred_df["representation"] == strongest[2])].copy()
+    pred_df = pred_df.rename(columns={"predicted_host": "baseline_pred"})
+    return pred_df[["virus_id", "true_host", "baseline_pred"]], f"{strongest[1]}:{strongest[2]}", strongest[0]
 
 
 def bootstrap_and_summarize(args: argparse.Namespace) -> dict[str, Any]:
@@ -1336,6 +1408,7 @@ def execute(args: argparse.Namespace) -> None:
         choose_task(args)
         update_status(args, "running", "sequence_acquisition")
         acquire_sequences(args)
+        finalize_task_after_reconstruction(args)
         preprocess_proteins(args)
         sanity_report(args)
         make_cluster_manifest(args)
