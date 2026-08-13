@@ -1,4 +1,6 @@
 {
+  "blocked_at": "2026-08-12T14:30:46.813235+00:00",
+  "blocker": "'virus_family'",
   "blockers": [],
   "code_candidate_count": 16,
   "code_candidates": [
@@ -19,7 +21,9 @@
     "Models/train.py",
     "Models/train_mc.py"
   ],
+  "completed_at": "2026-08-12T16:19:06.461579+00:00",
   "created_at": "2026-08-12T11:32:33.005586+00:00",
+  "current_stage": "complete",
   "data_candidate_count": 8,
   "data_candidates": [
     ".vscode/ltex.dictionary.en-US.txt",
@@ -31,6 +35,7 @@
     "Results/euk_binary/virus_testset_5fold_best_AUC_epoch150_10.csv",
     "Results/pro_binary/virus_testset_5fold_best_AUC_epoch150_10.csv"
   ],
+  "final_status": "NO_QUALIFYING_HEADROOM",
   "formal_blockers": [
     "official viral protein/proteome FASTA assets are not present in the EvoMIL checkout",
     "official/precomputed ESM-1b protein embedding assets are not present in the EvoMIL checkout",
@@ -44,6 +49,6 @@
   "reason_not_started": "formal EvoMIL requires a non-empty official dataset manifest, strict split, leakage audit, smoke test, and mandatory baselines",
   "repository_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL",
   "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-  "status": "blocked",
+  "status": "complete",
   "warnings": []
 }

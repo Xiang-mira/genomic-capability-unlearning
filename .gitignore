@@ -12,3 +12,11 @@ node_modules/
 # Local secrets/config
 .env
 .env.*
+
+# Local benchmark runtimes and active screen/download logs
+/tools/vpf_local/
+/logs/*.screen.log
+/logs/vpf_plm_qualification*.log
+/logs/evomil_esm1b_qualification*.log
+/logs/phistruct_failure_audit_evomil_controller*.log
+/logs/phistruct_qualification_preflight*.log

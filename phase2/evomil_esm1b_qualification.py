@@ -37,6 +37,8 @@ from sklearn.metrics import balanced_accuracy_score, f1_score, precision_recall_
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
+from phase2.signed_bootstrap import paired_grouped_prediction_bootstrap
+
 try:
     import torch
     import torch.nn as nn
@@ -174,6 +176,41 @@ def stage_done(path: Path, validator: str = "json") -> bool:
     if validator == "csv":
         return valid_csv(path)
     return path.exists()
+
+
+def resume_ready_json(path: Path) -> bool:
+    return valid_json(path)
+
+
+def resume_ready_csv(path: Path, min_rows: int = 1) -> bool:
+    return valid_csv(path, min_rows=min_rows)
+
+
+def resume_ready_exists(path: Path) -> bool:
+    return path.exists()
+
+
+def run_stage_with_resume(
+    args: argparse.Namespace,
+    stage: str,
+    fn,
+    ready,
+    *,
+    formal_experiment_started: bool = False,
+) -> Any:
+    if args.resume and ready():
+        update_status(
+            args,
+            "running",
+            stage,
+            resumed=True,
+            skipped=True,
+            formal_experiment_started=formal_experiment_started,
+        )
+        log(args, f"resume skip {stage}")
+        return {"status": "skipped", "stage": stage}
+    update_status(args, "running", stage, formal_experiment_started=formal_experiment_started)
+    return fn(args)
 
 
 def ensure_repo(args: argparse.Namespace) -> Path:
@@ -961,7 +998,37 @@ def load_split_data(args: argparse.Namespace) -> pd.DataFrame:
     out_root = Path(args.out_root)
     split = pd.read_csv(out_root / "evomil_split_manifest.csv")
     seq = pd.read_csv(out_root / "evomil_sequence_manifest.csv")
-    return split.merge(seq, on=["virus_id", "host_label"], how="left")
+    split["virus_id"] = split["virus_id"].astype(str)
+    seq["virus_id"] = seq["virus_id"].astype(str)
+    merged = split.merge(seq, on=["virus_id", "host_label"], how="left", suffixes=("_split", "_seq"))
+
+    # Resume runs may reload manifests produced before a schema tweak. Coalesce
+    # merge-suffixed duplicates back to their canonical names so downstream code
+    # sees a stable dataframe contract.
+    suffixes = ("_split", "_seq", "_x", "_y")
+    grouped: dict[str, list[str]] = defaultdict(list)
+    for col in merged.columns:
+        for suffix in suffixes:
+            if col.endswith(suffix):
+                grouped[col[: -len(suffix)]].append(col)
+                break
+    for base, cols in grouped.items():
+        ordered = [name for name in [base, f"{base}_split", f"{base}_x", f"{base}_seq", f"{base}_y"] if name in merged.columns]
+        if not ordered:
+            continue
+        merged[base] = merged[ordered].bfill(axis=1).iloc[:, 0]
+        drop_cols = [name for name in ordered if name != base]
+        if drop_cols:
+            merged = merged.drop(columns=drop_cols)
+
+    if "virus_family" not in merged.columns and "virus_taxonomy" in merged.columns:
+        merged["virus_family"] = merged["virus_taxonomy"].map(virus_family)
+
+    required = ["virus_id", "host_label", "split", "genome_fasta_path", "protein_faa_path", "virus_family"]
+    missing = [col for col in required if col not in merged.columns]
+    if missing:
+        raise RuntimeError(f"split/sequence merge missing required columns after reconciliation: {missing}")
+    return merged
 
 
 def metric_row(model: str, representation: str, params: Mapping[str, Any], y_true: Sequence[str], y_pred: Sequence[str], labels: Sequence[str], runtime: float) -> dict[str, Any]:
@@ -1274,41 +1341,31 @@ def bootstrap_and_summarize(args: argparse.Namespace) -> dict[str, Any]:
     split = pd.read_csv(out_root / "evomil_split_manifest.csv")
     joined = model_best.merge(baseline, on=["virus_id", "true_host"], how="inner").merge(split[["virus_id", "proteome_cluster"]], on="virus_id", how="left")
     labels = sorted(joined["true_host"].unique())
-    observed = f1_score(joined["true_host"], joined["predicted_host"], labels=labels, average="macro", zero_division=0) - baseline_score
-    groups = sorted(joined["proteome_cluster"].astype(str).unique())
-    by_group = {g: joined[joined["proteome_cluster"].astype(str) == g] for g in groups}
-    rng = np.random.default_rng(args.bootstrap_seed)
-    samples = []
-    invalid = 0
-    attempts = 0
-    while len(samples) < args.n_bootstrap and attempts < args.n_bootstrap * 20:
-        attempts += 1
-        chosen = rng.choice(groups, size=len(groups), replace=True)
-        sample = pd.concat([by_group[g] for g in chosen], ignore_index=True)
-        if set(labels) - set(sample["true_host"]):
-            invalid += 1
-            continue
-        model_f1 = f1_score(sample["true_host"], sample["predicted_host"], labels=labels, average="macro", zero_division=0)
-        base_f1 = f1_score(sample["true_host"], sample["baseline_pred"], labels=labels, average="macro", zero_division=0)
-        samples.append({"replicate": len(samples) + 1, "model_macro_f1": model_f1, "baseline_macro_f1": base_f1, "delta_model_minus_baseline": model_f1 - base_f1})
+    samples, summary = paired_grouped_prediction_bootstrap(
+        joined,
+        group_col="proteome_cluster",
+        true_col="true_host",
+        model_pred_col="predicted_host",
+        baseline_pred_col="baseline_pred",
+        labels=labels,
+        scorer=lambda y_true, y_pred, lab: f1_score(y_true, y_pred, labels=list(lab), average="macro", zero_division=0),
+        n_valid=args.n_bootstrap,
+        max_attempts=args.n_bootstrap * 20,
+        seed=args.bootstrap_seed,
+        model_score_key="model_macro_f1",
+        baseline_score_key="baseline_macro_f1",
+        delta_key="delta_model_minus_baseline",
+        bootstrap_unit="proteome_cluster",
+        invalid_reason="bootstrap sample missing at least one host class",
+    )
     write_csv(out_root / "evomil_bootstrap_samples.csv", samples, ["replicate", "model_macro_f1", "baseline_macro_f1", "delta_model_minus_baseline"])
-    deltas = np.array([row["delta_model_minus_baseline"] for row in samples], dtype=float)
-    summary = {
-        "status": "complete" if len(samples) == args.n_bootstrap else "partial",
-        "strongest_nonfoundation_baseline": baseline_name,
-        "strongest_nonfoundation_test_macro_f1": baseline_score,
-        "best_model_seed": best_seed,
-        "observed_delta": observed,
-        "valid_bootstrap_replicates": len(samples),
-        "invalid_bootstrap_replicates": invalid,
-        "attempted_bootstrap_replicates": attempts,
-        "mean_delta": float(np.mean(deltas)) if len(deltas) else None,
-        "median_delta": float(np.median(deltas)) if len(deltas) else None,
-        "ci95_low": float(np.quantile(deltas, 0.025)) if len(deltas) else None,
-        "ci95_high": float(np.quantile(deltas, 0.975)) if len(deltas) else None,
-        "p_delta_gt_0": float(np.mean(deltas > 0)) if len(deltas) else None,
-        "p_delta_lt_0": float(np.mean(deltas < 0)) if len(deltas) else None,
-    }
+    summary.update(
+        {
+            "strongest_nonfoundation_baseline": baseline_name,
+            "strongest_nonfoundation_test_macro_f1": baseline_score,
+            "best_model_seed": best_seed,
+        }
+    )
     write_json(out_root / "evomil_bootstrap_summary.json", summary)
     return summary
 
@@ -1400,36 +1457,161 @@ def final_summary(args: argparse.Namespace) -> dict[str, Any]:
 def execute(args: argparse.Namespace) -> None:
     Path(args.out_root).mkdir(parents=True, exist_ok=True)
     registry = read_json(registry_path(args)) or {"created_at": now_utc(), "status": "running", "events": []}
+    out_root = Path(args.out_root)
     try:
         write_json(registry_path(args), registry | {"status": "running", "current_stage": "start"})
-        update_status(args, "running", "association_audit")
         log(args, "starting EvoMIL / ESM-1b strict qualification controller")
-        association_audit(args)
-        choose_task(args)
-        update_status(args, "running", "sequence_acquisition")
-        acquire_sequences(args)
-        finalize_task_after_reconstruction(args)
-        preprocess_proteins(args)
-        sanity_report(args)
-        make_cluster_manifest(args)
-        split_clusters(args)
-        smoke_test(args)
-        update_status(args, "running", "formal_experiment_started", formal_experiment_started=True)
-        run_simple_baselines(args)
-        run_kmer_baselines(args)
-        run_taxonomy_baseline(args)
-        run_homology_baseline(args)
-        generate_embeddings(args)
-        build_bags(args)
-        run_mil_models(args)
-        bootstrap_and_summarize(args)
-        summary = final_summary(args)
+        run_stage_with_resume(
+            args,
+            "association_audit",
+            association_audit,
+            lambda: resume_ready_json(out_root / "evomil_association_audit.json"),
+        )
+        run_stage_with_resume(
+            args,
+            "task_selection",
+            choose_task,
+            lambda: resume_ready_json(out_root / "evomil_task_definition.json"),
+        )
+        run_stage_with_resume(
+            args,
+            "sequence_acquisition",
+            acquire_sequences,
+            lambda: resume_ready_json(out_root / "evomil_sequence_acquisition_report.json")
+            and resume_ready_csv(out_root / "evomil_sequence_manifest.csv"),
+        )
+        run_stage_with_resume(
+            args,
+            "post_reconstruction_task_finalization",
+            finalize_task_after_reconstruction,
+            lambda: bool(read_json(out_root / "evomil_task_definition.json").get("finalized_after_sequence_reconstruction_at")),
+        )
+        run_stage_with_resume(
+            args,
+            "protein_preprocessing",
+            preprocess_proteins,
+            lambda: resume_ready_json(out_root / "evomil_preprocessing_audit.json")
+            and resume_ready_csv(out_root / "evomil_segment_manifest.csv"),
+        )
+        run_stage_with_resume(
+            args,
+            "reproduction_sanity_report",
+            sanity_report,
+            lambda: resume_ready_json(out_root / "evomil_reproduction_sanity_report.json"),
+        )
+        run_stage_with_resume(
+            args,
+            "cluster_manifest",
+            make_cluster_manifest,
+            lambda: resume_ready_csv(out_root / "evomil_cluster_manifest.csv"),
+        )
+        run_stage_with_resume(
+            args,
+            "split_and_leakage_audit",
+            split_clusters,
+            lambda: resume_ready_json(out_root / "evomil_split_audit.json")
+            and resume_ready_csv(out_root / "evomil_split_manifest.csv"),
+        )
+        run_stage_with_resume(
+            args,
+            "smoke_test",
+            smoke_test,
+            lambda: resume_ready_json(out_root / "evomil_smoke_test.json")
+            and read_json(out_root / "evomil_smoke_test.json").get("status") == "pass"
+            and resume_ready_json(out_root / "evomil_embedding_audit_smoke.json")
+            and resume_ready_csv(out_root / "evomil_embedding_manifest_smoke.csv"),
+        )
+        run_stage_with_resume(
+            args,
+            "simple_baselines",
+            run_simple_baselines,
+            lambda: resume_ready_csv(out_root / "evomil_simple_baselines.csv")
+            and resume_ready_csv(out_root / "evomil_simple_baseline_predictions.csv"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "kmer_baselines",
+            run_kmer_baselines,
+            lambda: resume_ready_csv(out_root / "evomil_kmer_baselines.csv")
+            and resume_ready_csv(out_root / "evomil_kmer_baseline_predictions.csv"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "taxonomy_baseline",
+            run_taxonomy_baseline,
+            lambda: resume_ready_csv(out_root / "evomil_taxonomy_baseline.csv")
+            and resume_ready_csv(out_root / "evomil_taxonomy_baseline_predictions.csv"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "homology_baseline",
+            run_homology_baseline,
+            lambda: resume_ready_csv(out_root / "evomil_homology_baselines.csv")
+            and resume_ready_csv(out_root / "evomil_homology_baseline_predictions.csv")
+            and resume_ready_json(out_root / "evomil_homology_hit_summary.json"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "esm1b_embedding_generation",
+            generate_embeddings,
+            lambda: resume_ready_json(out_root / "evomil_embedding_audit.json")
+            and resume_ready_csv(out_root / "evomil_embedding_manifest.csv"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "bag_building",
+            build_bags,
+            lambda: resume_ready_csv(out_root / "evomil_bag_manifest.csv"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "formal_mil_training",
+            run_mil_models,
+            lambda: resume_ready_csv(out_root / "evomil_model_results.csv")
+            and resume_ready_csv(out_root / "evomil_model_predictions.csv"),
+            formal_experiment_started=True,
+        )
+        run_stage_with_resume(
+            args,
+            "bootstrap_summary",
+            bootstrap_and_summarize,
+            lambda: resume_ready_json(out_root / "evomil_bootstrap_summary.json")
+            and resume_ready_csv(out_root / "evomil_bootstrap_samples.csv"),
+            formal_experiment_started=True,
+        )
+        summary = run_stage_with_resume(
+            args,
+            "final_summary",
+            final_summary,
+            lambda: resume_ready_json(out_root / "evomil_summary_report.json"),
+            formal_experiment_started=True,
+        )
+        if isinstance(summary, dict) and summary.get("status") == "skipped":
+            summary = read_json(out_root / "evomil_summary_report.json")
         write_json(registry_path(args), registry | {"status": "complete", "current_stage": "complete", "final_status": summary["final_status"], "completed_at": now_utc()})
         update_status(args, "complete", "complete", final_status=summary["final_status"], formal_experiment_started=True)
     except Exception as exc:
-        payload = registry | {"status": "blocked", "current_stage": read_json(status_path(args)).get("stage", "unknown"), "blocked_at": now_utc(), "blocker": str(exc)}
+        current_stage = read_json(status_path(args)).get("stage", "unknown")
+        formal_started = current_stage in {
+            "simple_baselines",
+            "kmer_baselines",
+            "taxonomy_baseline",
+            "homology_baseline",
+            "esm1b_embedding_generation",
+            "bag_building",
+            "formal_mil_training",
+            "bootstrap_summary",
+            "final_summary",
+        }
+        payload = registry | {"status": "blocked", "current_stage": current_stage, "blocked_at": now_utc(), "blocker": str(exc)}
         write_json(registry_path(args), payload)
-        update_status(args, "blocked", payload["current_stage"], blocker=str(exc), formal_experiment_started=False)
+        update_status(args, "blocked", payload["current_stage"], blocker=str(exc), formal_experiment_started=formal_started)
         log(args, f"blocked: {exc}")
         raise
 
@@ -1491,6 +1673,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--launch-screen", action="store_true")
+    parser.add_argument("--resume", action="store_true", default=True)
+    parser.add_argument("--no-resume", dest="resume", action="store_false")
     parser.add_argument("--screen-name", default="evomil_esm1b_qualification")
     parser.add_argument("--python", default=DEFAULT_PYTHON)
     parser.add_argument("--out-root", default=str(DEFAULT_OUT_ROOT))

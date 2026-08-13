@@ -35,6 +35,8 @@ from sklearn.metrics import (
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
+from phase2.signed_bootstrap import paired_grouped_prediction_bootstrap
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
@@ -429,53 +431,44 @@ def bootstrap_delta(
     max_attempts: int,
     seed: int,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    rng = np.random.default_rng(seed)
-    groups = sorted(rows["bootstrap_group"].astype(str).unique().tolist())
-    by_group = {group: rows[rows["bootstrap_group"].astype(str) == group] for group in groups}
-    samples: list[dict[str, Any]] = []
-    invalid = 0
-    attempts = 0
-    while len(samples) < n_valid and attempts < max_attempts:
-        attempts += 1
-        chosen = rng.choice(groups, size=len(groups), replace=True)
-        sample = pd.concat([by_group[group] for group in chosen], ignore_index=True)
-        present = set(sample["true_host"].astype(str))
-        if set(labels) - present:
-            invalid += 1
-            continue
-        sap = f1_score(sample["true_host"], sample["saprot_pred"], labels=list(labels), average="macro", zero_division=0)
-        bla = f1_score(sample["true_host"], sample["blast_pred"], labels=list(labels), average="macro", zero_division=0)
-        samples.append(
-            {
-                "replicate": len(samples) + 1,
-                "saprot_macro_f1": float(sap),
-                "blast_macro_f1": float(bla),
-                "delta_saprot_minus_blast": float(sap - bla),
-                "sampled_groups": int(len(chosen)),
-                "sampled_rows": int(len(sample)),
-            }
-        )
-    deltas = np.array([row["delta_saprot_minus_blast"] for row in samples], dtype=float)
+    samples, generic_summary = paired_grouped_prediction_bootstrap(
+        rows,
+        group_col="bootstrap_group",
+        true_col="true_host",
+        model_pred_col="saprot_pred",
+        baseline_pred_col="blast_pred",
+        labels=labels,
+        scorer=lambda y_true, y_pred, lab: f1_score(y_true, y_pred, labels=list(lab), average="macro", zero_division=0),
+        n_valid=n_valid,
+        max_attempts=max_attempts,
+        seed=seed,
+        model_score_key="saprot_macro_f1",
+        baseline_score_key="blast_macro_f1",
+        delta_key="delta_saprot_minus_blast",
+        bootstrap_unit="phage_id",
+        invalid_reason="bootstrap sample missing at least one host class",
+        extra_sample_fields={
+            "sampled_groups": lambda _sample, chosen: int(len(chosen)),
+            "sampled_rows": lambda sample, _chosen: int(len(sample)),
+        },
+    )
     summary = {
-        "status": "complete" if len(samples) == n_valid else "partial",
-        "bootstrap_unit": "phage_id",
-        "requested_valid_replicates": n_valid,
-        "valid_replicates": len(samples),
-        "invalid_replicates": invalid,
-        "attempted_replicates": attempts,
-        "invalid_reason": "bootstrap sample missing at least one host class",
+        "status": generic_summary["status"],
+        "bootstrap_unit": generic_summary["bootstrap_unit"],
+        "requested_valid_replicates": generic_summary["requested_valid_replicates"],
+        "valid_replicates": generic_summary["valid_bootstrap_replicates"],
+        "invalid_replicates": generic_summary["invalid_bootstrap_replicates"],
+        "attempted_replicates": generic_summary["attempted_bootstrap_replicates"],
+        "invalid_reason": generic_summary["invalid_reason"],
+        "observed_delta_saprot_minus_blast": generic_summary["observed_delta"],
+        "mean_delta_saprot_minus_blast": generic_summary["mean_delta"],
+        "median_delta_saprot_minus_blast": generic_summary["median_delta"],
+        "ci95_low": generic_summary["ci95_low"],
+        "ci95_high": generic_summary["ci95_high"],
+        "p_delta_gt_0": generic_summary["p_delta_gt_0"],
+        "p_delta_lt_0": generic_summary["p_delta_lt_0"],
+        "p_delta_eq_0": generic_summary["p_delta_eq_0"],
     }
-    if len(deltas):
-        summary.update(
-            {
-                "mean_delta_saprot_minus_blast": float(np.mean(deltas)),
-                "median_delta_saprot_minus_blast": float(np.median(deltas)),
-                "ci95_low": float(np.quantile(deltas, 0.025)),
-                "ci95_high": float(np.quantile(deltas, 0.975)),
-                "p_delta_gt_0": float(np.mean(deltas > 0)),
-                "p_delta_lt_0": float(np.mean(deltas < 0)),
-            }
-        )
     return samples, summary
 
 

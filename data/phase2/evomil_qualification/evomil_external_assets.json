@@ -3,34 +3,7 @@
     {
       "asset_name": "Official EvoMIL repository",
       "checksum": "",
-      "clone_result": {
-        "action": "fetch",
-        "attempt": 3,
-        "attempts": [
-          {
-            "attempt": 1,
-            "output_tail": "fatal: unable to access 'https://github.com/liudan111/EvoMIL/': gnutls_handshake() failed: The TLS connection was non-properly terminated.\n",
-            "returncode": 128,
-            "runtime_sec": 5.076469659805298
-          },
-          {
-            "attempt": 2,
-            "output_tail": "fatal: unable to access 'https://github.com/liudan111/EvoMIL/': gnutls_handshake() failed: The TLS connection was non-properly terminated.\n",
-            "returncode": 128,
-            "runtime_sec": 5.05920934677124
-          },
-          {
-            "attempt": 3,
-            "output_tail": "",
-            "returncode": 0,
-            "runtime_sec": 1.5424320697784424
-          }
-        ],
-        "output_tail": "",
-        "returncode": 0,
-        "runtime_sec": 1.5424320697784424
-      },
-      "download_date": "2026-08-12T11:32:33.004840+00:00",
+      "download_date": "2026-08-12T12:34:13.088476+00:00",
       "license": "",
       "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL",
       "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
@@ -39,92 +12,31 @@
     {
       "asset_name": "EvoMIL paper",
       "checksum": "",
-      "download_date": "2026-08-12T11:32:33.004845+00:00",
-      "license": "",
+      "download_date": "2026-08-12T12:34:13.088497+00:00",
+      "license": "CC BY 4.0",
       "local_path": "",
       "revision": "PLOS Computational Biology article DOI",
       "source_url": "https://doi.org/10.1371/journal.pcbi.1012597"
     },
     {
-      "asset_name": "EvoMIL repository file: .vscode/ltex.dictionary.en-US.txt",
-      "checksum": "49421092854a1524aa35a1e404046174aabef9cc3238ce2ba83ff38155516a80",
-      "download_date": "2026-08-12T11:32:32.980813+00:00",
-      "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/.vscode/ltex.dictionary.en-US.txt",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 11,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/.vscode/ltex.dictionary.en-US.txt"
-    },
-    {
-      "asset_name": "EvoMIL repository file: Data/examples/euk_5fold_cv/hostname_count.csv",
-      "checksum": "5204d39d0790603e14869aa69203ed903b1285086441ea8a5c665a02a5e40b0a",
-      "download_date": "2026-08-12T11:32:32.981815+00:00",
-      "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Data/examples/euk_5fold_cv/hostname_count.csv",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 105,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Data/examples/euk_5fold_cv/hostname_count.csv"
-    },
-    {
-      "asset_name": "EvoMIL repository file: Data/examples/euk_5fold_mc/hostname_count.csv",
-      "checksum": "76d3a81c80f06cc00347a734af5d07df5688cac7037f4b2993af254988c3db6c",
-      "download_date": "2026-08-12T11:32:32.982032+00:00",
-      "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Data/examples/euk_5fold_mc/hostname_count.csv",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 705,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Data/examples/euk_5fold_mc/hostname_count.csv"
-    },
-    {
-      "asset_name": "EvoMIL repository file: Data/examples/pro_5fold_cv/hostname_count.csv",
-      "checksum": "9e699220ddc6a5733086aec41e6d604a22ea6129446e6e249161cac353d71329",
-      "download_date": "2026-08-12T11:32:32.982802+00:00",
-      "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Data/examples/pro_5fold_cv/hostname_count.csv",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 384,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Data/examples/pro_5fold_cv/hostname_count.csv"
-    },
-    {
-      "asset_name": "EvoMIL repository file: Data/examples/pro_5fold_mc/hostname_count.csv",
-      "checksum": "4144ad2ddb899b157de42ffc450ca6e97a23860401b6f5d730683830e0f13702",
-      "download_date": "2026-08-12T11:32:32.982985+00:00",
-      "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Data/examples/pro_5fold_mc/hostname_count.csv",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 561,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Data/examples/pro_5fold_mc/hostname_count.csv"
-    },
-    {
-      "asset_name": "EvoMIL repository file: Data/examples/virushostdb_latest.tsv",
+      "asset_name": "Frozen EvoMIL/VHDB association table",
       "checksum": "56c92ca15e809473a1b033d7b6d6c8223453a5a1677e1a9a8f4bcfe673ee4ff3",
-      "download_date": "2026-08-12T11:32:33.003363+00:00",
+      "download_date": "2026-08-12T12:34:13.098061+00:00",
       "license": "",
       "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Data/examples/virushostdb_latest.tsv",
+      "note": "README names Data/virushostdb_update.csv, but this checkout exposes Data/examples/virushostdb_latest.tsv.",
       "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 7791570,
       "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Data/examples/virushostdb_latest.tsv"
     },
     {
-      "asset_name": "EvoMIL repository file: Results/euk_binary/virus_testset_5fold_best_AUC_epoch150_10.csv",
-      "checksum": "cba09c0db06fc6d7c7ee24c39b798015baaea2b8e861cee4c5d54406a65d8abd",
-      "download_date": "2026-08-12T11:32:33.004443+00:00",
+      "asset_name": "ESM-1b model",
+      "checksum": "",
+      "download_date": "2026-08-12T12:34:13.098073+00:00",
       "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Results/euk_binary/virus_testset_5fold_best_AUC_epoch150_10.csv",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 340,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Results/euk_binary/virus_testset_5fold_best_AUC_epoch150_10.csv"
-    },
-    {
-      "asset_name": "EvoMIL repository file: Results/pro_binary/virus_testset_5fold_best_AUC_epoch150_10.csv",
-      "checksum": "3606ac143494e2d016d556d22f300d550cd1efcd0430e4c6fe1481507d3def1e",
-      "download_date": "2026-08-12T11:32:33.004717+00:00",
-      "license": "",
-      "local_path": "/home/teacher1/UT-project1/project1/data/external/evomil/EvoMIL/Results/pro_binary/virus_testset_5fold_best_AUC_epoch150_10.csv",
-      "revision": "78405057afa30cb5b66777bd5cda88c4fa85c55d",
-      "size_bytes": 937,
-      "source_url": "https://github.com/liudan111/EvoMIL/blob/78405057afa30cb5b66777bd5cda88c4fa85c55d/Results/pro_binary/virus_testset_5fold_best_AUC_epoch150_10.csv"
+      "local_path": "torch/esm cache",
+      "revision": "fair-esm package / esm.pretrained.esm1b_t33_650M_UR50S",
+      "source_url": "https://github.com/facebookresearch/esm"
     }
   ],
-  "created_at": "2026-08-12T11:32:33.004833+00:00"
+  "created_at": "2026-08-12T12:34:13.098078+00:00"
 }
