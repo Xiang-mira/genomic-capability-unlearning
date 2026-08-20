@@ -1,22 +1,45 @@
-# Ignore local model checkpoints and weights
-/evo-1-8k-base/
+# ---- data, model weights, and run outputs: never commit ----
 /data/
+/evo-1-8k-base/
+/outputs/
+/results/
+/results_viral_bench/
+/scratchpad/
+/virobench/
+/gue_viral/
+/splits_ungated/
+/splits_idsweep/
+hf_cache/
+*.parquet
+*.npz
+*.npy
+*.pt
+*.safetensors
+*.fasta
+*.fa
+*.jsonl
 
-# Python cache
+# ---- logs ----
+/logs/
+*.log
+*.screen.log
+
+# ---- figures / large artifacts ----
+/figures/
+*.png
+*.pdf
+
+# ---- python ----
 __pycache__/
-*.pyc
-*.pyo
-.claude
-node_modules/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+env/
 
-# Local secrets/config
+# ---- editor / os / secrets ----
+.claude
+.vscode/
+.DS_Store
+node_modules/
 .env
 .env.*
-
-# Local benchmark runtimes and active screen/download logs
-/tools/vpf_local/
-/logs/*.screen.log
-/logs/vpf_plm_qualification*.log
-/logs/evomil_esm1b_qualification*.log
-/logs/phistruct_failure_audit_evomil_controller*.log
-/logs/phistruct_qualification_preflight*.log

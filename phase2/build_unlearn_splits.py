@@ -18,9 +18,12 @@ import argparse
 import csv
 import hashlib
 import os
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Optional, Set
+
+csv.field_size_limit(sys.maxsize)
 
 def write_csv(path: str, records, fieldnames) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -53,6 +56,54 @@ class BenchmarkRow:
     label: int
     group: str
     row_id: str
+
+
+def read_raw_csv(path: str) -> List[Dict[str, str]]:
+    with open(path, newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def check_group_overlap(
+    manifest_paths: List[str],
+    group_field: str,
+    label_filter: Optional[int] = 1,
+) -> bool:
+    """Check whether any group value appears in both train and non-train splits.
+
+    Returns True when no overlap is found (clean), False when overlap exists.
+    Prints a warning for every overlapping group.
+
+    When label_filter is not None, only rows with that label value are examined
+    (e.g. label=1 for forget-positive rows).
+    """
+    train_groups: Set[str] = set()
+    test_groups: Set[str] = set()
+
+    for path in manifest_paths:
+        if not os.path.exists(path):
+            continue
+        for row in read_raw_csv(path):
+            group = row.get(group_field, "").strip()
+            if not group:
+                continue
+            if label_filter is not None and row.get("label") != str(label_filter):
+                continue
+            if row.get("split", "").lower() == "train":
+                train_groups.add(group)
+            else:
+                test_groups.add(group)
+
+    overlapping = train_groups & test_groups
+    if overlapping:
+        for g in sorted(overlapping):
+            print(
+                f"[splits] WARNING: group {g!r} (field={group_field!r}) appears in both "
+                f"train and eval splits. This causes data leakage in group-held-out evaluation.",
+                flush=True,
+            )
+        return False
+    print(f"[splits] group-overlap check OK: no train/eval overlap on field={group_field!r}")
+    return True
 
 
 def read_manifest(path: str) -> List[ManifestRecord]:
@@ -217,7 +268,41 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out-dir", default="data/phase2/splits")
+    parser.add_argument(
+        "--group-field",
+        default="",
+        metavar="COLUMN",
+        help=(
+            "Column name in the manifest CSV that identifies a biological group "
+            "(e.g. 'family', 'genus', 'host_species'). When provided, the script "
+            "checks that no group appears in both train and val/test splits of the "
+            "forget set (group-held-out validation). A warning is printed for any "
+            "overlapping group. The manifest must retain this column — if it is "
+            "absent, the check is skipped with a notice."
+        ),
+    )
     args = parser.parse_args()
+
+    # Group-overlap check: must run before any data is consumed so a leakage
+    # warning is visible before the pipeline proceeds.
+    if args.group_field:
+        all_forget_manifests = [args.manifest] + list(args.extra_forget_manifest or [])
+        # Filter to manifests that actually exist and contain the column.
+        existing = []
+        for mp in all_forget_manifests:
+            if not os.path.exists(mp):
+                continue
+            with open(mp, newline="") as _f:
+                header = csv.DictReader(_f).fieldnames or []
+            if args.group_field not in header:
+                print(
+                    f"[splits] group-field {args.group_field!r} not found in {mp} "
+                    f"(available: {header}); skipping overlap check for this manifest."
+                )
+            else:
+                existing.append(mp)
+        if existing:
+            check_group_overlap(existing, args.group_field, label_filter=1)
 
     base_records = read_manifest(args.manifest)
     forget = [r for r in base_records if r.label == 1]

@@ -4,6 +4,23 @@ Build a GUE-augmented Phase 2 retain CSV.
 Starting from a base retain CSV, sample deterministic train rows from selected
 GUE tasks and append them as unlearning retain rows (`label=0`). Original GUE
 task labels are preserved in the generated id/source metadata.
+
+IMPORTANT — PIPELINE PREREQUISITE (Task 5):
+  This script MUST be run before any unlearning sweep to regenerate the active
+  retain set at data/phase2/splits/retain.csv. The current retain.csv contains
+  ZERO GUE rows. Without GUE sequences in the retain set, the retain constraint
+  during unlearning does not protect the capabilities that GUE evaluation measures,
+  so GUE retain delta reflects post-hoc generalization, not a protected objective.
+
+  Recommended invocation (from project root):
+    python phase2/build_gue_augmented_retain.py \\
+      --base-retain-csv data/phase2/coronaviridae_splits/retain.csv \\
+      --benchmark-manifest data/benchmarks/hvue_gue_manifest.csv \\
+      --out-csv data/phase2/splits/retain.csv \\
+      --summary-json data/phase2/splits/retain_with_gue_summary.json
+
+  After running, verify that the summary shows added_gue_rows > 0 before
+  launching any unlearn_rmu.py / unlearn_gd.py / project_probe_nullspace.py run.
 """
 import argparse
 import csv

@@ -1,0 +1,7 @@
+task,split,kmer_auroc,kmer_mcc,nn_auroc,n_train,n_test,test_pos_frac,kmer_drop_vs_random,nn_drop_vs_random
+bvbrc_cov,random,0.7776,0.4211,0.9601,5360,2640,0.456,,
+bvbrc_cov,cluster_disjoint,0.6544,0.2153,0.7481,5252,2748,0.529,0.1232,0.2121
+cini,random,0.7757,0.4597,0.9043,2431,1197,0.409,,
+cini,cluster_disjoint,0.7119,0.3937,0.8378,2323,1305,0.419,0.0639,0.0665
+host_tropism,random,0.8753,0.6053,0.9292,5360,2640,0.505,,
+host_tropism,cluster_disjoint,0.7954,0.4352,0.8729,5129,2871,0.568,0.0798,0.0562

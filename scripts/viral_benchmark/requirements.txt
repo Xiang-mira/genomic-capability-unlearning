@@ -1,0 +1,10 @@
+torch>=2.4
+transformers>=4.48,<5
+peft>=0.14
+huggingface_hub
+scikit-learn>=1.4
+pandas
+numpy
+pyarrow
+scipy
+einops

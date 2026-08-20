@@ -1,314 +1,99 @@
-# Viral Benchmark Qualification Repository Guide
-
-## Project Background
-
-The broader project studies whether a biological foundation-model capability
-can first be identified clearly enough, and then later become a valid target
-for capability unlearning. Before any unlearning claim is scientifically
-meaningful, the benchmark itself must show stable model-specific headroom over
-strong conventional baselines.
-
-This README focuses on the viral benchmark qualification stage of that larger
-project. The goal here is not to maximize absolute score, but to decide whether
-any viral benchmark provides a clean, reproducible foundation-model advantage
-worth carrying forward.
-
-This repository contains four completed viral benchmark qualification tasks.
-
-Core question:
-
-> can a biological foundation model show stable, reproducible,
-> model-specific predictive headroom over the strongest reasonable
-> non-foundation baseline?
-
-Current answer for all four completed tasks:
-
-`No.`
-
-## Four Tasks At A Glance
-
-| Task | Model | Final Status | Strongest Conventional Baseline / Signal | Bottom Line |
-|:--|:--|:--|:--|:--|
-| HVUE | Evo | `UNQUALIFIED` | full-sequence k-mer / composition | The apparent advantage on host tropism and pathogenicity largely disappears after stronger sequence-composition controls. |
-| ProteinGym | ESM2 | `UNQUALIFIED` | evolutionary baselines (`VESPA`, `VESPAl`, `S2F_MSA`) | Under strict position-held-out evaluation, evolutionary baselines match or beat the model; adaptation is not stable. |
-| PHIStruct | SaProt | `PHISTRUCT_FAILURE_NOT_STATISTICALLY_RESOLVED` | BLASTp | SaProt beats weak baselines, but does not establish a statistically reliable gain over BLASTp. |
-| EvoMIL | ESM-1b | `NO_QUALIFYING_HEADROOM` | AA 3-mer / proteome composition | The strongest AA 3-mer baseline beats all five ESM-1b seeds. |
-
-## How To Read This Repository
-
-If you are collaborating on the four viral tasks, use this order:
-
-1. read the task block below for the benchmark you care about;
-2. open the listed code entrypoint to see how the experiment is implemented;
-3. open the listed result directory and summary file to see the final evidence;
-4. use the listed supporting artifacts only if you need deeper audit detail.
-
-The two supporting overview documents are:
-
-- `docs/foundation_model_benchmark_summary.md`
-- `docs/benchmark_artifact_index.md`
-
-## 1. HVUE / Evo
-
-### What this task is
-
-HVUE is used here as a viral host/pathogenicity benchmark family for testing
-whether Evo shows meaningful viral capability beyond strong sequence-based
-controls.
-
-### Code directory
-
-- main code directory: `phase2/`
-
-### Main code files
-
-- `phase2/prepare_benchmarks.py`
-- `phase2/eval_benchmarks.py`
-- `phase2/eval_kmer_baseline.py`
-- `phase2/run_hvue_complete_selection_and_full.sh`
-- `phase2/run_hvue_pipeline_watchdog.sh`
-- `phase2/aggregate_hvue_lora.py`
-
-### What each main file does
-
-- `prepare_benchmarks.py`: builds the unified HVUE/GUE/ViroBench benchmark manifest
-- `eval_benchmarks.py`: runs the common supervised downstream benchmark protocol
-- `eval_kmer_baseline.py`: computes the sequence k-mer baseline used as a strong non-foundation comparator
-- `run_hvue_complete_selection_and_full.sh`: launches the checked-in HVUE-centered full evaluation flow
-- `run_hvue_pipeline_watchdog.sh`: resume/watchdog wrapper for long runs
-- `aggregate_hvue_lora.py`: aggregates benchmark outputs into comparison tables
-
-### Main result directory
-
-- `data/phase2/full_benchmarks_lora_optimized_s600/`
-
-### Main result files
-
-- `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.csv`
-- `data/phase2/full_benchmarks_lora_optimized_s600/full_rankings.json`
-- `results/full_benchmark_summary.csv`
-- `docs/full_benchmark_results.md`
-- `docs/full_benchmark_artifact_audit.md`
-
-### How to understand the result
-
-HVUE is not stored as a standalone `*_qualification/` result package. Its
-checked-in evidence lives inside the larger HVUE/GUE/ViroBench evaluation
-stack. The conclusion to carry forward is:
-
-`UNQUALIFIED`
-
-The earlier apparent signal does not survive stronger full-sequence
-composition controls well enough to support a clean Evo-specific capability
-claim.
-
-## 2. ProteinGym / ESM2
-
-### What this task is
-
-ProteinGym is used here to test whether ESM2 has stable mutation-effect signal
-beyond strong evolutionary baselines under strict held-out evaluation.
-
-### Code directory
-
-- main code directory: `phase2/`
-
-### Main code files
-
-- `phase2/proteingym_esm2_qualification.py`
-- `phase2/proteingym_esm2_top20_expansion.py`
-
-### What each main file does
-
-- `proteingym_esm2_qualification.py`: main formal qualification controller
-- `proteingym_esm2_top20_expansion.py`: supporting expansion/screening workflow for candidate assays
-
-### Main result directory
-
-- `data/phase2/protein_48h_esm2_qualification/`
-
-### Main result files
-
-- `protein_48h_summary_report.json`
-- `protein_48h_summary_report.md`
-- `protein_48h_evolutionary_baseline_report.json`
-- `protein_48h_evolutionary_baseline_report.md`
-- `protein_48h_lora_qualification_evidence.json`
-- `protein_48h_candidate_ranking.csv`
-- `protein_48h_esm2_pilot_metrics.csv`
-- `protein_48h_lora_metrics.csv`
-
-### How to understand the result
-
-This task finished with:
-
-`UNQUALIFIED`
-
-The checked-in summary shows:
-
-- `20` static candidate assays screened
-- `3` pilot assays selected
-- `0` preliminarily qualified task-model pairs
-- random-split positives do not transfer to position-held-out evaluation
-- the one LoRA-advanced assay remains unstable across three seeds
-
-## 3. PHIStruct / SaProt
-
-### What this task is
-
-PHIStruct is used here to test whether SaProt provides bacteriophage
-receptor-binding host prediction headroom beyond sequence homology.
-
-### Code directory
-
-- main code directory: `phase2/`
-
-### Main code files
-
-- `phase2/phistruct_qualification.py`
-- `phase2/phistruct_failure_audit_evomil_controller.py`
-
-### What each main file does
-
-- `phistruct_qualification.py`: main PHIStruct formal qualification controller
-- `phistruct_failure_audit_evomil_controller.py`: post-failure audit controller that reconstructs the BLAST comparison and bootstrap evidence
-
-### Main result directory
-
-- `data/phase2/phistruct_qualification/`
-
-### Main result files
-
-- `summary_report.json`
-- `summary_report.md`
-- `baseline_results.csv`
-- `plm_results.csv`
-- `per_genus_metrics.csv`
-- `phistruct_failure_audit/audit_summary.json`
-- `phistruct_failure_audit/audit_summary.md`
-- `phistruct_failure_audit/paired_bootstrap_summary.json`
-- `phistruct_failure_audit/paired_bootstrap_samples.csv`
-
-### How to understand the result
-
-This task finished with:
-
-`PHISTRUCT_FAILURE_NOT_STATISTICALLY_RESOLVED`
-
-Key checked-in numbers:
-
-- SaProt macro-F1: `0.454732`
-- BLASTp macro-F1: `0.475180`
-- observed delta (`SaProt - BLASTp`): `-0.020448`
-- 95% CI: `[-0.113066, 0.071794]`
-
-Interpretation:
-
-SaProt is better than weak/simple baselines, but it does not show statistically
-reliable positive headroom over BLASTp.
-
-## 4. EvoMIL / ESM-1b
-
-### What this task is
-
-EvoMIL is used here to test whether ESM-1b embeddings plus MIL outperform
-strong proteome-composition baselines on viral host prediction.
-
-### Code directory
-
-- main code directory: `phase2/`
-
-### Main code files
-
-- `phase2/evomil_esm1b_qualification.py`
-- `phase2/signed_bootstrap.py`
-
-### What each main file does
-
-- `evomil_esm1b_qualification.py`: full formal qualification controller with sequence recovery, preprocessing, baselines, embeddings, MIL, bootstrap, and summary
-- `signed_bootstrap.py`: shared signed bootstrap helper used to keep `delta = model - baseline` consistent
-
-### Main result directory
-
-- `data/phase2/evomil_qualification/`
-
-### Main result files
-
-- `evomil_summary_report.json`
-- `evomil_summary_report.md`
-- `evomil_bootstrap_summary.json`
-- `evomil_bootstrap_samples.csv`
-- `evomil_kmer_baselines.csv`
-- `evomil_model_results.csv`
-- `evomil_split_audit.json`
-- `evomil_preprocessing_audit.json`
-- `evomil_reproduction_sanity_report.json`
-
-### How to understand the result
-
-This task finished with:
-
-`NO_QUALIFYING_HEADROOM`
-
-Key checked-in numbers:
-
-- strongest baseline: `logistic_regression:aa_3mer_tfidf`
-- baseline macro-F1: `0.841270`
-- best ESM-1b + MIL macro-F1: `0.782246`
-- observed delta (`model - baseline`): `-0.059024`
-- bootstrap 95% CI: `[-0.204111, 0.056453]`
-- positive seeds: `0 / 5`
-
-Interpretation:
-
-The strongest AA 3-mer baseline beats every checked-in ESM-1b seed, so this
-task does not provide qualifying model-specific headroom.
-
-## In-Progress Final Viral Candidate
-
-There is also an implemented VPF-PLM controller for the final viral benchmark
-search, but as of `August 13, 2026` it is still in progress and must not be
-reported as a completed result.
-
-Main code:
-
-- `phase2/vpf_plm_qualification.py`
-- `phase2/vpf_plm_compat.py`
-
-Current execution mode:
-
-- detached `screen` controller
-
-## Shared Utilities And Tests
-
-Shared qualification utilities:
-
-- `phase2/signed_bootstrap.py`
-
-Relevant tests:
-
-- `tests/test_signed_bootstrap.py`
-- `tests/test_evomil_esm1b_qualification.py`
-
-## Minimal Layout
-
-```text
-phase2/        experiment controllers and benchmark code
-data/phase2/   checked-in result artifacts
-docs/          benchmark summaries and artifact indexes
-results/       compact top-level result tables
-tests/         regression tests
-logs/          historical logs; active logs are not canonical result artifacts
+# Viral capability benchmarking — continuation branch
+
+Branch: `viral-benchmark-continuation`. Everything needed to resume the experiments on a
+different cluster. Read **[HANDOFF.md](HANDOFF.md)** first — it has the full state, results,
+caveats and the prioritised to-do list.
+
+## What this branch is for
+
+Deciding whether any viral benchmark gives a biological foundation model **reproducible,
+model-specific headroom over the strongest non-foundation baseline on a defensible split**.
+That question gates the unlearning work: removing a capability is only meaningful if the
+capability is real and model-specific.
+
+Current answer, across 3 HVUE tasks × 3 split families, 2 GUE viral tasks, ViroBench taxonomy,
+4 gLM architectures and 3 baseline families: **no**. See
+[OUTCOME_FOR_UNLEARNING.md](OUTCOME_FOR_UNLEARNING.md).
+
+## The two things that matter most methodologically
+
+1. **[SPLIT_DESIGN_EXPLAINED.md](SPLIT_DESIGN_EXPLAINED.md)** — the splits every previously
+   published number used were built in the k-mer baseline's own feature space *and* selected on
+   the condition that the baseline lose ≥0.03 AUROC. Use the identity-disjoint splits from
+   `build_identity_splits.py` instead, or taxonomic holdout.
+2. **The baseline is not just a k-mer.** A 0.64M-parameter supervised CNN beats the k-mer on
+   9 of 9 task×split cells and beats every pretrained gLM on 8 of 9. Any comparison must report
+   `max(k-mer, CNN)`.
+
+## Layout
+
+```
+scripts/viral_benchmark/     portable harnesses (see below)
+HANDOFF.md                   full state, results, caveats, to-do list
+OUTCOME_FOR_UNLEARNING.md    synthesis: what this means for unlearning
+SPLIT_DESIGN_EXPLAINED.md    composition- vs homology-disjoint splits
+phase2/                      original benchmark-qualification code (student's)
+tests/                       regression tests for phase2/
+docs/, reports/              original project write-ups (historical)
 ```
 
-## Practical Rule For Collaborators
+Data, model weights, logs, figures and all run outputs are gitignored. Nothing large is tracked.
 
-If you want to inspect one viral task quickly, use this rule:
+## Quickstart on a new cluster
 
-1. open the task section in this README
-2. open the listed main code file
-3. open the listed main result directory
-4. read the listed summary `.md` or `.json` first
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -r scripts/viral_benchmark/requirements.txt
 
-That is the fastest path to understand what the task does, how it was run, and
-what final conclusion the repository supports.
+export VB_ROOT=/scratch/$USER/viral-bench
+export VB_OUT=$VB_ROOT/results
+export VB_HVUE_DIR=$VB_ROOT/data/hvue        # {task}_{train,validation,test}.parquet
+export VB_MMSEQS=$(which mmseqs)
+export HF_HOME=$VB_ROOT/hf_cache
+
+cd scripts/viral_benchmark
+python download_data.py --what both          # GUE viral + ViroBench (~3.7 GB)
+python build_identity_splits.py              # HVUE identity-disjoint splits (CPU, needs mmseqs)
+bash run_examples.sh                         # reference launches, one GPU per job
+```
+
+`paths.py` resolves every path from `VB_*` environment variables — no absolute paths are
+hard-coded in any script.
+
+## Scripts
+
+| script | what it does | notes |
+|:--|:--|:--|
+| `paths.py` | env-var path resolution for all scripts | edit defaults or export `VB_*` |
+| `download_data.py` | fetches GUE viral + ViroBench from HF | `--what {gue,virobench,both}` |
+| `build_identity_splits.py` | MMseqs2 identity-disjoint HVUE splits, **no baseline gate**, + k-mer reference | needs `mmseqs`; writes `kmer_baselines.json` |
+| `hvue_glm.py` | any HF gLM on HVUE binary tasks | `--regime {probe,lora,full}`, `--random_init`, `--split_dir`, test eval every epoch |
+| `hvue_cnn.py` | 0.64M dilated-CNN baseline on HVUE | the binding baseline — always run it |
+| `hvue_evo_lora.py` | Evo-1-8k LoRA, extended LR, real early stopping | needs `glm-locking` on `PYTHONPATH` (`VB_LOCK_ROOT`) |
+| `gue_baselines.py` | k-mer3-5/3-6 + CNN on GUE viral multiclass | |
+| `gue_glm.py` | gLMs on GUE viral multiclass | |
+| `virobench_baselines.py` | builds ViroBench taxonomy task, k-mer + CNN | `--level`, `--min_count`; **records effective context** |
+
+Supported gLMs: `hyenadna` (LongSafari/hyenadna-medium-160k-seqlen-hf), `gena_lm`
+(AIRI-Institute/gena-lm-bert-base-t2t), `nt_v2_500m`
+(InstaDeepAI/nucleotide-transformer-v2-500m-multi-species). DNABERT-2 is excluded — its
+`config_class` conflicts with transformers 4.48.
+
+## Rules for any new run
+
+1. Never select a split, hyperparameter or checkpoint using the baseline's performance, and never
+   build a split in the baseline's feature space.
+2. Every model needs a supervised **non-pretrained** control of comparable capacity (CNN for DNA,
+   one-hot/biochemical ridge or GBT for protein) — not only a k-mer or conservation baseline.
+3. Report AUROC **and** MCC; they disagree in sign on at least one cell.
+4. Report each model's **effective context** when sequences exceed any model's window
+   (ViroBench genomes are median 43 kb; GENA-LM sees ~2–4 kb of that).
+5. Evaluate the reported split at **every** checkpoint and report the mean over the last K —
+   single-checkpoint reporting on disjoint splits swings 0.014–0.045 AUROC.
+
+## Highest-value work not yet started
+
+**Supervised single-variant effect on viral DMS.** The 95-scorer ProteinGym leaderboard is
+entirely zero-shot; nobody has tested whether *supervised* adaptation beats MSA methods. 22 viral
+assays, ESM-2 650M/3B + ESM-1v, position-disjoint (`contiguous`/`modulo`) splits, against
+published ESCOTT/GEMME/S3F_MSA **plus** a supervised one-hot+biochemical control. See HANDOFF §4 P4.

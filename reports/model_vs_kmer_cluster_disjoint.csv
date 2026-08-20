@@ -1,0 +1,3 @@
+task,split,kmer_auroc,kmer_mcc,model_best_layer,model_auroc,model_mcc,excess_model_minus_kmer,n_train,n_test
+bvbrc_cov,random,0.7511,0.3677,0,0.9061,0.7053,0.1549,3774,1858
+bvbrc_cov,cluster_disjoint,0.7166,0.1866,0,0.7005,0.2855,-0.0161,3722,1910
