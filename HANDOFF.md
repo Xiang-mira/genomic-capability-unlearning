@@ -234,6 +234,22 @@ temporally nested; GUE's random split is in-distribution only. Needs collection-
    one-hot/biochemical ridge or GBT for protein), not only a k-mer or conservation baseline. That
    control has now beaten the foundation model in three modalities.
 
+3. **Set and report the sequence-length cap per dataset.** `hvue_cnn.py`/`hvue_glm.py` default
+   to 1000 bp and `virobench_baselines.py` to `--cnn_len 20000`. Verified as of 2026-08-20:
+
+   | dataset | sequence length | cap used | truncated |
+   |:--|--:|--:|--:|
+   | HVUE (all 916,086 rows, all 3 tasks, all splits) | **exactly 1000 bp** | 1000 | **0%** |
+   | GUE `virus_covid` | 999 bp | 1000 | 0% |
+   | GUE `virus_species_40` | 5000 bp | 5000 (passed explicitly) | 0% |
+   | ViroBench genomes | median **43 kb**, max 1.4 Mb | CNN 20 kb | **~54%** |
+
+   So HVUE and GUE are clean — the k-mer and the CNN saw identical input. **ViroBench is not:**
+   the k-mer reads the whole genome while the CNN reads ~46% and GENA-LM ~7%. Part of the
+   ViroBench k-mer margin (§3.5) is therefore context, not capability. Re-run the CNN at >=43 kb
+   and report matched context before drawing a capability conclusion there. Leaving `--maxlen`
+   at its default silently creates this confound whenever sequences exceed it.
+
 Plus: report AUROC **and** MCC (they disagree in sign on at least one cell); report the effective
 context per model when sequences exceed any model's window; evaluate the reported split at every
 checkpoint and report the mean over the last K.
