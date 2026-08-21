@@ -20,6 +20,9 @@ seeds, so models can be evaluated on a split that was not chosen to flatter them
 """
 import json, os, shutil, subprocess, sys, tempfile, time, warnings
 import numpy as np, pandas as pd
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import paths as P
 warnings.filterwarnings("ignore")
 ROOT = P.LOCK_ROOT
 HVUE = P.HVUE_DIR
@@ -113,9 +116,12 @@ def main():
         tr = pd.read_parquet(f"{HVUE}/{task}_train.parquet")
         va = pd.read_parquet(f"{HVUE}/{task}_validation.parquet")
         df = pd.concat([tr, va], ignore_index=True)
-        df = (df.groupby("label", group_keys=False)
-                .apply(lambda g: g.sample(min(POOL_CAP_PER_CLASS, len(g)), random_state=SEED))
-                .sample(frac=1, random_state=SEED).reset_index(drop=True))
+        # NOTE: not df.groupby("label", group_keys=False).apply(lambda g: g.sample(...)) --
+        # pandas >=2.2 dropped the grouping column from `g` by default (include_groups),
+        # silently breaking the subsequent df.label access. Explicit loop is version-safe.
+        df = pd.concat([g.sample(min(POOL_CAP_PER_CLASS, len(g)), random_state=SEED)
+                        for _, g in df.groupby("label")], ignore_index=True)
+        df = df.sample(frac=1, random_state=SEED).reset_index(drop=True)
         seqs = df.sequence.tolist(); y = df.label.values.astype(int)
         print(f"=== {task}: pool n={len(df)} pos={y.mean():.3f} ===", flush=True)
         g99 = mmseqs_cluster(seqs, 0.99, 0.9, "d99")

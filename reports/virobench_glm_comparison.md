@@ -39,7 +39,28 @@ nominal ~12kb range; GENA-LM capped at ~3.1kb (its native BPE-tokenized window).
 8-GPU allocation already stretched over this session; NT-v2 has a real 3-seed spread, std 0.0075 —
 tight, not a noisy result.)
 
-## Two readings of this, both true and both needed
+## Correction (2026-08-20, after cross-checking with the parallel cluster run)
+
+The reading below that framed the CNN-vs-HyenaDNA gap as "real capability masked by context" was
+**wrong, or at least unsupported** — it only compared gLM vs. CNN at matched context, never k-mer
+vs. matched context. A parallel run (same day, different cluster, with `--kmer_cap` set to each
+gLM's exact token budget) closes that gap:
+
+| effective context | k-mer3-5 (capped to match) | best gLM at that context | winner |
+|--:|--:|:--|:--|
+| 3.1kb | 0.8469 | GENA-LM 0.6378 | **k-mer, +0.209** |
+| 6.1kb | 0.8662 | NT-v2 0.8867 | NT-v2, +0.021 |
+| 20kb | 0.9297 | HyenaDNA 0.8784 | **k-mer, +0.051** |
+| whole genome (43.5kb) | 0.9475 | — | — |
+
+**k-mer scales with context the same way the models do, and wins at matched context in 2 of 3
+cases** (loses only narrowly to NT-v2 at 6.1kb). So the CNN was simply the wrong/weak comparator on
+this task — not a stand-in that happened to obscure a real gLM advantage. `best(k-mer, CNN)` has
+to be evaluated *at each model's own context*, not just at the CNN's fixed 20kb cap, before any
+capability claim is defensible. The section below is kept for the record but its reading #2 does
+not survive this check.
+
+## Two readings of this (reading #2 retracted, see correction above)
 
 **1. Under this project's own established convention** (`best(k-mer, CNN)` is the baseline that
 must be beaten for a real capability claim — same rule applied to every HVUE/GUE/NTv3/EPI result
@@ -49,17 +70,13 @@ answer the rest of the project has found everywhere else: **no qualified viral c
 on ViroBench taxonomy either.** `OUTCOME_FOR_UNLEARNING.md`'s "one remaining chance" is now tested
 and comes back negative.
 
-**2. At matched effective context, the gLMs show real, substantial capability the CNN does not.**
-HyenaDNA and CNN see the *same* 20kb window; HyenaDNA scores 0.8784 vs CNN's 0.6421 — a +0.236
-macro-F1 gap, the second-largest context-matched gLM-vs-baseline margin found in this entire
-project (after NTv3 splice sites). This is a genuine architectural/pretraining advantage, not
-noise. It just isn't large enough to close the gap created by k-mer's much longer effective
-context (whole genome vs 20kb) — the binding constraint on this task is context length, not model
-capability. That distinction matters for the unlearning question specifically: there IS something
-here that a frozen/probe evaluation would badly undersell (probe regime collapses to 0.05-0.49
-macro-F1 for all three models — consistent with HANDOFF §3.4's finding elsewhere that frozen viral
-representations are far below baseline), but it's not something a whole-genome k-mer adversary
-would be denied by removing it from the model.
+**2. ~~At matched effective context, the gLMs show real, substantial capability the CNN does
+not.~~ Retracted.** HyenaDNA and CNN see the *same* 20kb window; HyenaDNA scores 0.8784 vs CNN's
+0.6421 — a +0.236 macro-F1 gap. This looked like a real architectural/pretraining advantage. It
+is not: k-mer at the same 20kb cap scores 0.9297, beating HyenaDNA by +0.051. The CNN is simply a
+weak baseline at every context length tested, not a stand-in for "what's achievable without a
+gLM." The one place a gLM (NT-v2) genuinely beats k-mer at matched context is 6.1kb, by a narrow
++0.021 — worth a mean-of-3-seeds check before leaning on it, since the margin is thin.
 
 ## Caveats
 
