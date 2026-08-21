@@ -25,6 +25,13 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 import paths as P
 from virobench_baselines import load
 warnings.filterwarnings("ignore")
+# LucaVirus's tokenizer forwards its own `seq_type`/`text_pair` defaults to the base
+# class, which logs "Keyword arguments ... not recognized." once PER CALL -- ~100
+# lines/sec, 1 MB of log per 2 min, burying all real output. Benign (seq_type='gene'
+# is the correct default for DNA; verified ACGT -> tokens 1,3,4,2). Silenced.
+import logging as _lg
+_lg.getLogger("transformers.tokenization_utils_base").setLevel(_lg.ERROR)
+import transformers as _tf; _tf.logging.set_verbosity_error()
 D = P.VIRO_DIR
 OUT = P.sub("virobench_glm")
 
@@ -35,6 +42,12 @@ OUT = P.sub("virobench_glm")
 # gLM and the CNN baseline see the same amount of sequence.
 MODELS = {
     "hyenadna":   ("LongSafari/hyenadna-medium-160k-seqlen-hf", "AutoModel", 256, 20000),
+    # LucaVirus: the model holding ViroBench's published taxonomy record. 944M params,
+    # single-nucleotide tokenizer, max_position_embeddings=4096 -> effective context is
+    # ~4kb, i.e. LESS than a tenth of the median 43.5kb genome. Included so the
+    # head-to-head is on OUR split and OUR label space, removing every cross-paper
+    # assumption (their label cardinality is 1.6-5.8x ours at every level).
+    "lucavirus":  ("LucaGroup/LucaVirus-default-step3.8M", "AutoModel", 2560, 4094),
     "gena_lm":    ("AIRI-Institute/gena-lm-bert-base-t2t",      "AutoModel", 768, 512),
     # nt_v2_500m's custom modeling code (modeling_esm.py) computes attention eagerly
     # (no fused/flash kernel) -- O(n^2) memory. 2048 tokens x bs=8 OOM'd a 96GB GPU
@@ -116,7 +129,10 @@ def main():
     # approx effective context in bp: HyenaDNA is byte-level (~1 char/token), NT-v2 is
     # 6-mer (~6 char/token), GENA-LM is BPE (approx, varies) -- report both token count
     # and the approx bp figure so this isn't hidden the way README rule 4 requires.
-    bp_per_tok = {"hyenadna": 1, "gena_lm": 6, "nt_v2_500m": 6}[a.model]
+    # bp per token: single-nucleotide tokenizers = 1; BPE/k-mer tokenizers ~6.
+    # Missing entries used to raise KeyError only AFTER the model registry was extended,
+    # which silently killed a run at line 125 -- default instead of crash.
+    bp_per_tok = {"hyenadna": 1, "gena_lm": 6, "nt_v2_500m": 6, "lucavirus": 1}.get(a.model, 1)
     eff_ctx_bp = ml * bp_per_tok
     print(f"{a.model}/{a.mod}/{a.split}/{lv}: n_tr={len(tr)} classes={ncls} maxlen_tok={ml} "
           f"eff_context~{eff_ctx_bp}bp median_genome={int(tr.sequence.str.len().median())}bp", flush=True)

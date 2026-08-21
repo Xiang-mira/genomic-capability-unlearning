@@ -1,9 +1,39 @@
-# Analytical results — both clusters, all viral benchmarks
+# Analytical results — all benchmarks, viral and non-viral, both clusters
 
 2026-08-21. Merges this cluster's runs with Vista's (`CLUSTER_HANDOFF_FROM_VISTA.md`,
 `reports/hvue_real_data_verification.md`, `reports/virobench_full_spec_baselines.md`).
 Baseline convention throughout: **`best(k-mer3-5, k-mer3-6, CNN)` evaluated at the model's own
 effective context**, mean over seeds (never best-of-N).
+
+---
+
+## 0. Master summary — every benchmark tested
+
+Baseline = `best(k-mer3-5, k-mer3-6, CNN)` at the model's own effective context, mean over seeds.
+
+| domain | benchmark | split quality | cells | gLM vs best baseline | verdict |
+|:--|:--|:--|:--|:--|:--|
+| **viral** | HVUE ×3 tasks | MMseqs2 identity-disjoint, no gate | 18 (2 clusters) | 0 wins, 2 ties, 16 losses | **no capability** |
+| viral | HVUE ×3 tasks | random | 9 | 1 tie (+0.0011), 8 losses | no capability |
+| viral | HVUE ×3 tasks | composition-cluster (**invalid**: baseline-gated) | 9 | 6 wins | artifact of split selection |
+| viral | ViroBench taxonomy, context ladder | temporal (verified) | 4 contexts | 0 wins, 1 tie | **no capability** |
+| viral | ViroBench taxonomy, full spec | temporal | 5 levels | k-mer wins all by 0.19–0.36 | no capability |
+| viral | ViroBench host, leave-one-family-out | family-disjoint | 4 | all lose, −0.10…−0.17, CIs exclude 0 | **no capability** |
+| viral | GUE `virus_covid` | random, **11.9% leakage** | 3 | all lose (−0.043 best) | no capability |
+| viral | GUE `virus_species_40` | random | 3 | 1 tie (+0.004), 2 losses | no capability |
+| viral | Antibody escape, frozen | antibody-held-out | 20 folds | GBT wins **20/20** | **no capability** |
+| viral | Antibody escape, LoRA matched *n* | antibody-held-out | 5 folds | GBT wins 4/5 | no capability |
+| viral | ProteinGym viral, 25 assays | published leaderboard | 95 scorers | MSA holds top 15; best seq-only ranks 16 | no capability |
+| **viral** | **ViroBench vs published LucaVirus** | temporal | 1 | **LucaVirus +0.079 over our k-mer** | **OPEN — head-to-head running** |
+| **non-viral** | **NT splice sites ×3** | **chromosome-disjoint (verified)** | 3 | **gLMs +0.31 … +0.60 MCC** | **REAL CAPABILITY** |
+| non-viral | NT benchmark, other 15 tasks | chromosome-disjoint | 15 | gLMs +0.04 … +0.12 MCC | modest capability |
+| non-viral | GUE ×12 tasks | official, unverified | 12 | gLMs +0.003 … +0.21 MCC | modest, in-distribution |
+| non-viral | EPI ×6 cell lines | random, **39–80% leakage** | 6 | **baseline wins 5/6** | benchmark unusable |
+| non-viral | DART-Eval Task 1 | chromosome-disjoint | 1 | our CNN within 0.4% of published | harness validated |
+
+**The single most important row is the splice-site one.** It proves the methodology detects large
+genuine capability when present. Every viral row is a loss or a tie against the same baseline
+convention — with one unresolved exception (LucaVirus).
 
 ---
 
@@ -120,6 +150,125 @@ Both losses or ties. But Vista found that **`virus_covid`'s official split has 1
 test sequences present verbatim in train** — not previously flagged. That inflates every method's
 score on that task and makes it unusable as an OOD measurement without a dedup pass. It does not
 change the ranking (all methods benefit), but the absolute numbers should not be quoted.
+
+---
+
+## 4b. NON-VIRAL results — the other half of the picture
+
+These are not incidental. They are what makes the viral negatives interpretable: the same
+baseline methodology, applied to non-viral benchmarks, produces **large gLM wins in one place,
+small-to-zero gaps in most places, and baseline wins in one place.** A pipeline that only ever
+returns "no advantage" would be uninformative; this one discriminates.
+
+Baseline convention identical to the viral work: `best(k-mer3-5, k-mer3-6, mean-over-seeds CNN)`,
+never best-of-N. Competitor numbers are published single point estimates.
+
+### 4b.1 Nucleotide Transformer benchmark (18 tasks) — the clean positive control
+
+`reports/positive_control_comparison.md`. Splice sites are chromosome-disjoint (0% overlap verified).
+
+| task | our baseline MCC | best published gLM | gap |
+|:--|--:|:--|--:|
+| **Splice All** | 0.3731 | NTv2 0.9710 | **+0.5979** |
+| **Splice Acceptor** | 0.6190 | GJ-B 0.9710 | **+0.3520** |
+| **Splice Donor** | 0.6764 | GJ-B 0.9840 | **+0.3076** |
+| H4K20me1 | 0.5693 | GJ-B 0.6920 | +0.1227 |
+| H3K9ac | 0.4982 | GJ-B 0.6110 | +0.1128 |
+| Enhancer Type | 0.4667 | NTv2 0.5760 | +0.1093 |
+| H3K9me3 | 0.4184 | GJ-B 0.5200 | +0.1016 |
+| H3K27ac | 0.4336 | GJ-B 0.5310 | +0.0974 |
+| H3K4me1 | 0.4120 | GJ-B 0.5090 | +0.0970 |
+| H3K36me3 | 0.5757 | GJ-B 0.6670 | +0.0913 |
+| Promoter NoTATA | 0.7357 | NTv2 0.8230 | +0.0873 |
+| Enhancer | 0.4933 | NTv2 0.5730 | +0.0797 |
+| H3K27me3 | 0.5613 | GJ-B 0.6410 | +0.0797 |
+| H3K4me2 | 0.5102 | GJ-B 0.5850 | +0.0748 |
+| H2AFZ | 0.4696 | Hyena7M 0.5350 | +0.0654 |
+| H3K4me3 | 0.5942 | DB2 0.6590 | +0.0648 |
+| Promoter TATA | 0.9135 | GJ-B 0.9600 | +0.0465 |
+| Promoter All | 0.7481 | NTv2 0.7880 | +0.0399 |
+
+**Mean gap +0.1404.** The three splice-site tasks are the standout: **+0.31 to +0.60 MCC** on a
+verified chromosome-disjoint split. This is a real, large, split-robust capability — the exact
+thing that does not exist on any viral task.
+
+### 4b.2 GUE benchmark (12 tasks) — mostly small gaps
+
+| task | our baseline MCC | best published | gap |
+|:--|--:|:--|--:|
+| Promoter TATA | 0.6147 | GJ-B 0.8210 | +0.2063 |
+| TF Human 4 | 0.4775 | DB2 0.6310 | +0.1535 |
+| TF Human 1 | 0.6575 | DB2 0.7190 | +0.0615 |
+| Promoter NoTATA | 0.9153 | GJ-B 0.9600 | +0.0447 |
+| TF Human 5 | 0.7449 | DB2 0.7890 | +0.0441 |
+| TF Human 2 | 0.6908 | GJ-B 0.7340 | +0.0432 |
+| Core Prom. NoTATA | 0.6895 | GJ-B 0.7250 | +0.0355 |
+| Core Prom. All | 0.6871 | DB2 0.7170 | +0.0299 |
+| Splice All | 0.8714 | GJ-B 0.8900 | +0.0186 |
+| Core Prom. TATA | 0.8104 | GJ-B 0.8190 | +0.0086 |
+| Promoter All | 0.9134 | NTv2 0.9210 | +0.0076 |
+| TF Human 3 | 0.6307 | DB2 0.6340 | +0.0033 |
+
+**Mean gap +0.0547.** Across GUE + NT, **11 of 30 tasks** have the baseline within 0.05 MCC of
+the best published gLM or beating it. GUE's disjointness is unverified, so treat these as
+in-distribution.
+
+### 4b.3 EPI enhancer–promoter interaction (6 cell lines) — the baseline WINS
+
+| cell line | our baseline AUROC | EPIPDLF | EPINTLM | our margin vs best published |
+|:--|--:|--:|--:|--:|
+| IMR90 | **0.9879** | 0.936 | 0.909 | **+0.052** |
+| HUVEC | **0.9829** | 0.935 | 0.935 | **+0.048** |
+| K562 | **0.9670** | 0.943 | 0.947 | **+0.020** |
+| GM12878 | **0.9655** | 0.939 | 0.949 | **+0.017** |
+| HeLa-S3 | **0.9772** | 0.964 | 0.970 | **+0.007** |
+| NHEK | 0.9886 | 0.993 | 0.985 | −0.004 (tie) |
+
+**Our simple baseline beats both published pretrained-embedding methods on 5 of 6 cell lines.**
+And the reason is measurable: MMseqs2 ≥90% identity clustering finds **enhancers 39–46% and
+promoters 67–80% of test anchors leak into train** (`reports/mmseqs_leakage_check.csv`). Exact-string
+matching alone would have shown only 42–62% promoter / 5.9–8.6% enhancer overlap — so the leakage
+is worse than a naive duplicate check reveals. This independently confirms the published
+BENGI/LOCO-EPI critique by direct measurement.
+
+### 4b.4 Measured leakage across all benchmarks (MMseqs2 ≥90% identity)
+
+| benchmark family | test sequences leaking into train |
+|:--|--:|
+| GUE promoter (core/300, all variants) | 1.4–5.6% |
+| GUE TF human 0–4 | 2.1–3.4% |
+| **GUE splice reconstructed** | **21.5%** |
+| **GUE `virus_covid`** (exact duplicates) | **11.9%** |
+| **EPI enhancers** | **39–46%** |
+| **EPI promoters** | **67–80%** |
+
+GUE promoter/TF splits are clean. GUE splice at 21.5% and `virus_covid` at 11.9% are compromised.
+EPI is unusable as an OOD benchmark.
+
+### 4b.5 DART-Eval Task 1 — harness reproduces published numbers
+
+Ab-initio CNN, cCRE vs dinucleotide-shuffled negatives, chromosome-disjoint:
+
+| metric | published | ours | diff |
+|:--|--:|--:|--:|
+| accuracy | 0.8460 ± 3.3e-4 | 0.8423 | **0.4%** |
+| AUROC | 0.927 | 0.9264 | **0.06%** |
+
+Verified against the arXiv LaTeX source directly.
+
+### 4b.6 What the non-viral results establish
+
+1. **The harness detects real capability when it exists** — +0.31 to +0.60 MCC on chromosome-disjoint
+   splice sites. The viral negatives are therefore not a pipeline failure.
+2. **The baseline is competitive far more often than the literature implies** — 11 of 30 GUE/NT tasks
+   within 0.05 MCC, and EPI outright lost by the published methods.
+3. **Split leakage is endemic, not a viral-specific problem.** EPI at 67–80% and GUE splice at 21.5%
+   are the same failure mode as ViroBench's mislabelled "genus-disjoint" split and HVUE's
+   baseline-gated composition split.
+4. **Capability, where it exists, is concentrated.** Splice-site recognition is a local,
+   motif-driven, position-specific task — exactly what a k-mer bag-of-features cannot represent
+   and a sequence model can. That is the shape of a genuine gLM advantage, and no viral task
+   we tested has it.
 
 ---
 
