@@ -1,6 +1,7 @@
 # ---- data, model weights, and run outputs: never commit ----
 /data/
-/evo-1-8k-base/
+/evo-1-8k-base
+/configs/
 /outputs/
 /results/
 /results_viral_bench/
