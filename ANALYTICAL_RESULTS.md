@@ -304,6 +304,76 @@ differently-biased one.
 
 ---
 
+## 6b. What our leakage measurement actually captures — measured, not assumed
+
+Prompted by the question "can't different viruses share parts and be wrongly called duplicates,
+or share parts and be missed?" Both directions were tested empirically on HVUE Host_Tropism
+(n=6,000, all sequences exactly 1000 bp — the same data the identity splits were built from).
+All clustering used the production parameters: `--min-seq-id 0.90 -c 0.9`, default cov-mode
+(bidirectional 90% coverage).
+
+| test | question | result |
+|:--|:--|:--|
+| **1. label concordance** | are clustered pairs same-label, or incidental homology? | **95.2% of multi-member clusters are label-pure** (204 all-positive, 13 all-negative, 11 mixed) vs **50% chance**. The clusters are shared content *and* shared label — memorisable leakage, not neutral homology. |
+| **2. reverse complement** | are revcomp duplicates caught? | **300/300 (100%)**. MMseqs2 searches both strands. Not a gap. |
+| **3. partial overlap** | is a 50%-shifted window caught? | **0/150 (0%)**. Completely invisible to `-c 0.9`. **This is a real gap.** |
+| **4. false positives** | does a shared 200 bp block (20% of length) falsely merge unrelated sequences? | **60/60 stayed distinct.** Bidirectional coverage prevents conserved-region false merging. |
+
+**So the concern about false positives is answered: it does not happen.** A conserved gene shared
+between two otherwise-different viruses will not merge them, because 90% coverage of *both*
+sequences is required — and the 95% label purity confirms the clusters are not picking up
+incidental homology.
+
+**The false-negative direction is the real problem, and it is large.** Exhaustive
+`mmseqs easy-search` (no coverage floor, `--search-type 3`) of test against train on our own
+`identity_disjoint_hsd0` splits:
+
+| task | test seqs with **no** ≥90%-id hit | ≥90% id over ≥50% of length | ≥90% id over ≥90% |
+|:--|--:|--:|--:|
+| Host_Tropism | 59.5% | **32.8%** | 1.2% |
+| Transmissibility | 11.2% | **82.1%** | 23.1% |
+
+Median coverage among test sequences that have a hit: 0.500 (Host_Tropism), 0.796
+(Transmissibility).
+
+**Our "identity-disjoint" splits are therefore not fully disjoint.** `-c 0.9` removes only the
+1.2%/23.1% tail; a third of Host_Tropism and four fifths of Transmissibility test sequences retain
+a ≥90%-identity match covering half their length in the training set. (The 23.1% at ≥90% coverage
+that survived clustering also shows `easy-cluster` is a heuristic — exhaustive search finds pairs
+its cascaded prefilter misses.)
+
+### What this changes, and what it does not
+
+**Does not change the model-vs-baseline conclusions.** Leakage inflates *absolute* scores for
+every method that can exploit shared content — both the k-mer and the sequence models. There is no
+mechanism by which partial train/test overlap would systematically favour a k-mer over a gLM; if
+anything a sequence model is better placed to memorise a specific half-sequence than a
+bag-of-k-mers is. So the *relative* ordering (0 wins / 2 ties / 16 losses) stands.
+
+**Does change what we may call these results.** They are not clean OOD measurements. The
+absolute numbers — k-mer 0.9085–0.9479, CNN 0.9202–0.9715 — are inflated by an unknown amount,
+and Transmissibility in particular should not be described as out-of-distribution at all.
+
+**It also means HVUE is not the venue for an OOD claim.** These are 1000 bp windows tiled from a
+small number of viral genomes; near-duplicate structure at 50% overlap is intrinsic to the
+dataset, not a fixable split artifact. A genuinely disjoint HVUE split would need whole-genome
+grouping (hold out all windows from a given accession), which the released data may not support —
+HVUE ships only `sequence,label` with no accession or coordinate metadata (independently confirmed
+in `reports/unlearning_eval_protocol.md`).
+
+### Recommended fix for future splits
+
+Use `-c 0.3` (or `--cov-mode 1` with a low floor) when *measuring* leakage, and group by source
+accession when *building* splits. Clustering at `-c 0.9` is the right tool for removing
+near-identical duplicates and the wrong tool for certifying disjointness.
+
+**Not yet measured:** the same test on ViroBench `times`, which we have been treating as the
+gold-standard split. It is temporally separated with whole genomes, so the window-overlap failure
+mode should not apply — but that is an assumption, not a measurement, and it should be checked
+before the ViroBench conclusions are described as OOD either.
+
+---
+
 ## 7. Bottom line
 
 **Across 18 HVUE cells, 4 ViroBench contexts, 2 GUE tasks, ViroBench LOFO host prediction, and
