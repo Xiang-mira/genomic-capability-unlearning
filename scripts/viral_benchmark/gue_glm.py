@@ -62,6 +62,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True, choices=list(MODELS))
     ap.add_argument("--task", required=True, choices=["virus_covid", "virus_species_40"])
+    ap.add_argument("--test_csv", default=None)
     ap.add_argument("--regime", default="full", choices=["probe", "lora", "full"])
     ap.add_argument("--seeds", nargs="+", type=int, default=[42, 43, 44])
     ap.add_argument("--lrs", nargs="+", type=float, default=[1e-5])
@@ -73,7 +74,10 @@ def main():
     ml = a.maxlen or {"hyenadna": 1024 if a.task == "virus_covid" else 5120,
                       "gena_lm": 256 if a.task == "virus_covid" else 512,
                       "nt_v2_500m": 176 if a.task == "virus_covid" else 860}[a.model]
-    tr = pd.read_csv(f"{D}/{a.task}__train.csv"); dv = pd.read_csv(f"{D}/{a.task}__dev.csv"); te = pd.read_csv(f"{D}/{a.task}__test.csv")
+    tr = pd.read_csv(f"{D}/{a.task}__train.csv"); dv = pd.read_csv(f"{D}/{a.task}__dev.csv")
+    te = pd.read_csv(a.test_csv if a.test_csv else f"{D}/{a.task}__test.csv")
+    if a.test_csv:
+        print(f"  TEST SET OVERRIDE: {a.test_csv} (n={len(te)})", flush=True)
     if len(tr) > a.cap: tr = tr.sample(a.cap, random_state=0).reset_index(drop=True)
     ncls = int(pd.concat([tr, dv, te]).label.nunique())
     tok = AutoTokenizer.from_pretrained(mid, trust_remote_code=True)
@@ -134,7 +138,7 @@ def main():
                        test_f1_oracle=round(max(t["test_f1"] for t in traj), 4),
                        test_f1_range=round(max(t["test_f1"] for t in traj)-min(t["test_f1"] for t in traj), 4),
                        n_train=len(tr), trajectory=traj)
-            json.dump(res, open(f"{OUT}/{tag}.json", "w"), indent=2)
+            json.dump(res, open(f"{OUT}/{tag}" + ("__dedup" if a.test_csv else "") + f".json", "w"), indent=2)
             print(f"  RESULT {tag}: test_macro_f1={res['test_macro_f1']:.4f} mcc={res['test_mcc']:.4f} "
                   f"oracle={res['test_f1_oracle']:.4f} range={res['test_f1_range']:.4f}", flush=True)
             del m; torch.cuda.empty_cache()

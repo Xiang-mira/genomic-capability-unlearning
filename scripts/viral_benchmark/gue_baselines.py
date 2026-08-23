@@ -70,11 +70,14 @@ def metrics(y, p):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--task", required=True); ap.add_argument("--maxlen", type=int, default=1000)
+    ap.add_argument("--task", required=True); ap.add_argument("--test_csv", default=None); ap.add_argument("--maxlen", type=int, default=1000)
     ap.add_argument("--cap", type=int, default=40000); ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--epochs", type=int, default=40); ap.add_argument("--seeds", nargs="+", type=int, default=[42,43,44])
     a = ap.parse_args(); os.makedirs(OUT, exist_ok=True)
-    tr = pd.read_csv(f"{D}/{a.task}__train.csv"); dv = pd.read_csv(f"{D}/{a.task}__dev.csv"); te = pd.read_csv(f"{D}/{a.task}__test.csv")
+    tr = pd.read_csv(f"{D}/{a.task}__train.csv"); dv = pd.read_csv(f"{D}/{a.task}__dev.csv")
+    te = pd.read_csv(a.test_csv if a.test_csv else f"{D}/{a.task}__test.csv")
+    if a.test_csv:
+        print(f"  TEST SET OVERRIDE: {a.test_csv} (n={len(te)})", flush=True)
     if len(tr) > a.cap: tr = tr.sample(a.cap, random_state=0).reset_index(drop=True)
     ncls = int(pd.concat([tr, dv, te]).label.nunique())
     print(f"{a.task}: train={len(tr)} dev={len(dv)} test={len(te)} classes={ncls}", flush=True)
@@ -129,7 +132,7 @@ def main():
         cnn_runs.append(mm); print(f"  CNN s{seed}: test macro_f1={mm['macro_f1']:.4f}", flush=True)
     res["cnn"] = dict(runs=cnn_runs, n_params=sum(p.numel() for p in CNN(ncls).parameters()),
                       mean_macro_f1=round(float(np.mean([r["macro_f1"] for r in cnn_runs])), 4))
-    json.dump(res, open(f"{OUT}/{a.task}__baselines.json", "w"), indent=2)
+    json.dump(res, open(f"{OUT}/{a.task}__baselines" + ("__dedup" if a.test_csv else "") + f".json", "w"), indent=2)
     print(f"DONE {a.task}: kmer3-6={res['kmer3-6']['macro_f1']:.4f}  CNN={res['cnn']['mean_macro_f1']:.4f}", flush=True)
 
 

@@ -59,7 +59,7 @@ def windows(seq, W, max_win):
     return [seq[i*W:(i+1)*W] for i in range(n)]
 
 @torch.no_grad()
-def embed(model, tok, texts, W, bp_per_tok, bs, dev):
+def embed(model, tok, texts, W, bp_per_tok, bs, dev, layer=-1):
     ml = W // bp_per_tok + 2
     out = []
     for i in range(0, len(texts), bs):
@@ -71,7 +71,11 @@ def embed(model, tok, texts, W, bp_per_tok, bs, dev):
         if am is not None: kw["attention_mask"] = am.to(dev)
         with torch.autocast("cuda", dtype=torch.bfloat16):
             o = model(**kw, output_hidden_states=True)
-        h = o.hidden_states[-1] if getattr(o, "hidden_states", None) is not None else o.last_hidden_state
+        # LucaVirus's final layer norm collapses the representation: between-sequence std at
+        # layer 12 is 0.0027 vs 0.1438 at layer 11 (53x). Reading hidden_states[-1] therefore
+        # measures almost no sequence-discriminative signal. --layer makes this explicit.
+        hs = getattr(o, "hidden_states", None)
+        h = hs[layer] if hs is not None else o.last_hidden_state
         if am is None:
             pooled = h.mean(1)
         else:
@@ -103,11 +107,14 @@ def main():
     ap.add_argument("--window", type=int, default=2048)
     ap.add_argument("--max_win", type=int, default=16)
     ap.add_argument("--bs", type=int, default=16)
+    ap.add_argument("--layer", type=int, default=-1, help="hidden_states index; -2 skips a collapsing final LN")
     ap.add_argument("--cap_train", type=int, default=0, help="0 = all")
     ap.add_argument("--device", default="cuda:0")
     a = ap.parse_args()
     mid, how, hid, bpt = MODELS[a.model]
     tag = f"{a.model}__frozen__{a.mod}_{a.split}_{a.level}__W{a.window}"
+    if a.layer != -1:
+        tag += f"__L{a.layer}"   # keep layer variants in separate files
     if os.path.exists(f"{OUT}/{tag}.json"):
         print(f"skip {tag}", flush=True); return
     t0 = time.time()
@@ -131,7 +138,7 @@ def main():
     for nm, d in [("train", tr), ("dev", dv), ("test", te)]:
         txt, own = build(d, a.window, a.max_win)
         t = time.time()
-        E = embed(model, tok, txt, a.window, bpt, a.bs, a.device)
+        E = embed(model, tok, txt, a.window, bpt, a.bs, a.device, layer=a.layer)
         print(f"  {nm}: {len(txt)} windows -> {E.shape} in {time.time()-t:.0f}s "
               f"({len(txt)/max(time.time()-t,1e-9):.1f} win/s)", flush=True)
         packs[nm] = (E, own, d.y.values)
@@ -152,7 +159,7 @@ def main():
     yte = packs["test"][2]
     res = dict(model=a.model, hf_id=mid, regime="frozen_probe_viroBench_protocol",
                n_params=npar, mod=a.mod, split=a.split, level=a.level,
-               window_bp=a.window, max_win_per_genome=a.max_win, n_classes=len(cls),
+               window_bp=a.window, layer=a.layer, max_win_per_genome=a.max_win, n_classes=len(cls),
                n_train=len(tr), n_dev=len(dv), n_test=len(te), C=best[1],
                dev_macro_f1=round(best[0], 4),
                test_macro_f1=round(float(f1_score(yte, pte, average="macro", zero_division=0)), 4),
