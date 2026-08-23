@@ -1,194 +1,131 @@
-Subject: Results from both clusters — and why the forget-task selection needs redoing
+Subject: Where the negative-results paper stands — what we've run, what's left, and what I'd like you to take
 
-Hi — I've finished the negative-results programme across both clusters (Cluster 1 on the A100 box,
-Cluster 2 on Vista). Writing this up because it lands directly on your unlearning task-selection
-analysis from July, and the news there is not good: **the excess-capability numbers that
-`recommended_forget_tasks.md` is built on don't survive.**
+Hi — bringing you up to date on the viral-capability programme. The READMEs and older MDs in the
+repo are stale in places, so treat this message as the current picture and the three docs below as
+the detail. Everything is on `viral-benchmark-continuation`.
 
-Everything is on `viral-benchmark-continuation`. Read `reports/PAPER_OUTLINE.md` first, then
-`reports/CROSS_CLUSTER_SYNTHESIS.md`.
-
----
-
-## 1. Your forget-task selection: three independent problems
-
-Your table classifies HVUE Pathogenicity as the PRIMARY_FORGET candidate on **excess = +0.098**
-(model 0.9722 − k-mer 0.8738), Host_Tropism as SECONDARY at +0.055, Transmissibility as
-DIAGNOSTIC_ONLY at +0.037. Each of those rests on a comparison that I can now show is wrong in
-three separate ways.
-
-### (a) The baseline was a k-mer, not the strongest non-pretrained model
-
-A supervised CNN beats the k-mer on all of these tasks. I ran a 13-cell architecture × capacity
-ladder (dilated / U-Net / ResNet, 0.04M–9.4M params, selection on dev only):
-
-| task | your model | your k-mer | **your excess** | our CNN | **excess vs CNN** |
-|:--|--:|--:|--:|--:|--:|
-| Pathogenicity | 0.9722 | 0.8738 | **+0.098** | **0.9718** | **+0.0004** |
-| Host_Tropism | 0.9440 | 0.8894 | **+0.055** | **0.9486** | **−0.0046** |
-| Transmissibility | 0.9523 | 0.9157 | **+0.037** | 0.9066 | **+0.0457** |
-
-Your PRIMARY_FORGET candidate's excess goes from +0.098 to **+0.0004**. Host_Tropism goes negative.
-
-**Caveat, stated honestly:** these are not the same splits — your numbers are on the
-composition-cluster aggregate, mine on identity-disjoint hsd0 — so this is not a strict
-like-for-like and I'm not claiming it as one. But a swing from +0.098 to +0.0004 is far too large
-to be split noise. And note Transmissibility goes *up*, because it's the one task where our CNN is
-weakest; I'm reporting that rather than only the convenient direction.
-
-### (b) The split those numbers were measured on was gated to make the k-mer look bad
-
-This is the one that bothers me most. `build_splits_v2.py` builds the cluster-disjoint split in
-**kmer5-PCA space** — the baseline's own feature space — and then accepts a candidate split only if
-`kmer_excess_auroc <= kmer_random_auroc - 0.03` (`GATE = 0.03`). It keeps redrawing until the k-mer
-degrades by at least 0.03. The MMseqs2 identity-disjoint alternative was generated, scored 0.9131,
-failed that gate, and was logged `VALIDITY mmseqs_identity_disjoint: INVALID`.
-
-So the k-mer ceiling on that split is depressed **by construction**, and every excess computed
-against it is inflated by construction. This isn't a criticism of your analysis — you inherited the
-split — but it means the excess column can't be used. Details in `SPLIT_DESIGN_EXPLAINED.md`.
-
-### (c) Two of the three tasks have almost no homology-independent test data
-
-I measured **partial** overlap with MMseqs2 `easy-search` (local alignment) rather than
-`easy-cluster`. `-c 0.9` requires 90% *bidirectional* coverage, so it's blind to a test sequence
-sharing only half its length with a training sequence at high identity. % of test rows with ≥1
-train hit at ≥90% identity over ≥50% of their length:
-
-    HVUE Host_Tropism        42.2%
-    HVUE Pathogenicity       80.5%
-    HVUE Transmissibility    83.2%
-    ViroBench ALL/times       2.1%     <- clean, for contrast
-
-Refiltering the test set at ≥70% id / ≥30% cov:
-
-    Host_Tropism      8,390 ->  3,391 rows   (usable)
-    Pathogenicity     5,194 ->     96 rows   (98.2% dropped)
-    Transmissibility  4,956 ->     60 rows   (98.8% dropped)
-
-**HVUE Pathogenicity and Transmissibility cannot support a homology-clean evaluation at all.** Not
-by us, not by the HVUE authors, not by anyone. Whatever "capability" is measured on them is measured
-almost entirely on near-duplicates of training data — so it cannot be distinguished from
-memorisation, which is exactly the distinction your protocol §1 sets out to make.
-
-### What this means concretely
-
-Your doc already says *"PRIMARY_FORGET — None Confirmed Yet"* and lists promotion criteria. You were
-right to hold. Here are the answers to those criteria:
-
-- [x] *5000-step adversary ≥ best_shortcut + 0.03* — the adversary validity framing was the right
-      call, but `best_shortcut` needs to be `max(k-mer, CNN)`, and against that the margin is +0.0004.
-- [x] *Same result under 3+ seeds* — single-seed HVUE "wins" don't survive 3-seed averaging. Our one
-      apparent win (+0.0023 single-seed) collapses to +0.0003.
-- [x] *Same result under genus-disjoint split* — stronger version: even identity-disjoint isn't
-      enough, because clustering misses partial overlap. Needs `easy-search` filtering.
-- [ ] *Unlearning adversary beats k-mer* — moot for Path./Trans., since no clean test set exists.
-
-**Net: there is currently no valid PRIMARY_FORGET task among the HVUE tasks.** Host_Tropism is the
-only one where a clean evaluation is even possible (3,391 rows), and I'm running that head-to-head
-now.
-
-I want to be clear that this is a finding about the benchmarks, not about your analysis. Your
-adversary-validity framing — "an excess number is meaningless if the adversary never reached the
-shortcut ceiling" — is the correct instinct and it's what led me to check the baseline side properly.
+- `reports/PAPER_OUTLINE.md` — thesis, section plan, figures, and which claims are defensible today
+  vs still gated
+- `reports/CROSS_CLUSTER_SYNTHESIS.md` — both clusters reconciled, with the corrections
+- `reports/BASELINE_CAPACITY_CEILING.md` — the baseline-strength work, which turned out to matter
+  more than expected
+- `ANALYTICAL_RESULTS.md` — the full per-task tables, viral and non-viral
 
 ---
 
-## 2. What the negative-results programme established
+## 1. The high-level picture
 
-**Viral: no detectable model-specific advantage, on the one benchmark that can support the claim.**
-ViroBench ALL/times, frozen probe (their protocol), 5 taxonomic levels, paired bootstrap over 5,505
-shared test genomes, δ ∈ {0.01,0.02,0.03,0.05} declared before any CI was computed:
+We set out to test whether any viral benchmark gives a genomic foundation model reproducible,
+model-specific headroom over the strongest non-pretrained baseline on a defensible split. The answer
+so far is no — but the interesting part is *why*, and that's shifted what the paper is about.
 
-    kingdom  ( 18 cls)  +0.0165  CI [-0.085, +0.112]   ns, underpowered
-    phylum   ( 28 cls)  -0.0152  CI [-0.061, +0.048]   ns
-    class    ( 45 cls)  -0.0046  CI [-0.038, +0.028]   ns, equivalent @ 0.05
-    order    ( 67 cls)  -0.0403  CI [-0.068, -0.008]   k-mer WINS, significant
-    family   (173 cls)  +0.0115  CI [-0.018, +0.029]   ns, equivalent @ 0.03
+Two things now carry more weight than the headline negative:
 
-NT-v2 5-level mean **−0.0064** — never significantly ahead, significantly behind at order. GENA-LM
-−0.047, HyenaDNA −0.075 at family, both significant. Caveat we state ourselves: only family has the
-power for an equivalence claim; the coarse levels are *underpowered*, not equivalent.
+**Benchmark validity.** The main viral benchmarks are homology-saturated. Measuring *partial*
+overlap with MMseqs2 `easy-search` (local alignment) instead of `easy-cluster` — which needs 90%
+bidirectional coverage and so misses a test sequence sharing half its length at high identity — two
+of the three HVUE tasks retain almost no homology-independent test data once filtered. ViroBench's
+temporal split, by contrast, is clean. So ViroBench should carry the viral result, not HVUE.
 
-Kraken2 appears to beat our k-mer (0.640 vs 0.570) but that's reference leakage — 15.4% of test
-taxids are verbatim in its RefSeq viral DB; it scores 0.944 on that slice and **0.535** on the clean
-84.6%, below our k-mer. BLAST shows no such pattern, confirming it's a fair train-only comparator.
+**Baseline validity.** Most published FM-vs-baseline gaps we checked shrink or vanish against a
+properly-built baseline. Three distinct mechanisms, all measured: a CNN whose *receptive field*
+can't span the input (the big one), a reference k-mer with no feature scaling, and a probe reading a
+collapsed final layer. Numbers in `BASELINE_CAPACITY_CEILING.md`.
 
-**Non-viral: the models genuinely do work.** This is what makes the viral result publishable rather
-than suspicious. On 13 GENEB categories against a fairly-tuned k-mer (per model, ±0.005 tie band):
+So the paper is heading toward: **gLMs do work — and here is a domain where the evidence that they
+work doesn't survive contact with its baselines and its splits.** That framing is still under
+discussion; the alternative is a narrower "benchmark audit" paper that leads with the validity
+findings and treats the negative as a corollary. Worth talking through — I lean toward the first
+because the positive controls make it defensible, but the second is easier to referee.
 
-    GENA-LM    11 wins / 0 ties / 2 losses    mean margin +0.083
-    NT-v2      10 wins / 1 tie  / 2 losses    mean margin +0.078
-    HyenaDNA    6 wins / 1 tie  / 6 losses    mean margin -0.026
+## 2. What we've run — tasks × methods
 
-And fine-tuned NT-v2 on NT splice reaches **0.9680 MCC** against a published 0.971–0.984 — the
-harness reproduces published numbers when the regime matches.
+**Baselines** (the comparator side, which is where most of the work went):
+- k-mer3-5 and k-mer3-6 frequency features → standardised logistic regression, C selected on dev
+- supervised CNN — now a **13-cell architecture × capacity ladder** (dilated / U-Net / ResNet,
+  0.04M–9.4M params), because a single CNN turned out to be an arbitrary point rather than a ceiling
+- BLASTn nearest-hit and Kraken2 on ViroBench (alignment/taxonomic comparators)
+- always report `max(k-mer, CNN)`, never the k-mer alone
 
-**The reported advantages elsewhere are largely baseline artifacts.** Three distinct mechanisms,
-each measured:
+**Models:** NT-v2-500M, GENA-LM-bert-base-t2t, HyenaDNA-medium-160k, LucaVirus, Evo-1-8k.
+**Regimes:** frozen probe, LoRA, full fine-tune — kept in separate columns, never mixed, because on
+splice the frozen-vs-FT gap alone is 0.59 MCC.
 
-1. **Receptive field.** On 600bp splice, ResNet at 9.44M params (RF 89bp) scores 0.336 MCC while a
-   U-Net at 0.26M (global RF) scores 0.951 — 36× fewer parameters, +0.62 MCC. Published FM-vs-CNN
-   splice gaps of +0.31–0.60 shrink to **+0.02–0.03** against a baseline that can see the whole
-   input. Our own incumbent 0.68M dilated CNN was at ceiling on HVUE (≤+0.006 from the full search)
-   but badly under-powered on splice — so this cuts both ways and had to be measured per task.
-2. **Feature scaling.** GENEB's shipped reference k-mer has no scaling, no C tuning, no class
-   weighting; on iDHS-EL it predicts the majority class 100% of the time (MCC 0.000). Refit fairly:
-   **0.589**.
-3. **Read-out layer.** I had LucaVirus at 0.280 vs k-mer 0.574 and that was **my bug** — its final
-   layer norm collapses the representation (between-sequence std 0.1438 at layer 11 vs **0.0027** at
-   layer 12, which is the layer I read). A layer sweep is running; until it lands, treat the
-   published LucaVirus numbers as unrefuted.
+**Benchmarks covered:** HVUE (3 tasks × 3 split families), ViroBench taxonomy (5 levels), GUE viral
+(2 tasks), GUE non-viral (12 tasks), NT benchmark (18 tasks incl. splice), EPI (6 cell lines),
+DART-Eval task 1, GENEB (13-task sentinel), antibody escape, single-variant effect.
 
-Plus one infrastructure bug worth knowing: `AutoModelForSequenceClassification` on GENA-LM silently
-discards **all 48 pretrained LayerNorms** (pre-LN checkpoint, post-LN HF class) and the model then
-collapses to the majority class at every LR — dev MCC exactly 0.0000. Frozen probes via `AutoModel`
-are unaffected. If you ever see an exact-zero metric, check for re-initialised weights before
-concluding anything about capability.
+## 3. GUE results specifically
 
----
+**Viral (2 tasks) — both losses or ties:**
 
-## 3. The paper
+| task | classes | best baseline | best gLM | gLM vs baseline |
+|:--|--:|--:|--:|--:|
+| `virus_covid` | 9 | k-mer 0.7282 | NT-v2 0.6850 | **−0.043** |
+| `virus_species_40` | 25 | k-mer 0.4407 | NT-v2 0.4443 | **+0.004 (tie)** |
 
-The framing I want is **not** "gLMs don't work" — that dies to the first referee who says our
-harness is broken. It's:
+Important caveat on `virus_covid`: its official split has **11.9% exact-duplicate test sequences
+present verbatim in train**. That inflates every method equally so the ranking holds, but the
+absolute numbers shouldn't be quoted. I'm running the deduped version now (8,050 clean test rows,
+k-mer + all three gLMs) so we can report a defensible number instead of dropping the task.
 
-> **gLMs do work, and here is a domain where the evidence that they work does not survive contact
-> with its baselines and its splits.**
+**Non-viral (12 tasks) — mostly small gaps, baseline competitive.** Mean gap to best-published
+**+0.055**; across GUE + NT combined, **11 of 30 tasks** have our baseline within 0.05 MCC of the
+best published gLM or beating it outright. Full table in `ANALYTICAL_RESULTS.md` §4b.2. Caveat we
+state ourselves: GUE's split disjointness is unverified, so these are in-distribution comparisons.
 
-Three legs, each measured rather than argued: benchmark validity (homology saturation), no advantage
-where a clean split exists (ViroBench), and reported advantages as baseline artifacts (receptive
-field / feature scaling / read-out layer). Positively controlled by splice FT and GENEB.
+## 4. Positive controls — what we have, and where we expect more
 
-My honest read: legs 1 and 3 are the actual contribution. "No advantage" is the *conclusion*, but
-the benchmark-validity and baseline-validity findings are what other people will cite. Full section
-plan, figure list, and a defensible-now vs still-gated claim table are in `reports/PAPER_OUTLINE.md`.
+This is what stops the paper being "our harness is broken."
 
-**For the unlearning thread specifically**, the implication is uncomfortable but clean: you can't
-demonstrate unlearning of a capability that can't be shown to exist on a clean split. Either
-(a) we move the unlearning target to a task with demonstrated clean capability — the non-viral
-GENEB/splice tasks are the obvious candidates, since those genuinely do show model-specific
-headroom, or (b) the unlearning contribution becomes a *methods* contribution about how to validate
-a forget target in the first place. Your adversary-validity criteria are most of the way to (b)
-already, and I think that's the more interesting paper.
+**Already in hand:**
+- **NT splice, fine-tuned.** NT-v2 reaches **0.9680 MCC** against a published 0.971–0.984. The
+  harness reproduces published numbers once the adaptation regime matches. Note that even fully
+  fine-tuned, 2 of 3 gLMs *lose* to the properly-sized CNN here — so the control passes while the
+  margin over a fair baseline stays small (+0.015).
+- **GENEB, 13 categories, per model** against a fairly-tuned k-mer: GENA-LM 11 wins / 0 ties /
+  2 losses, NT-v2 10/1/2, HyenaDNA 6/1/6. Two of three models win clearly, so pretraining does buy
+  real headroom on non-viral tasks — model-dependently.
 
----
+**Where I expect further positives to come from, in priority order:**
+1. **ProteinGym viral supervised (22 assays).** The entire 95-scorer leaderboard is zero-shot;
+   nobody has tested whether *supervised* adaptation on viral DMS beats MSA methods. This is the
+   single most likely place a genuine viral positive shows up, and it's completely untouched.
+2. **LucaVirus on ViroBench.** A virus-specific pretrained model on a viral benchmark is the most
+   plausible source of a real viral advantage. Our earlier negative was our own bug (we read a
+   collapsed final layer); a layer sweep is running and I'd treat their published numbers as
+   unrefuted until it lands.
+3. **GENEB's remaining 87 tasks.** The 13-task sentinel already wins most categories; the full run
+   should broaden that and gives the paper a much stronger positive-control leg.
+4. **Strict Host_Tropism.** The one HVUE task that survives homology filtering (3,391 clean rows).
+   Running now — if a gap appears there it's our only clean viral positive.
 
-## 4. What I'd like you to pick up
+## 5. What I'd like you to take
 
-1. **Re-derive the forget/retain classification** with `best_shortcut = max(k-mer, dev-selected CNN)`
-   and on `easy-search`-filtered splits. My guess is nothing survives on HVUE and the honest output
-   is "no valid forget target in this benchmark family" — which is itself a result.
-2. **Apply the same audit to the retain set.** `retain.csv` draws 2,000 Coronaviridae and 2,000
-   Orthomyxoviridae rows; if those overlap the forget set at high identity, retain-set protection is
-   partly protecting the thing we're erasing. Nobody has measured that.
-3. **ProteinGym viral supervised** — 22 assays, still the only untouched modality, and the one place
-   a genuine viral capability might show up (the whole 95-scorer leaderboard is zero-shot).
+**(a) ProteinGym viral supervised — the highest-value open item.** 22 viral assays under
+`/data/nvidia/proteingym/DMS_ProteinGym_substitutions/`. Protocol: ESM-2 650M/3B embeddings →
+ridge/LR, position-disjoint `contiguous` and `modulo` splits, Spearman, against published
+ESCOTT/GEMME/S3F_MSA **plus** a supervised one-hot + biochemical control (that control is the point
+— it's the equivalent of the CNN on the DNA side). Needs a new script; `phase2/proteingym_*.py` has
+the data-loading pieces to reuse.
 
-Running here now: LucaVirus layer sweep, strict Host_Tropism head-to-head on the 3,391 clean rows,
-multi-seed splice FT for CIs on the +0.0152, GENA-LM LR extension past the grid edge, and deduped
-virus_covid.
+**(b) GENEB remaining 87 tasks**, using `scripts/geneb/` — including the fair-k-mer refit, since
+GENEB's shipped reference baseline is degenerate on at least one task.
 
-Two things I got wrong along the way, for the record: I reported LucaVirus as a large negative when
-it was my layer choice, and I called the splice positive control a *failure* before realising our own
-CNN baseline couldn't see the whole input. Both are in the synthesis doc with the corrections.
+**(c) Two protocol rules to apply to anything new**, both of which changed conclusions for us:
+- Run `scripts/viral_benchmark/capacity_sweep.py` before quoting any baseline number. Selection is
+  dev-only; it reports the dev-selected cell and the oracle-best separately, and for HVUE it carves
+  a group-disjoint dev so architecture choice faces the same holdout as test.
+- Audit every split with `easy-search` partial overlap, not `easy-cluster`. The script is
+  `scratchpad/multimodel/partial_overlap_audit.py`. Our EPI numbers make me think the same tool
+  difference is in play there and the real overlap is higher than we've reported.
+
+Other scripts worth knowing: `virobench_frozen_probe.py` (has a `--layer` flag now — required for
+LucaVirus), `splice_finetune.py` (LR sweep + warmup, and a guard that aborts if a load path silently
+re-initialises pretrained weights — worth reusing, it caught a bug where GENA-LM was training with
+48 randomly-initialised LayerNorms and scoring exactly 0.0000).
+
+Running here now: LucaVirus layer sweep, strict Host_Tropism, deduped virus_covid, multi-seed splice
+FT, GENA-LM LR extension.
+
+Happy to talk through the paper framing whenever — that's the open question, not the evidence.
