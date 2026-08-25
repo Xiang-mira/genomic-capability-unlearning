@@ -1,0 +1,30 @@
+{
+  "aris_source_branch": "viral-benchmark-continuation",
+  "aris_source_commit": "2cf5c967ce6739026e7fabd2381b394b5add4b64",
+  "working_branch": "xiang/viral-benchmark-continuation-a1",
+  "source_head_equals_origin": true,
+  "group1_status": "BLOCKED",
+  "group1_recommendation": "BLOCKED_BY_ACCESS",
+  "blockers": [
+    "No local GENEB data found; set VB_GENEB_DIR.",
+    "Complete canonical 13-task GENEB sentinel manifest not found in branch docs/history; set VB_GENEB_TASK_MANIFEST.",
+    "Slurm sbatch/squeue are unavailable.",
+    "nvidia-smi fails with driver/library mismatch."
+  ],
+  "completed": [
+    "Synced Aris latest origin/viral-benchmark-continuation.",
+    "Read PAPER_DESIGN, PROTOCOL, TESTED_MATRIX, RESEARCH_PLAN, README.",
+    "Added GENEB loader interface to scripts/common/capacity_sweep.py.",
+    "Added single-task smoke controls: --dry_run and --max_cells.",
+    "Added split checksum manifest generation to capacity_sweep outputs.",
+    "Added recoverable Group 1 preflight/finalizer interfaces.",
+    "Generated Group 0 and Group 1 status artifacts.",
+    "Audited branch docs/history for GENEB canonical source and recorded missing 13-task manifest blocker."
+  ],
+  "not_launched": [
+    "GENEB CNN ladder formal experiments",
+    "GENEB frozen probe layer sweep",
+    "A2 Borzoi-style long-range anchor",
+    "Group 3/4 experiments"
+  ]
+}

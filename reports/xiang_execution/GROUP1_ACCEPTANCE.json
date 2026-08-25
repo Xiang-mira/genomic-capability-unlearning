@@ -1,0 +1,26 @@
+{
+  "status": "BLOCKED",
+  "recommendation": "BLOCKED_BY_ACCESS",
+  "engineering_validity": {
+    "all_13_geneb_tasks_have_explicit_status": false,
+    "silent_model_reinitialization_checked": false,
+    "exact_zero_loading_bug_checked": false,
+    "architecture_and_layer_selection_dev_only": false,
+    "test_set_final_only": false,
+    "split_audit_completed": false,
+    "all_seeds_traceable": false,
+    "aggregation_free_of_missing_cells": false
+  },
+  "scientific_result": {
+    "geneb_fm_wins_survived": null,
+    "trustworthy_positive_control_established": false,
+    "long_context_candidate_found": true,
+    "candidate_qualification_result": "PARTIAL"
+  },
+  "blockers": [
+    "GENEB data unavailable",
+    "GENEB 13-task canonical manifest unavailable",
+    "Slurm unavailable",
+    "GPU unavailable"
+  ]
+}

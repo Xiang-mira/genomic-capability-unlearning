@@ -1,0 +1,40 @@
+{
+  "status": "CANONICAL_SOURCE_NOT_FULLY_RESOLVED_FROM_BRANCH",
+  "required_environment": {
+    "VB_GENEB_DIR": "Canonical GENEB data root",
+    "VB_GENEB_TASK_MANIFEST": "CSV manifest containing the 13 sentinel tasks"
+  },
+  "required_manifest_columns": [
+    "task",
+    "benchmark",
+    "category",
+    "metric",
+    "source_version",
+    "split_source"
+  ],
+  "required_split_columns": [
+    "sequence",
+    "label"
+  ],
+  "optional_split_columns": [
+    "id"
+  ],
+  "accepted_layouts": [
+    "<root>/<task>/{train,dev,test}.parquet",
+    "<root>/<task>/{train,dev,test}.csv",
+    "<root>/<task>__{train,dev,test}.parquet",
+    "<root>/<task>__{train,dev,test}.csv",
+    "<root>/<task>.parquet with split/partition column",
+    "<root>/<task>.csv with split/partition column"
+  ],
+  "branch_confirmed_task_mentions_not_complete_manifest": [
+    "GUE human_tf_0",
+    "GUE mouse_0",
+    "NT enhancers",
+    "iDHS-EL DNase_I",
+    "deep4mc A.thaliana 4mC",
+    "NT H3",
+    "ensembl_regulatory"
+  ],
+  "first_real_compute_command": "scripts/orchestration/launch_group1.sh --smoke <one_task_from_manifest>"
+}

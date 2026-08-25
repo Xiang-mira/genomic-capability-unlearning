@@ -20,15 +20,16 @@ Discipline: architecture AND capacity are selected on DEV only; test is scored o
 (arch, capacity) cell and the selection is reported separately so the reader can see both
 the dev-selected number and the full curve.
 """
-import argparse, json, os, sys, time
+import argparse, hashlib, json, os, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, pandas as pd, torch, torch.nn as nn, torch.nn.functional as F
 import paths as P
 from sklearn.metrics import matthews_corrcoef, f1_score, accuracy_score, roc_auc_score
 import warnings; warnings.filterwarnings("ignore")
 
-OUT = P.sub("capacity_sweep")
+OUT = None
 NT_DIR = os.environ.get("VB_NT_DIR", "/data/nvidia/data/ntv3")
+GENEB_DIR = os.environ.get("VB_GENEB_DIR", os.path.join(P.OUT, "geneb"))
 MAPI = np.full(256, 4, np.int64)
 for i, c in enumerate("ACGT"):
     MAPI[ord(c)] = i; MAPI[ord(c.lower())] = i
@@ -103,6 +104,101 @@ LADDER = [
 ]
 INCUMBENT = ("dilated", 128, 5)
 
+def approx_rf(arch, nb, seqlen):
+    if arch == "dilated":
+        return min(seqlen, 1 + 8 * sum(2 ** min(i, 8) for i in range(nb)))
+    if arch == "resnet":
+        return min(seqlen, 1 + 8 * (1 + 2 * nb))
+    # The U-Net arm is treated as the global/context arm in the project reports:
+    # strided encoding plus full-sequence pooling gives the classifier sequence-wide access.
+    return seqlen
+
+def _read_table(path):
+    if str(path).endswith(".parquet"):
+        return pd.read_parquet(path)
+    return pd.read_csv(path)
+
+def _find_geneb_split(root, task, split):
+    names = [split]
+    if split == "dev":
+        names += ["val", "validation"]
+    patterns = []
+    for nm in names:
+        patterns += [
+            os.path.join(root, task, f"{nm}.parquet"),
+            os.path.join(root, task, f"{nm}.csv"),
+            os.path.join(root, f"{task}__{nm}.parquet"),
+            os.path.join(root, f"{task}__{nm}.csv"),
+            os.path.join(root, f"{task}_{nm}.parquet"),
+            os.path.join(root, f"{task}_{nm}.csv"),
+        ]
+    for pth in patterns:
+        if os.path.exists(pth):
+            return pth
+    return None
+
+def _normalise_geneb(df, split_name):
+    d = df.copy()
+    ren = {}
+    for c in d.columns:
+        lc = c.lower()
+        if lc in {"seq", "dna", "text"} and "sequence" not in d.columns:
+            ren[c] = "sequence"
+        if lc in {"target", "y", "class"} and "label" not in d.columns:
+            ren[c] = "label"
+    d = d.rename(columns=ren)
+    if "sequence" not in d.columns or "label" not in d.columns:
+        raise ValueError(f"GENEB {split_name} split must contain sequence,label columns; saw {list(d.columns)}")
+    d["sequence"] = d["sequence"].astype(str).str.upper()
+    if not np.issubdtype(d["label"].dtype, np.number):
+        ix = {v: i for i, v in enumerate(sorted(d["label"].dropna().unique()))}
+        d["label"] = d["label"].map(ix)
+    return d.reset_index(drop=True)
+
+def _load_geneb(task):
+    root = GENEB_DIR
+    paths = {s: _find_geneb_split(root, task, s) for s in ("train", "dev", "test")}
+    if all(paths.values()):
+        tr, dv, te = (_normalise_geneb(_read_table(paths[s]), s) for s in ("train", "dev", "test"))
+        return tr, dv, te, "label", os.environ.get("VB_GENEB_METRIC", "mcc")
+    combined = None
+    for pth in (os.path.join(root, f"{task}.parquet"), os.path.join(root, f"{task}.csv")):
+        if os.path.exists(pth):
+            combined = pth
+            break
+    if combined:
+        d = _normalise_geneb(_read_table(combined), "combined")
+        split_col = next((c for c in d.columns if c.lower() in {"split", "partition"}), None)
+        if not split_col:
+            raise ValueError(f"GENEB combined file {combined} needs split/partition column")
+        vals = d[split_col].astype(str).str.lower()
+        tr = d[vals == "train"].reset_index(drop=True)
+        dv = d[vals.isin(["dev", "val", "validation"])].reset_index(drop=True)
+        te = d[vals == "test"].reset_index(drop=True)
+        if min(len(tr), len(dv), len(te)) == 0:
+            raise ValueError(f"GENEB combined file {combined} has empty train/dev/test split")
+        return tr, dv, te, "label", os.environ.get("VB_GENEB_METRIC", "mcc")
+    raise FileNotFoundError(
+        "GENEB data not found. Set VB_GENEB_DIR to files like "
+        "<root>/<task>/{train,dev,test}.parquet or <root>/<task>__{train,dev,test}.csv"
+    )
+
+def split_manifest(ds, task, tr, dv, te, ycol, metric, out_dir):
+    def one(name, df):
+        h = hashlib.sha256()
+        ids = df["id"].tolist() if "id" in df.columns else list(range(len(df)))
+        for rid, seq, lab in zip(ids, df["sequence"].astype(str), df[ycol].astype(str)):
+            h.update(f"{rid}\t{seq}\t{lab}\n".encode())
+        return dict(n=len(df), classes=sorted(map(str, df[ycol].dropna().unique())),
+                    sequence_sha256=h.hexdigest())
+    man = dict(dataset=ds, task=task, metric=metric, ycol=ycol,
+               source_dirs=dict(geneb=GENEB_DIR if ds == "geneb" else None, nt=NT_DIR if ds == "splice" else None),
+               splits={k: one(k, v) for k, v in dict(train=tr, dev=dv, test=te).items()})
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, f"{ds}__{task}__split_manifest.json")
+    json.dump(man, open(path, "w"), indent=2)
+    return path
+
 def enc(seqs, L):
     X = np.full((len(seqs), L), 4, np.int64)
     for i, s in enumerate(seqs):
@@ -110,6 +206,8 @@ def enc(seqs, L):
     return X
 
 def load(ds, task, level, seqcap, min_count=1):
+    if ds == "geneb":
+        return _load_geneb(task)
     if ds == "splice":
         tr = pd.read_parquet(f"{NT_DIR}/{task}/train.parquet")
         te = pd.read_parquet(f"{NT_DIR}/{task}/test.parquet")
@@ -146,8 +244,9 @@ def load(ds, task, level, seqcap, min_count=1):
     raise ValueError(ds)
 
 def main():
+    global OUT
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dataset", required=True, choices=["splice","hvue","virobench"])
+    ap.add_argument("--dataset", required=True, choices=["splice","hvue","virobench","geneb"])
     ap.add_argument("--task", default="ALL_times")
     ap.add_argument("--level", default="family")
     ap.add_argument("--seqlen", type=int, default=0, help="0 = native length")
@@ -155,11 +254,18 @@ def main():
     ap.add_argument("--seeds", nargs="+", type=int, default=[42,43])
     ap.add_argument("--epochs", type=int, default=30); ap.add_argument("--bs", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-3); ap.add_argument("--device", default="cuda:0")
+    ap.add_argument("--max_cells", type=int, default=0, help="debug/smoke: run only first N ladder cells")
+    ap.add_argument("--dry_run", action="store_true", help="load data, write split manifest, then exit")
     a = ap.parse_args()
+    OUT = P.sub("capacity_sweep")
     tr, dv, te, ycol, metric = load(a.dataset, a.task, a.level, a.seqlen, a.min_count)
     L = a.seqlen or len(tr.sequence.iloc[0])
+    manifest_path = split_manifest(a.dataset, a.task, tr, dv, te, ycol, metric, OUT)
     ncls = int(pd.concat([tr,dv,te])[ycol].nunique())
     print(f"{a.dataset}/{a.task}: classes={ncls} train={len(tr)} dev={len(dv)} test={len(te)} L={L} metric={metric}", flush=True)
+    if a.dry_run:
+        print(f"  dry-run OK: wrote {manifest_path}", flush=True)
+        return
     Itr = torch.from_numpy(enc(tr.sequence.tolist(), L)); ytr = torch.tensor(tr[ycol].values, dtype=torch.long)
     Idv = torch.from_numpy(enc(dv.sequence.tolist(), L)); ydv = dv[ycol].values.astype(int)
     Ite = torch.from_numpy(enc(te.sequence.tolist(), L)); yte = te[ycol].values.astype(int)
@@ -169,7 +275,8 @@ def main():
         if metric == "macro_f1": return float(f1_score(y, p, average="macro", zero_division=0))
         return float(matthews_corrcoef(y, p))
     rows = []
-    for arch, ch, nb in LADDER:
+    ladder = LADDER[:a.max_cells] if a.max_cells else LADDER
+    for arch, ch, nb in ladder:
         npar = sum(p.numel() for p in build(arch, ncls, ch, nb).parameters())
         per = []
         for seed in a.seeds:
@@ -210,6 +317,7 @@ def main():
         if per is None: continue
         dv_m = float(np.mean([p['dev'] for p in per])); te_m = float(np.mean([p['test'] for p in per]))
         rows.append(dict(arch=arch, ch=ch, blocks=nb, params=npar, params_M=round(npar/1e6,3),
+                         receptive_field_bp=approx_rf(arch, nb, L), input_length_bp=L,
                          dev=round(dv_m,4), test=round(te_m,4),
                          test_sd=round(float(np.std([p['test'] for p in per], ddof=1)),4) if len(per)>1 else None,
                          runs=per))
@@ -217,6 +325,7 @@ def main():
     best_by_dev = max(rows, key=lambda r: r['dev'])
     res = dict(dataset=a.dataset, task=a.task, metric=metric, n_classes=ncls, seqlen=L,
                n_train=len(tr), n_dev=len(dv), n_test=len(te), seeds=a.seeds,
+               split_manifest=manifest_path,
                ladder=rows,
                dev_selected=dict(arch=best_by_dev['arch'], params_M=best_by_dev['params_M'],
                                  dev=best_by_dev['dev'], test=best_by_dev['test']),
