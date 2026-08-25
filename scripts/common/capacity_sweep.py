@@ -117,7 +117,11 @@ def load(ds, task, level, seqcap, min_count=1):
         m[rng.permutation(len(tr))[:int(.15*len(tr))]] = True
         return tr[~m].reset_index(drop=True), tr[m].reset_index(drop=True), te, "label", "mcc"
     if ds == "hvue":
-        d = pd.read_parquet(f"{P.sub('splits_ungated')}/{task}__identity_disjoint_hsd0.parquet")
+        # allow an explicit split file so the ladder can run on the homology-strict splits,
+        # not just splits_ungated/*identity_disjoint_hsd0
+        _sd = os.environ.get("VB_SPLIT_DIR") or P.sub("splits_ungated")
+        _sx = os.environ.get("VB_SPLIT_SUFFIX", "identity_disjoint_hsd0")
+        d = pd.read_parquet(f"{_sd}/{task}__{_sx}.parquet")
         trall = d[d.partition == "train"].reset_index(drop=True)
         te = d[d.partition == "val"].reset_index(drop=True)
         # group-disjoint dev, so capacity/arch selection faces the same homology holdout as test
@@ -220,7 +224,7 @@ def main():
                incumbent=next(({k: r[k] for k in ('arch','params_M','dev','test')} for r in rows
                                if (r['arch'], r['ch'], r['blocks']) == INCUMBENT), None))
     os.makedirs(OUT, exist_ok=True)
-    tag = f"{a.dataset}__{a.task}" + (f"__{a.level}" if a.dataset == "virobench" else "")
+    tag = f"{a.dataset}__{a.task}" + (f"__{os.environ['VB_SPLIT_SUFFIX']}" if os.environ.get('VB_SPLIT_SUFFIX') else "") + (f"__{a.level}" if a.dataset == "virobench" else "")
     json.dump(res, open(f"{OUT}/{tag}.json","w"), indent=2)
     print(f"\n  DEV-SELECTED: {best_by_dev['arch']} @ {best_by_dev['params_M']}M -> test {best_by_dev['test']:.4f}")
     print(f"  oracle best test across ladder: {res['oracle_best_test']:.4f} (report as oracle, not as the baseline)")
