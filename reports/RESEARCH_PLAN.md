@@ -1,5 +1,9 @@
 # Research plan — two tracks, one harness
 
+> **Scientific design lives in [PAPER_DESIGN.md](PAPER_DESIGN.md)** — the validity grid, the
+> quadrant contents, and the ordered action items. This document is the *operational* view: how the
+> work is split into two tracks that share a harness. Read the design first.
+
 We are running two overlapping programmes. They share the harness, the baseline ladder, the split
 auditing and the measurement protocol; they differ in scope and in what a "result" means.
 

@@ -2,8 +2,23 @@
 
 Branch: `viral-benchmark-continuation`.
 
-Two overlapping programmes sharing one harness. **Read
-[reports/RESEARCH_PLAN.md](reports/RESEARCH_PLAN.md) first.**
+A positive-and-negative-controls study of genomic foundation model capability. **Read
+[reports/PAPER_DESIGN.md](reports/PAPER_DESIGN.md) first** — it holds the validity grid the whole
+design rests on, the current contents of each quadrant, and the ordered action items.
+
+The design populates a grid and picks every task to land in a **known** quadrant, because a viral
+null is only informative if the harness is shown to detect capability elsewhere on comparably
+honest ground:
+
+**{capability present / absent} × {split honest / leaky} × {baseline honest / under-powered}**
+
+The third axis is ours. A "capability present" verdict can be manufactured three ways and we have a
+measured instance of each — a leaky split (HVUE Pathogenecity, 96 of 5,194 test rows survive
+filtering), an under-powered baseline (splice CNN receptive field, **+0.62 MCC**), and a wrong
+comparator class (ViroBench without alignment, **+0.115**).
+
+Operationally this runs as two tracks sharing one harness — see
+[reports/RESEARCH_PLAN.md](reports/RESEARCH_PLAN.md).
 
 | | **Track A — benchmark & method audit** | **Track B — viral capability** |
 |:--|:--|:--|
@@ -19,7 +34,8 @@ capability elsewhere. Track A's headline was discovered *because* Track B forced
 
 | doc | what it is |
 |:--|:--|
-| **[reports/RESEARCH_PLAN.md](reports/RESEARCH_PLAN.md)** | the two tracks, status, and what each still needs |
+| **[reports/PAPER_DESIGN.md](reports/PAPER_DESIGN.md)** | the validity grid, quadrant contents, action items, and the three anchors that moved |
+| **[reports/RESEARCH_PLAN.md](reports/RESEARCH_PLAN.md)** | the two operational tracks, status, and what each still needs |
 | **[reports/PROTOCOL.md](reports/PROTOCOL.md)** | 27 binding rules; each one exists because violating it changed a conclusion here |
 | **[reports/TESTED_MATRIX.md](reports/TESTED_MATRIX.md)** | benchmark × method × regime, what is done / partial / invalid, and claims withdrawn |
 | [reports/BASELINE_CAPACITY_CEILING.md](reports/BASELINE_CAPACITY_CEILING.md) | the receptive-field finding |
@@ -96,6 +112,17 @@ pretrained LayerNorms (pre-LN checkpoint vs post-LN HF class) and the model coll
 majority class at every LR — use `AutoModel` + your own head, and keep
 `assert_no_fresh_encoder_weights()`. And LucaVirus's tokenizer returns `token_type_ids` of the
 wrong length under padding.
+
+## Three anchors moved — do not reuse older numbers
+
+1. **The splice positive control is +0.015, not +0.30–0.64.** The old gap was measured against a CNN
+   whose receptive field could not span a 600bp input. The control still passes (NT-v2 FT 0.9674 ±
+   0.0025 vs published 0.971–0.984) but the margin is small, and 2 of 3 gLMs *lose* to the CNN.
+2. **LucaVirus's +0.079 is gone** — −0.279 to −0.294 across layers −1/−2/−3/−5, all significant. The
+   viral modality has no live exception.
+3. **HVUE identity-disjoint does not carry the safety claim.** Pathogenecity and Transmissibility
+   retain 96/5,194 and 60/4,956 homology-clean rows. Only Host_Tropism survives, and there NT-v2
+   *wins* by +0.0059.
 
 ## The single most important open gap
 
