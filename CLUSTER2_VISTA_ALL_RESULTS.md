@@ -115,9 +115,18 @@ One task per category, full regime, 5 seeds (GENEB protocol). Our 3 project gLMs
 | coding_vs_intergenomic | 0.706 | 0.734 | 0.780 | 0.677 | 0.853 | 0.904 |
 | iDHS-EL DNase_I | **0.000** | **0.589** | 0.593 | 0.413 | 0.509 | 0.728 |
 
-**Against the *fair* k-mer, best-of-our-3-gLMs wins 13/13.** Under a frozen-probe protocol, across
-13 independently-chosen categories. This is the broadest positive-control evidence either cluster
-has produced — wider than the NTv3 splice result, which is a single task family.
+**Per-model, not best-of-3** (Cluster 1, T6.2 — best-of-3 is a max-over-models statistic, the
+same bias flagged in §1.2). Against the fair k-mer, ±0.005 tie band:
+**GENA-LM 11W/0T/2L (mean +0.083), NT-v2 10W/1T/2L (+0.078), HyenaDNA 6W/1T/6L (−0.026)**.
+The claim survives for 2 of 3 models; HyenaDNA is a coin flip.
+
+**Protocol caveat (see `CLUSTER2_REPLY_T1_T6.md` T5):** the fair-k-mer column is tuned
+(standardised, dev-swept C, class-balanced) while the three gLM columns use GENEB's stock
+untuned probe (C=1.0, no scaling). The comparison is therefore **not protocol-matched** — the
+gLMs are handicapped, so the direction is conservative, but the matched comparison is
+naive-kmer vs gLMs = **11/13**, not 13/13. Also, fair-k-mer C was selected on dev macro-F1 while
+the reported metric is MCC, which is why several fair-k-mer cells are *worse* than naive; those
+12 rows are provisional pending a dev-MCC refit (the DNase_I 0.000→0.589 rescue is unaffected).
 
 Our 3 models still trail the best-of-40 published (~0.10–0.20 MCC) — expected, several of those
 are much larger or task-specialized (GenomeOcean-4B, Enformer, GENERator-3B, LucaOne).
@@ -133,13 +142,13 @@ Not done: 87 remaining tasks, 10-shot/1-shot regimes.
 `reports/positive_control_comparison.md`, `reports/epi_comparison.md`. Baseline =
 max(k-mer3-5, k-mer3-6, **mean-over-3-seeds** CNN).
 
-**NTv3 splice = the clean fine-tuning positive control** (chromosome-disjoint, 0% overlap verified):
-
-| task | our baseline MCC | best published | gap |
-|:--|--:|--:|--:|
-| NT Splice All | 0.373 | 0.971 (NTv2) | **+0.598** |
-| NT Splice Acceptor | 0.619 | 0.971 (GJ-B) | **+0.352** |
-| NT Splice Donor | 0.676 | 0.984 (GJ-B) | **+0.308** |
+**NTv3 splice — RETRACTED as a positive control (Cluster 1, T6.1).** We reported gaps of
++0.598 / +0.352 / +0.308 (Splice All / Acceptor / Donor). These are a **receptive-field artifact
+of the incumbent CNN**, not a baseline ceiling. Our baselines (0.373 / 0.619 / 0.676) reproduce
+Cluster 1's incumbent CNN (0.354 / 0.613 / 0.669); their 13-cell architecture × capacity ladder
+reaches **0.9528 / 0.9527 / 0.9637**, so the true gap is **+0.02 to +0.03**. Mechanism: a 9.44M-param
+ResNet with RF 89 bp scores 0.336 on a 600 bp input, while a 0.26M U-Net with global RF scores
+0.951. Do not use the +0.598 framing anywhere.
 
 Everything else is small: mean gap GUE **0.055**, NT **0.140**; 11/30 tasks have the baseline
 within 0.05 MCC of the best published model.

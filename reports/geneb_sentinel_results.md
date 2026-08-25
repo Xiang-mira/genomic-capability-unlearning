@@ -43,15 +43,30 @@ clone), results: fair_kmer_sentinel_results.json.
 
 ## Reading
 
-**With the fair k-mer baseline, our gLMs beat it on 13 of 13 sentinel tasks** (best of the 3
-models per task) -- more decisive than the naive-kmer comparison (11/13), because two of the
-apparent "kmer wins" against individual models (GUE mouse_0 vs NT-v2/HyenaDNA, GUE human_tf_0 vs
-NT-v2/HyenaDNA) are still beaten by GENA-LM in both cases. This is the cleanest, most
-comprehensive positive-control evidence found anywhere in this project this session -- broader
-than the single-task-family NTv3 splice-site result, because it spans 13 independently-chosen
-categories (histone marks, promoters, enhancers, methylation, splice sites, lncRNA, mouse
-enhancers, TF binding, species classification, regulatory elements, virus/phage, coding/noncoding,
-chromatin accessibility) under a frozen-probe (not fine-tuning) protocol.
+**Per-model (not best-of-3).** Best-of-3 is a max-over-models statistic — the same optimistic
+bias corrected elsewhere in this project. Against the fair k-mer, +/-0.005 tie band:
+**GENA-LM 11W/0T/2L (mean +0.083), NT-v2 10W/1T/2L (+0.078), HyenaDNA 6W/1T/6L (-0.026)**.
+The positive-control claim survives for 2 of 3 models; HyenaDNA is at chance.
+
+**This comparison is NOT protocol-matched.** The fair-k-mer column is standardised, dev-swept-C
+and class-balanced; the three gLM columns use GENEB's stock probe (C=1.0, no scaling, no class
+weight, no dev split -- see run_GENEB.py's fit_eval). The gLMs are handicapped, so the direction
+is conservative, but the protocol-matched comparison is naive-kmer vs gLMs = **11/13**, not 13/13.
+Additionally, fair-k-mer C was selected on dev macro-F1 while the reported metric is MCC, which is
+why several fair-k-mer cells are worse than naive (enhancers 0.456->0.425, human_tf_0
+0.611->0.537, ensembl_regulatory 0.348->0.289); those rows are provisional pending a dev-MCC
+refit. The DNase_I 0.000->0.589 rescue is a degenerate-fit fix and is unaffected.
+
+**Layer convention.** GENEB specifies no layer (run_GENEB.py only calls
+extract_embeddings(); benchmark_spec.json says pooling is "model-specific"). Our extractors use
+hidden_states[-1] + attention-masked mean pooling. The 40-model leaderboard may mix conventions,
+so our-vs-leaderboard comparisons are not layer-controlled.
+
+**Task selection.** The 13 are the first task listed in each of the 13 categories of
+benchmark_spec.json["category_order"] -- chosen before seeing any result (no selection on
+outcome), but NOT difficulty- or size-stratified, and category sizes are very unequal
+(Histone Mod. 30 tasks vs Chromatin Acc. 1). Read "13/13" as one-per-category, not as a random
+sample of the 100.
 
 Our 3 models still generally trail the best of GENEB's 40 published models (mean gap ~0.10-0.20
 MCC) -- expected, since several of those (GenomeOcean-4B, Enformer, GENERator-3B, LucaOne) are
