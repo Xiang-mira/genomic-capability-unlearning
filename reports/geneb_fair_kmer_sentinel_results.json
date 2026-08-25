@@ -1,0 +1,106 @@
+[
+  {
+    "task": "InstaDeepAI_nucleotide_transformer_downstream_tasks_H3",
+    "C": 0.1,
+    "dev_f1": null,
+    "mcc": 0.5899,
+    "acc": 0.7949,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "InstaDeepAI_nucleotide_transformer_downstream_tasks_promoter_all",
+    "C": 0.03,
+    "dev_f1": null,
+    "mcc": 0.8132,
+    "acc": 0.9066,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "InstaDeepAI_nucleotide_transformer_downstream_tasks_enhancers",
+    "C": 0.03,
+    "dev_f1": null,
+    "mcc": 0.4253,
+    "acc": 0.7125,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "deep4mc_A.thaliana_4mC",
+    "C": 0.01,
+    "dev_f1": null,
+    "mcc": 0.2043,
+    "acc": 0.6018,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "InstaDeepAI_nucleotide_transformer_downstream_tasks_revised_splice_sites_acceptors",
+    "C": 0.001,
+    "dev_f1": null,
+    "mcc": 0.3865,
+    "acc": 0.6933,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "InstaDeepAI_plant-genomic-benchmark_lncrna.g_max",
+    "C": 0.03,
+    "dev_f1": null,
+    "mcc": 0.1552,
+    "acc": 0.5776,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "leannmlindsey_GUE_mouse_0",
+    "C": 0.001,
+    "dev_f1": null,
+    "mcc": 0.4371,
+    "acc": 0.7185,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "leannmlindsey_GUE_human_tf_0",
+    "C": 0.001,
+    "dev_f1": null,
+    "mcc": 0.5368,
+    "acc": 0.767,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "katarinagresova_Genomic_Benchmarks_demo_human_or_worm",
+    "C": 0.001,
+    "dev_f1": null,
+    "mcc": 0.8122,
+    "acc": 0.9034,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "katarinagresova_Genomic_Benchmarks_human_ensembl_regulatory",
+    "C": 10.0,
+    "dev_f1": null,
+    "mcc": 0.2892,
+    "acc": 0.5271,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "leannmlindsey_GUE_phage_fragments",
+    "C": 0.01,
+    "dev_f1": 0.8182,
+    "mcc": 0.604,
+    "acc": 0.8019,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "katarinagresova_Genomic_Benchmarks_demo_coding_vs_intergenomic_seqs",
+    "C": 0.003,
+    "dev_f1": 0.8823,
+    "mcc": 0.734,
+    "acc": 0.8639,
+    "n_pred_classes": 2
+  },
+  {
+    "task": "iDHS-EL_DNase_I",
+    "C": 0.001,
+    "dev_f1": 0.7868,
+    "mcc": 0.5889,
+    "acc": 0.8203,
+    "n_pred_classes": 2
+  }
+]
