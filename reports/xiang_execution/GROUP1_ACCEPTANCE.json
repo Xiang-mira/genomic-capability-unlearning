@@ -1,6 +1,6 @@
 {
   "status": "BLOCKED",
-  "recommendation": "BLOCKED_BY_ACCESS",
+  "recommendation": "SPECIFICATION_BLOCKED",
   "engineering_validity": {
     "all_13_geneb_tasks_have_explicit_status": false,
     "silent_model_reinitialization_checked": false,
@@ -19,7 +19,7 @@
   },
   "blockers": [
     "GENEB data unavailable",
-    "GENEB 13-task canonical manifest unavailable",
+    "GENEB 13-task canonical manifest unavailable; SPECIFICATION_BLOCKED pending Aris confirmation",
     "Slurm unavailable",
     "GPU unavailable"
   ]

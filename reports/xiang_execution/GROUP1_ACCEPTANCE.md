@@ -2,7 +2,7 @@
 
 Status: `BLOCKED`
 
-Recommendation: `BLOCKED_BY_ACCESS`
+Recommendation: `SPECIFICATION_BLOCKED`
 
 ## Engineering Validity
 
@@ -20,7 +20,7 @@ Recommendation: `BLOCKED_BY_ACCESS`
 ## Scientific Result
 
 - GENEB A1: code interface partial, formal experiment blocked.
-- GENEB canonical source: incomplete in branch; 7 task mentions found, not the full 13-task manifest.
+- GENEB canonical source: `SPECIFICATION_BLOCKED`; 7 provisional task mentions and 4 excluded task mentions found, but no complete 13-task manifest.
 - G1-B longer-context inventory: partial candidate matrix created.
 - New trustworthy Quadrant A positive control: `NO`.
 - Proceed to Group 2: `NO`, wait for manual acceptance and access resolution.

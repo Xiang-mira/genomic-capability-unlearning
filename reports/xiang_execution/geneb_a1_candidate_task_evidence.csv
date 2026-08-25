@@ -1,0 +1,14 @@
+candidate_task,task_role,status,evidence_source,evidence_commit,evidence_quote_or_summary,canonical_for_a1
+GUE human_tf_0,GENEB/FT slate task,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md,675dadf,"Provisional slate: probe 0.576 vs fair k-mer 0.537; inside ambiguity band",UNKNOWN
+GUE mouse_0,GENEB/FT slate task,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md,675dadf,"Provisional slate: probe 0.378 below k-mer 0.437",UNKNOWN
+NT enhancers,GENEB/FT slate task,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md,675dadf,"Provisional slate: probe 0.396 vs k-mer 0.425",UNKNOWN
+iDHS-EL DNase_I,GENEB/FT slate task and baseline-fix example,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md; reports/PAPER_DESIGN.md,675dadf;2cf5c96,"Fair k-mer 0.589 vs probe 0.593; branch also states reference k-mer was degenerate at MCC 0.000 before fair refit",UNKNOWN
+deep4mc A.thaliana 4mC,GENEB/FT slate task,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md,675dadf,"Provisional slate: position-dependent methylation; probe spread 0.071-0.331 suspicious",UNKNOWN
+NT H3,GENEB/FT slate task,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md,675dadf,"Provisional slate: probes 0.662-0.705 vs k-mer 0.590",UNKNOWN
+ensembl_regulatory,GENEB/FT slate task,MENTIONED_NOT_CANONICAL_MANIFEST,reports/FULL_FT_DESIGN.md,675dadf,"Provisional slate: largest probe gain +0.266",UNKNOWN
+human_or_worm,excluded GENEB task mention,EXPLICITLY_EXCLUDED_FROM_FT_SLATE,reports/FULL_FT_DESIGN.md,675dadf,"Deliberately excluded: k-mer already 0.81 with large probe gain; verdict not in doubt",NO_FOR_FT_SLATE_UNKNOWN_FOR_A1
+coding_vs_intergenomic,excluded GENEB task mention,EXPLICITLY_EXCLUDED_FROM_FT_SLATE,reports/FULL_FT_DESIGN.md,675dadf,"Deliberately excluded: k-mer already 0.73 with large probe gain; verdict not in doubt",NO_FOR_FT_SLATE_UNKNOWN_FOR_A1
+phage_fragments,excluded GENEB task mention,EXPLICITLY_EXCLUDED_FROM_FT_SLATE,reports/FULL_FT_DESIGN.md,675dadf,"Deliberately excluded: probe +0.250, unambiguous",NO_FOR_FT_SLATE_UNKNOWN_FOR_A1
+lncrna g_max,excluded GENEB task mention,EXPLICITLY_EXCLUDED_FROM_FT_SLATE,reports/FULL_FT_DESIGN.md,675dadf,"Deliberately excluded: n_train likely below S1; verify",NO_FOR_FT_SLATE_UNKNOWN_FOR_A1
+DART-Eval Task 1,non-GENEB positive-control candidate,NOT_GENEB_A1,reports/FULL_FT_DESIGN.md; reports/PAPER_DESIGN.md,675dadf;2cf5c96,"Listed as DART anchor/formalization candidate, not part of GENEB 13",NO
+long-range expression,Group 2/A2 positive-control candidate,NOT_GENEB_A1,reports/FULL_FT_DESIGN.md; reports/PAPER_DESIGN.md,675dadf;2cf5c96,"Borzoi-style missing third anchor; blocked on access; do not launch as G1-A",NO

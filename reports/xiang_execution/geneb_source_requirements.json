@@ -1,5 +1,6 @@
 {
-  "status": "CANONICAL_SOURCE_NOT_FULLY_RESOLVED_FROM_BRANCH",
+  "status": "SPECIFICATION_BLOCKED",
+  "question_for_aris": "Which exact 13 GENEB sentinel tasks should be used for A1, and what canonical GENEB data release, split files, label mappings, metrics, and local/shared path should define VB_GENEB_DIR and VB_GENEB_TASK_MANIFEST?",
   "required_environment": {
     "VB_GENEB_DIR": "Canonical GENEB data root",
     "VB_GENEB_TASK_MANIFEST": "CSV manifest containing the 13 sentinel tasks"
@@ -36,5 +37,16 @@
     "NT H3",
     "ensembl_regulatory"
   ],
+  "branch_confirmed_excluded_task_mentions": [
+    "human_or_worm",
+    "coding_vs_intergenomic",
+    "phage_fragments",
+    "lncrna g_max"
+  ],
+  "remote_heads_checked": [
+    "main",
+    "viral-benchmark-continuation"
+  ],
+  "scripts_geneb_directory_found_in_history": false,
   "first_real_compute_command": "scripts/orchestration/launch_group1.sh --smoke <one_task_from_manifest>"
 }

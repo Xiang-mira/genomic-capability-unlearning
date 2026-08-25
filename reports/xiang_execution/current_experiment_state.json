@@ -3,11 +3,11 @@
   "aris_source_commit": "2cf5c967ce6739026e7fabd2381b394b5add4b64",
   "working_branch": "xiang/viral-benchmark-continuation-a1",
   "source_head_equals_origin": true,
-  "group1_status": "BLOCKED",
-  "group1_recommendation": "BLOCKED_BY_ACCESS",
+  "group1_status": "SPECIFICATION_BLOCKED",
+  "group1_recommendation": "SPECIFICATION_BLOCKED",
   "blockers": [
     "No local GENEB data found; set VB_GENEB_DIR.",
-    "Complete canonical 13-task GENEB sentinel manifest not found in branch docs/history; set VB_GENEB_TASK_MANIFEST.",
+    "Complete canonical 13-task GENEB sentinel manifest not found in branch docs/history/remote heads/deleted files; ask Aris for the exact A1 specification.",
     "Slurm sbatch/squeue are unavailable.",
     "nvidia-smi fails with driver/library mismatch."
   ],
@@ -19,7 +19,9 @@
     "Added split checksum manifest generation to capacity_sweep outputs.",
     "Added recoverable Group 1 preflight/finalizer interfaces.",
     "Generated Group 0 and Group 1 status artifacts.",
-    "Audited branch docs/history for GENEB canonical source and recorded missing 13-task manifest blocker."
+    "Audited branch docs/history for GENEB canonical source and recorded missing 13-task manifest blocker.",
+    "Confirmed origin exposes only main and viral-benchmark-continuation remote heads.",
+    "Confirmed no tracked/deleted scripts/geneb directory exists in reachable history."
   ],
   "not_launched": [
     "GENEB CNN ladder formal experiments",

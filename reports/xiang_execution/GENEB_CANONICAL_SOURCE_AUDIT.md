@@ -1,8 +1,37 @@
 # GENEB Canonical Source Audit
 
-Status: `CANONICAL_SOURCE_NOT_FULLY_RESOLVED_FROM_BRANCH`
+Status: `SPECIFICATION_BLOCKED`
 
 Scope: repo-internal audit only. I did not download or substitute an external GENEB-like dataset.
+
+Conclusion: the current branch and its reachable git history do not uniquely define Aris's A1
+canonical 13-task GENEB sentinel set or the canonical GENEB data/split source. Do not infer the
+remaining tasks from the seven task mentions below.
+
+## Audit Commands Run
+
+Remote/history:
+
+```bash
+git remote -v
+git branch -a
+git ls-remote --heads origin
+git ls-remote --heads https://github.com/Xiang-mira/genomic-capability-unlearning.git
+git log --all --oneline --decorate -- reports/
+git log --all -S"13 sentinel" -- .
+git log --all -S"sentinel" -- .
+git log --all -S"GENEB" -- reports scripts configs
+git grep -n -i "sentinel" $(git rev-list --all)
+git log --all --oneline --name-status -- scripts/geneb 'scripts/**/geneb*' '*geneb*' '*GENEB*'
+git log --all -S"scripts/geneb" -- .
+```
+
+Result:
+
+- Remote heads visible by SSH and HTTPS: only `main` and `viral-benchmark-continuation`.
+- No other Aris remote branch is available from `origin`.
+- No tracked or deleted `scripts/geneb/` directory was found in reachable history.
+- No tracked or deleted GENEB manifest/config/result file containing the full 13-task set was found.
 
 ## What The Branch Confirms
 
@@ -29,6 +58,21 @@ These are mentioned in `reports/FULL_FT_DESIGN.md` as a provisional full-FT slat
 
 This is insufficient to define the required 13-task A1 experiment.
 
+Additional GENEB task mentions found in the same source are explicitly **excluded** from the
+provisional full-FT slate, so they must not be used to fill the missing A1 slots without Aris's
+confirmation:
+
+| task mention | source note |
+|---|---|
+| `human_or_worm` | excluded; k-mer already `0.81` with large probe gain |
+| `coding_vs_intergenomic` | excluded; k-mer already `0.73` with large probe gain |
+| `phage_fragments` | excluded; probe `+0.250`, unambiguous |
+| `lncrna g_max` | excluded; `n_train` likely below S1, verify |
+
+Candidate evidence table:
+
+- `reports/xiang_execution/geneb_a1_candidate_task_evidence.csv`
+
 ## What Was Not Found
 
 No branch file or git-history file provided all of the following:
@@ -54,6 +98,35 @@ Searched:
 - `reports/PAPER_OUTLINE.md`
 - tracked scripts under `scripts/`
 - git history reachable from local refs
+- remote heads visible via SSH and HTTPS
+- deleted/renamed files under `reports/`, `scripts/`, `configs`, `*geneb*`, and `*GENEB*`
+
+## Specification Blocker
+
+The blocker is now a missing experimental specification, not code:
+
+```text
+SPECIFICATION_BLOCKED: A1 cannot start until Aris identifies the exact 13 GENEB sentinel tasks and
+the canonical data/split source to use.
+```
+
+Question to Aris:
+
+```text
+Which exact 13 GENEB sentinel tasks should be used for A1, and what canonical GENEB data release,
+split files, label mappings, metrics, and local/shared path should define VB_GENEB_DIR and
+VB_GENEB_TASK_MANIFEST?
+```
+
+Minimum answer required:
+
+```text
+1. The 13 task IDs exactly as they should be passed to capacity_sweep.py --task.
+2. Dataset identity and version/checksum or release tag.
+3. Train/dev/test split source and whether dev is official or must be derived.
+4. Label mapping and canonical metric for each task.
+5. Expected directory layout or existing shared filesystem path.
+```
 
 ## Required Input To Unblock A1
 
