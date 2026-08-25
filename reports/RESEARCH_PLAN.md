@@ -66,6 +66,8 @@ wins survive a CNN baseline, because nobody ran one.** This must be closed befor
 positive goes in a draft — if the wins don't survive, Track B's credibility goes with them.
 
 ### Full-FT subset selection (full FT is ~50x a frozen probe)
+See **[FULL_FT_DESIGN.md](FULL_FT_DESIGN.md)** for the criteria, the provisional slate, the
+disjoint-set framing and the prior-work positioning. Summary:
 Do NOT full-FT everything. Select tasks on stated criteria, before seeing FT results:
 - **ambiguous under probing** — frozen probe within +/-0.05 of max(k-mer, CNN)
 - **positionally structured** — receptive field plausibly matters (splice, TFBS, promoters)

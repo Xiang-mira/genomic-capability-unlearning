@@ -76,8 +76,6 @@ split built in kmer5-PCA space and gated to accept only when the k-mer drops ≥
 
 ## The two runs that decide whether the paper is complete
 
-Your old top priority was resolving LucaVirus. That's done, so the ordering has changed:
-
 **A1 — CNN ladder on the 13 GENEB sentinel tasks.** Highest value anywhere. The non-viral positive
 control is k-mer-anchored; on the one overlapping task our CNN scores **0.9527** where GENEB's fair
 k-mer scores 0.387 and its best-of-40 published scores 0.685. If those wins don't survive a CNN,

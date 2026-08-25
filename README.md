@@ -35,6 +35,7 @@ capability elsewhere. Track A's headline was discovered *because* Track B forced
 | doc | what it is |
 |:--|:--|
 | **[reports/PAPER_DESIGN.md](reports/PAPER_DESIGN.md)** | the validity grid, quadrant contents, action items, and the three anchors that moved |
+| **[reports/FULL_FT_DESIGN.md](reports/FULL_FT_DESIGN.md)** | full-FT task selection (probing results are an input, not re-run), the disjoint-set framing, and prior work |
 | **[reports/RESEARCH_PLAN.md](reports/RESEARCH_PLAN.md)** | the two operational tracks, status, and what each still needs |
 | **[reports/PROTOCOL.md](reports/PROTOCOL.md)** | 27 binding rules; each one exists because violating it changed a conclusion here |
 | **[reports/TESTED_MATRIX.md](reports/TESTED_MATRIX.md)** | benchmark × method × regime, what is done / partial / invalid, and claims withdrawn |

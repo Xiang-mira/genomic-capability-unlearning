@@ -122,6 +122,10 @@ and together they explain the null mechanistically rather than by absence of evi
 
 ## Action items, ordered by how much they change the paper
 
+> Full-FT task selection, the disjoint-set framing and the prior-work positioning live in
+> **[FULL_FT_DESIGN.md](FULL_FT_DESIGN.md)**. GENEB probing results are an **input** to that design
+> and are not re-run.
+
 ### A — close Quadrant A (the calibration risk)
 - **A1. CNN ladder on the 13 GENEB sentinel tasks.** *Highest value anywhere.* The non-viral positive
   control is k-mer-anchored; on the one overlapping task our CNN scores 0.9527 vs GENEB's fair k-mer
