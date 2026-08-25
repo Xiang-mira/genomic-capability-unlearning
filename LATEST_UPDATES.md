@@ -1,6 +1,5 @@
 Subject: Paper design as a validity grid — plus three anchors that moved, and the two runs that decide completeness
 
-Hi — I've reframed everything around the controls grid, which is the right spine for this paper.
 Docs on `viral-benchmark-continuation`:
 
 - **`reports/PAPER_DESIGN.md`** — the grid, what's in each quadrant, and ordered action items. Start here.
@@ -8,7 +7,9 @@ Docs on `viral-benchmark-continuation`:
 - **`reports/TESTED_MATRIX.md`** — benchmark × method × regime: done / partial / invalid, and claims withdrawn.
 - `reports/RESEARCH_PLAN.md` — the operational view (two tracks sharing one harness).
 
-## The grid needs a third axis
+## The grid needs a third axis. 
+
+
 
 Design was {capability present / absent} × {split honest / leaky}. Our results forced a third:
 
