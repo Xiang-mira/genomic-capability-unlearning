@@ -212,6 +212,21 @@ DART-Eval's independent finding that ab initio models beat *all* probed DNALMs.
 
 ## 7. What needs to be run
 
+> **IN FLIGHT (this cluster).** Tier-1 items 1 and 2 are now running: a 117-run gLM fine-tune
+> sweep (13 GENEB tasks x 3 models x LR {1e-5,3e-5,1e-4}) and, chained behind it per-GPU, the CNN
+> ladder on the same 13 tasks. Both use GENEB's real data (HF `darlednik/geneb-tasks` rev
+> `4edd705b`) and the **same stratified-15%-seed-42 dev carve** as Cluster 2's fair k-mer, so the
+> four regimes are directly comparable. The ladder was patched mid-flight to a two-stage
+> architecture->LR search (`--lrs`, `--topk`) so the baseline gets the same LR grid the FMs get --
+> closing the tuning asymmetry that makes item 2 necessary. Live table:
+> `scripts/track_a_benchmarks/aggregate_geneb.py`.
+>
+> Early per-model signal (5 of 39 cells, **not** a result): fine-tuning the *same* model beats its
+> GENEB frozen probe by **+0.06 to +0.31 MCC** in 4 of 5 cells. On `ensembl_regulatory`, HyenaDNA
+> fine-tuned reaches **0.8618** against GENEB's best-of-40 published **0.597**. If that holds, GENEB's
+> probe-only protocol systematically understates these models -- a second protocol-level finding about
+> that benchmark, alongside its unspecified read-out layer.
+
 ### Tier 1 — decides whether the paper holds
 1. **CNN ladder on the 13 GENEB tasks.** Every non-viral positive is k-mer-anchored. Blocked on the
    **C2** re-run: their probes used untuned `C=1.0` and selected C on macro-F1 while reporting MCC, so

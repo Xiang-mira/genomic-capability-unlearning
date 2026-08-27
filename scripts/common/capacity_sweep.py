@@ -130,6 +130,19 @@ def load(ds, task, level, seqcap, min_count=1):
                       .split(trall, groups=trall.group.values))
         return (trall.iloc[gi].reset_index(drop=True), trall.iloc[di].reset_index(drop=True),
                 te, "label", "auroc")
+    if ds == "geneb":
+        # GENEB ships tasks/<id>/{train,test}.csv with columns text,label and NO dev split.
+        # Dev carve is a stratified 15% of train at seed 42 -- identical to
+        # scripts/geneb/fair_kmer_sentinel.py and scripts/track_a_benchmarks/geneb_finetune.py,
+        # so the CNN ladder, the fair k-mer and the FT arm all select on the same rows.
+        G = os.environ.get("VB_GENEB_DIR", "/data/nvidia/geneb_data/tasks")
+        tr_all = pd.read_csv(f"{G}/{task}/train.csv").rename(columns={"text": "sequence"})
+        te = pd.read_csv(f"{G}/{task}/test.csv").rename(columns={"text": "sequence"})
+        from sklearn.model_selection import train_test_split
+        i_tr, i_dv = train_test_split(np.arange(len(tr_all)), test_size=0.15,
+                                      stratify=tr_all.label.values, random_state=42)
+        return (tr_all.iloc[i_tr].reset_index(drop=True),
+                tr_all.iloc[i_dv].reset_index(drop=True), te, "label", "mcc")
     if ds == "virobench":
         # identical construction to virobench_baselines.py so the ladder is directly comparable
         import virobench_baselines as VBB
@@ -147,17 +160,19 @@ def load(ds, task, level, seqcap, min_count=1):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dataset", required=True, choices=["splice","hvue","virobench"])
+    ap.add_argument("--dataset", required=True, choices=["splice","hvue","virobench","geneb"])
     ap.add_argument("--task", default="ALL_times")
     ap.add_argument("--level", default="family")
     ap.add_argument("--seqlen", type=int, default=0, help="0 = native length")
     ap.add_argument("--min_count", type=int, default=1, help="virobench: match frozen probe (1)")
     ap.add_argument("--seeds", nargs="+", type=int, default=[42,43])
     ap.add_argument("--epochs", type=int, default=30); ap.add_argument("--bs", type=int, default=64)
-    ap.add_argument("--lr", type=float, default=1e-3); ap.add_argument("--device", default="cuda:0")
+    ap.add_argument("--lrs", nargs="+", type=float, default=[1e-3, 3e-4, 3e-3],
+                    help="LR grid; the FMs get one, so the baseline must too")
+    ap.add_argument("--topk", type=int, default=3, help="architectures carried into the LR sweep"); ap.add_argument("--device", default="cuda:0")
     a = ap.parse_args()
     tr, dv, te, ycol, metric = load(a.dataset, a.task, a.level, a.seqlen, a.min_count)
-    L = a.seqlen or len(tr.sequence.iloc[0])
+    L = a.seqlen or int(pd.concat([tr, dv, te]).sequence.str.len().max())
     ncls = int(pd.concat([tr,dv,te])[ycol].nunique())
     print(f"{a.dataset}/{a.task}: classes={ncls} train={len(tr)} dev={len(dv)} test={len(te)} L={L} metric={metric}", flush=True)
     Itr = torch.from_numpy(enc(tr.sequence.tolist(), L)); ytr = torch.tensor(tr[ycol].values, dtype=torch.long)
@@ -168,14 +183,13 @@ def main():
         if metric == "auroc": return float(roc_auc_score(y, prob))
         if metric == "macro_f1": return float(f1_score(y, p, average="macro", zero_division=0))
         return float(matthews_corrcoef(y, p))
-    rows = []
-    for arch, ch, nb in LADDER:
-        npar = sum(p.numel() for p in build(arch, ncls, ch, nb).parameters())
+    def run_cell(arch, ch, nb, lr, seeds):
+        """Train one (architecture, lr) cell over `seeds`; return per-seed dev/test."""
         per = []
-        for seed in a.seeds:
+        for seed in seeds:
             torch.manual_seed(seed); np.random.seed(seed)
             m = build(arch, ncls, ch, nb).to(a.device)
-            opt = torch.optim.AdamW(m.parameters(), lr=a.lr, weight_decay=1e-2)
+            opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-2)
             sch = torch.optim.lr_scheduler.CosineAnnealingLR(opt, a.epochs)
             def pred(I):
                 m.eval(); pr=[]
@@ -194,31 +208,56 @@ def main():
                         opt.zero_grad(); loss.backward()
                         nn.utils.clip_grad_norm_(m.parameters(), 1.0); opt.step()
                     sch.step()
-                    pd_, pp_ = pred(Idv); s = score(ydv, pd_, pp_[:,1] if ncls==2 else None)
-                    if s > best[0]+5e-4:
-                        pt_, ptp_ = pred(Ite)
-                        best=(s, ep, pt_, ptp_); noimp=0
+                    pd_, pp_ = pred(Idv); sc = score(ydv, pd_, pp_[:,1] if ncls==2 else None)
+                    if sc > best[0]+5e-4:
+                        pt_, ptp_ = pred(Ite); best=(sc, ep, pt_, ptp_); noimp=0
                     else:
                         noimp += 1
                         if noimp >= 6: break
             except torch.cuda.OutOfMemoryError:
-                print(f"  {arch}-{ch}x{nb} ({npar/1e6:.2f}M): OOM", flush=True)
-                torch.cuda.empty_cache(); per=None; break
+                torch.cuda.empty_cache(); del m; return None
             ts = score(yte, best[2], best[3][:,1] if ncls==2 else None)
             per.append(dict(seed=seed, dev=round(best[0],4), test=round(ts,4), best_epoch=best[1]))
             del m; torch.cuda.empty_cache()
-        if per is None: continue
-        dv_m = float(np.mean([p['dev'] for p in per])); te_m = float(np.mean([p['test'] for p in per]))
-        rows.append(dict(arch=arch, ch=ch, blocks=nb, params=npar, params_M=round(npar/1e6,3),
-                         dev=round(dv_m,4), test=round(te_m,4),
-                         test_sd=round(float(np.std([p['test'] for p in per], ddof=1)),4) if len(per)>1 else None,
-                         runs=per))
-        print(f"  {arch:<8} ch={ch:<4} nb={nb} {npar/1e6:6.2f}M  dev={dv_m:.4f}  test={te_m:.4f}", flush=True)
+        return per
+
+    # ---- STAGE 1: architecture search at the base LR, 1 seed ----
+    stage1 = []
+    for arch, ch, nb in LADDER:
+        npar = sum(p.numel() for p in build(arch, ncls, ch, nb).parameters())
+        per = run_cell(arch, ch, nb, a.lrs[0], a.seeds[:1])
+        if per is None:
+            print(f"  [s1] {arch}-{ch}x{nb} ({npar/1e6:.2f}M): OOM", flush=True); continue
+        stage1.append(dict(arch=arch, ch=ch, blocks=nb, params=npar, params_M=round(npar/1e6,3),
+                           lr=a.lrs[0], dev=per[0]['dev'], test=per[0]['test'], runs=per))
+        print(f"  [s1] {arch:<8} ch={ch:<4} nb={nb} {npar/1e6:6.2f}M lr={a.lrs[0]:<7g} "
+              f"dev={per[0]['dev']:.4f} test={per[0]['test']:.4f}", flush=True)
+    topk = sorted(stage1, key=lambda r: -r['dev'])[:a.topk]
+    print(f"  [s1] top-{a.topk} by dev: {[(r['arch'], r['params_M']) for r in topk]}", flush=True)
+
+    # ---- STAGE 2: LR grid on the top-K architectures, all seeds ----
+    # The FMs get an LR sweep; without this the CNN baseline is under-tuned by construction
+    # and any FM margin is confounded with baseline tuning effort.
+    rows = list(stage1)
+    for r0 in topk:
+        for lr in a.lrs:
+            seeds = a.seeds if lr != a.lrs[0] else a.seeds[1:]   # stage 1 already did (lr0, seed0)
+            if not seeds: continue
+            per = run_cell(r0['arch'], r0['ch'], r0['blocks'], lr, seeds)
+            if per is None: continue
+            if lr == a.lrs[0]: per = r0['runs'] + per
+            dv_m = float(np.mean([p['dev'] for p in per])); te_m = float(np.mean([p['test'] for p in per]))
+            rows.append(dict(arch=r0['arch'], ch=r0['ch'], blocks=r0['blocks'], params=r0['params'],
+                             params_M=r0['params_M'], lr=lr, dev=round(dv_m,4), test=round(te_m,4),
+                             test_sd=round(float(np.std([p['test'] for p in per], ddof=1)),4) if len(per)>1 else None,
+                             runs=per))
+            print(f"  [s2] {r0['arch']:<8} {r0['params_M']:>7}M lr={lr:<7g} "
+                  f"dev={dv_m:.4f} test={te_m:.4f}", flush=True)
     best_by_dev = max(rows, key=lambda r: r['dev'])
     res = dict(dataset=a.dataset, task=a.task, metric=metric, n_classes=ncls, seqlen=L,
                n_train=len(tr), n_dev=len(dv), n_test=len(te), seeds=a.seeds,
                ladder=rows,
-               dev_selected=dict(arch=best_by_dev['arch'], params_M=best_by_dev['params_M'],
+               dev_selected=dict(arch=best_by_dev['arch'], params_M=best_by_dev['params_M'], lr=best_by_dev.get('lr'),
                                  dev=best_by_dev['dev'], test=best_by_dev['test']),
                oracle_best_test=max(r['test'] for r in rows),
                incumbent=next(({k: r[k] for k in ('arch','params_M','dev','test')} for r in rows
@@ -226,7 +265,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     tag = f"{a.dataset}__{a.task}" + (f"__{os.environ['VB_SPLIT_SUFFIX']}" if os.environ.get('VB_SPLIT_SUFFIX') else "") + (f"__{a.level}" if a.dataset == "virobench" else "")
     json.dump(res, open(f"{OUT}/{tag}.json","w"), indent=2)
-    print(f"\n  DEV-SELECTED: {best_by_dev['arch']} @ {best_by_dev['params_M']}M -> test {best_by_dev['test']:.4f}")
+    print(f"\n  DEV-SELECTED: {best_by_dev['arch']} @ {best_by_dev['params_M']}M lr={best_by_dev.get('lr')} -> test {best_by_dev['test']:.4f}")
     print(f"  oracle best test across ladder: {res['oracle_best_test']:.4f} (report as oracle, not as the baseline)")
     print(f"  wrote {OUT}/{tag}.json", flush=True)
 
