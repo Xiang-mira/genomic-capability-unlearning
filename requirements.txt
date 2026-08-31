@@ -1,0 +1,36 @@
+# Core runtime for the genomic capability-unlearning pipeline.
+#
+# Verified on Python 3.10.20 with the versions listed in the trailing comments.
+# Lower bounds are declared rather than hard pins so the stack can track CUDA
+# builds; if you need byte-identical reproduction of the checked-in results, pin
+# to the verified versions.
+#
+#   pip install -r requirements.txt
+#
+# Two dependencies are NOT installable from PyPI and must be provided by the
+# environment (see environment.yml and README.md, Quickstart):
+#   - evo           the Evo-1 genomic language model package
+#   - stripedhyena  the Evo-1 backbone implementation
+#
+# Optional extras live in requirements-extras.txt (protein-LM qualification
+# controllers only). The Phase 1-3 unlearning pipeline does not need them.
+
+torch>=2.1                # verified 2.6.0
+numpy>=1.24               # verified 2.2.6
+pandas>=2.0               # verified 2.3.3
+scikit-learn>=1.3         # verified 1.7.2
+scipy>=1.10               # verified 1.15.3
+safetensors>=0.4          # verified 0.7.0
+tqdm>=4.65                # verified 4.67.3
+PyYAML>=6.0               # verified 6.0.3
+matplotlib>=3.7           # verified 3.10.8
+joblib>=1.3               # verified 1.5.3
+threadpoolctl>=3.1        # verified 3.6.0
+
+# Benchmark corpus download / conversion helpers
+huggingface_hub>=0.20     # verified 0.36.2
+datasets>=2.14            # verified 4.8.4
+requests>=2.28            # verified 2.33.1
+
+# Test suite
+pytest>=7.4               # verified 9.1.1

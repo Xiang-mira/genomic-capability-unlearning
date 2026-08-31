@@ -14,6 +14,13 @@ from typing import Iterable, Optional
 
 import pandas as pd
 
+import sys
+from pathlib import Path as _Path
+if str(_Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+
+from phase2.project_python import project_python
+
 csv.field_size_limit(sys.maxsize)
 
 
@@ -89,7 +96,7 @@ def load_hf_dataset(dataset_name: str):
     except ImportError as exc:
         raise RuntimeError(
             "The `datasets` package is required. Use the project environment: "
-            "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+            + project_python()
         ) from exc
     return load_dataset(dataset_name)
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DESKTOP = Path("/home/teacher1/Desktop")
+DESKTOP = Path(os.environ.get("DECK_COPY_DIR", Path.home() / "Desktop"))
 OUT_DIR = ROOT / "outputs"
 PPTX_PATH = OUT_DIR / "RefSeq_Target_Unlearning_Report.pptx"
 DOCX_PATH = OUT_DIR / "RefSeq_Target_Unlearning_Speaker_Script.docx"

@@ -49,7 +49,8 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from phase2.signed_bootstrap import paired_grouped_prediction_bootstrap
 from phase2.vpf_plm_compat import predict_probabilities
-DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+from phase2.project_python import project_python
+DEFAULT_PYTHON = project_python()
 DEFAULT_OUT_ROOT = PROJECT_ROOT / "data/phase2/vpf_plm_qualification"
 DEFAULT_LOG = PROJECT_ROOT / "logs/vpf_plm_qualification.log"
 DEFAULT_EXTERNAL_ROOT = PROJECT_ROOT / "data/external/vpf_plm"

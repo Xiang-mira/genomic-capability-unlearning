@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-PYTHON_BIN="${PHASE2_PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}"
+PYTHON_BIN="${PHASE2_PYTHON:-${PROJECT_PYTHON:-python}}"
 OUT_ROOT="${FULL_BENCHMARK_OUT_ROOT:-data/phase2/full_benchmarks_lora_optimized_s600}"
 PROFILE_PATH="$OUT_ROOT/batch_profile.json"
 PREFLIGHT_LOG="$OUT_ROOT/batch_preflight.log"

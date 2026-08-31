@@ -44,11 +44,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from phase2.run_metadata import build_run_metadata, file_sha256, stable_hash, write_metadata
+from phase2.project_python import project_python
 
 
 DEFAULT_OUT_ROOT = PROJECT_ROOT / "data/phase2/phistruct_qualification"
 DEFAULT_LOG = PROJECT_ROOT / "logs/phistruct_qualification.log"
-DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PYTHON = project_python()
 DEFAULT_TOOL_ROOT = PROJECT_ROOT / "data/external/tools"
 OFFICIAL_REPO = "https://github.com/bioinfodlsu/PHIStruct"
 OFFICIAL_REPO_COMMIT = "77e5753c62d17b4f21cdbf9200008143aebf6551"

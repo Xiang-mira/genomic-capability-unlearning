@@ -726,13 +726,13 @@ def write_task5b_decisions(out_dir: Path, rows: list[dict[str, Any]], calibratio
     rmu_down = any(row in down for row in rmu_rows)
     identity_alignment_values = sorted({row.get("identity_capability_alignment", "") for row in rows if row.get("identity_capability_alignment")})
     if cap_status == "confounded":
-        next_step = "回修 Task 7 capability probe；Task 5B 只作为 exploratory diagnostic。"
+        next_step = "Repair the Task 7 capability probe; treat Task 5B as exploratory diagnostic only."
     elif p5:
-        next_step = "进入 P5 100-step multi-probe diagnostic 或 downstream slim screen。"
+        next_step = "Proceed to the P5 100-step multi-probe diagnostic or the downstream slim screen."
     elif all_high:
-        next_step = "旧 projection/GD/RMU 没有合格 capability erasure 证据，进入 multi-probe/fresh-probe-in-loop。"
+        next_step = "No qualifying capability-erasure evidence for the legacy projection/GD/RMU runs; move to multi-probe / fresh-probe-in-loop."
     else:
-        next_step = "结合 retain 结果筛选 downstream slim screen，并考虑 Task 6 causal diagnostic。"
+        next_step = "Screen the downstream slim set together with the retain results, and consider the Task 6 causal diagnostic."
 
     joint_text = [
         "# Task 5A / Task 7 / Task 5B Joint Decision",
@@ -746,23 +746,23 @@ def write_task5b_decisions(out_dir: Path, rows: list[dict[str, Any]], calibratio
         "",
         "## Required Answers",
         "",
-        "1. 旧 projection 的失败结论是否改变？",
-        "   当前不能因 Task 5A identity 变化改变旧 projection 的 formal failure 结论；需要以 Task 5B capability diagnostics 作为后续证据。",
+        "1. Does the failure conclusion for the legacy projection runs change?",
+        "   No. A Task 5A identity change alone cannot overturn the formal failure conclusion for the legacy projection runs; Task 5B capability diagnostics are required as follow-up evidence.",
         "",
-        "2. GD/RMU 是否比 projection 更值得继续？",
+        "2. Are GD/RMU more worth continuing than projection?",
         f"   GD capability_down={gd_down}; RMU capability_down={rmu_down}; projection capability_down={projection_down}. "
-        "若 GD/RMU capability 下降且 retain 稳定，则比 projection 更值得进入 P5。",
+        "If GD/RMU capability drops while retain stays stable, they are better P5 candidates than projection.",
         "",
-        "3. family identity 变化和 capability 变化是否一致？",
+        "3. Do the family-identity change and the capability change agree?",
         f"   Observed alignment categories: {', '.join(identity_alignment_values) or 'none'}.",
         "",
-        "4. 哪些 checkpoint 推荐进入 P5 初始化？",
+        "4. Which checkpoints are recommended as P5 initializations?",
         f"   {', '.join(row['checkpoint_name'] for row in p5) if p5 else 'none under the current diagnostic.'}",
         "",
-        "5. 哪些 checkpoint 只是 historical/control？",
+        "5. Which checkpoints are historical/control only?",
         "   Base/random/full-control/missing or retain-failed checkpoints are retained as historical/control unless capability down and retain stable.",
         "",
-        "6. 下一步是否进入 P5、Task 6 causal diagnostic、或回修 Task 7 capability probe？",
+        "6. Next step: proceed to P5, run the Task 6 causal diagnostic, or repair the Task 7 capability probe?",
         f"   {next_step}",
     ]
     (out_dir / "task5ab7_joint_decision.md").write_text("\n".join(joint_text) + "\n")

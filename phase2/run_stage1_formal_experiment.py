@@ -24,9 +24,10 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from phase2.run_metadata import build_run_metadata, write_metadata
+from phase2.project_python import project_python
 
 
-DEFAULT_PROJECT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PROJECT_PYTHON = project_python()
 FORMAL_CHECKPOINTS = {
     "projection_rank32": "data/phase2/checkpoints_projection_adaptive_rank32/projopt_host5_9_coro0_10_adaptive_basis_rank32/weights.safetensors",
     "gd_loc_s1000": "data/phase2/checkpoints_tuned/refseq_gd_projinit_loc_ar5_s1000/weights.safetensors",

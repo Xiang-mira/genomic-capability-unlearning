@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-PYTHON_BIN="${PHASE2_PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}"
+PYTHON_BIN="${PHASE2_PYTHON:-${PROJECT_PYTHON:-python}}"
 
 # Candidate selection now follows the route switch: only the formal target
 # tasks participate in ranking. Confounded transmissibility tasks remain

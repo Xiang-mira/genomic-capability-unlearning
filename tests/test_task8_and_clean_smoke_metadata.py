@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+PROJECT_ROOT = str(Path(__file__).resolve().parents[1])
+
 
 def test_run_task8_writes_meta(tmp_path: Path) -> None:
     task7_dir = tmp_path / "task7"
@@ -47,7 +49,7 @@ def test_run_task8_writes_meta(tmp_path: Path) -> None:
             str(out_dir),
         ],
         check=True,
-        cwd="/home/teacher1/UT-project1/project1",
+        cwd=PROJECT_ROOT,
     )
 
     meta = json.loads((out_dir / "meta.json").read_text())
@@ -122,7 +124,7 @@ def test_summarize_clean_smoke_writes_summary_metadata(tmp_path: Path) -> None:
             str(out_dir),
         ],
         check=True,
-        cwd="/home/teacher1/UT-project1/project1",
+        cwd=PROJECT_ROOT,
     )
 
     meta = json.loads((out_dir / "summary_metadata.json").read_text())
@@ -161,7 +163,7 @@ def test_build_clean_candidates_writes_build_and_candidate_meta(tmp_path: Path) 
             "10",
         ],
         check=True,
-        cwd="/home/teacher1/UT-project1/project1",
+        cwd=PROJECT_ROOT,
     )
 
     build_meta = json.loads((out_root / "candidate_build_metadata.json").read_text())

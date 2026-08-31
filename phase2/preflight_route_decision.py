@@ -21,10 +21,11 @@ import torch
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from phase2.run_metadata import build_run_metadata, file_sha256, runtime_environment, write_metadata
+from phase2.project_python import project_python
 
 
-PROJECT_ROOT = Path("/home/teacher1/UT-project1/project1")
-DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PYTHON = project_python()
 DEFAULT_MANIFEST = "data/benchmarks/hvue_gue_pilot_slim_manifest.csv"
 DEFAULT_BASE_SUMMARY = "data/phase2/base_benchmarks_slim/eval_benchmarks_summary.json"
 DEFAULT_RETAIN_CSV = "data/phase2/splits/retain.csv"

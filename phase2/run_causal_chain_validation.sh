@@ -4,7 +4,7 @@ set -euo pipefail
 # Orchestrates Phase 2 around scientific claims, not just benchmark coverage.
 # Run target validation first, then probe-vs-SFT, then trade-off/trajectory.
 
-PYTHON=${PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}
+PYTHON=${PYTHON:-${PROJECT_PYTHON:-python}}
 DEVICE=${DEVICE:-cuda:0}
 OUT_ROOT=${OUT_ROOT:-data/phase2/causal_chain}
 CKPT_ROOT=${CKPT_ROOT:-data/phase2/checkpoints_tuned}

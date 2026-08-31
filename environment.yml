@@ -1,0 +1,48 @@
+# Conda environment for the genomic capability-unlearning pipeline.
+#
+#   conda env create -f environment.yml
+#   conda activate unlearning
+#
+# Then install the two packages that are not on PyPI/conda. Evo-1 and its
+# StripedHyena backbone are published as source repositories:
+#
+#   pip install git+https://github.com/evo-design/evo.git
+#
+# which pulls in `stripedhyena`. Verify the import stack with:
+#
+#   python -c "import torch, evo, stripedhyena, safetensors, sklearn; print('ok')"
+#
+# `env_test.py` is a heavier end-to-end smoke test: it additionally requires the
+# downloaded Evo-1-8k-base weights in ./evo-1-8k-base and a CUDA device.
+#
+# The historical runs in this repository were produced with a conda environment
+# named `UT-p1` on the original host. Any environment satisfying this file works;
+# point the pipeline at it with $PROJECT_PYTHON (see README.md, Quickstart).
+name: unlearning
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy>=1.24
+  - pandas>=2.0
+  - scikit-learn>=1.3
+  - scipy>=1.10
+  - matplotlib>=3.7
+  - pyyaml>=6.0
+  - joblib>=1.3
+  - threadpoolctl>=3.1
+  - tqdm>=4.65
+  - requests>=2.28
+  - pytest>=7.4
+  # Non-Python tools used by the protein-LM qualification controllers. Drop
+  # these two lines if you only need the Phase 1-3 unlearning pipeline.
+  - blast>=2.14
+  - hmmer>=3.3
+  - pip:
+      # Install the CUDA build that matches your driver; the CPU wheel works for
+      # everything except the GPU training and evaluation stages.
+      - torch>=2.1
+      - safetensors>=0.4
+      - huggingface_hub>=0.20
+      - datasets>=2.14

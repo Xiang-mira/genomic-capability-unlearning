@@ -21,9 +21,10 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from phase2.next_steps_common import DEFAULT_ATTACK_DISTRIBUTION
 from phase2.run_metadata import build_run_metadata, write_metadata
+from phase2.project_python import project_python
 
 
-DEFAULT_PROJECT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PROJECT_PYTHON = project_python()
 
 
 def load_variants(path: str) -> list[dict[str, Any]]:

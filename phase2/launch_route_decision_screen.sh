@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT="/home/teacher1/UT-project1/project1"
-PYTHON_BIN="${PHASE2_PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PYTHON_BIN="${PHASE2_PYTHON:-${PROJECT_PYTHON:-python}}"
 PYTHON_DIR="$(dirname "$PYTHON_BIN")"
 OUT_DIR="${ROUTE_DECISION_OUT_DIR:-data/phase2/route_decision_20260715}"
 DEVICE="${DEVICE:-cuda:0}"

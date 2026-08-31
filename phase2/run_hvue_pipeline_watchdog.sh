@@ -10,12 +10,14 @@ WATCHDOG_LOG="${WATCHDOG_LOG:-logs/hvue_pipeline_watchdog.log}"
 
 mkdir -p logs
 
+PYTHON_BIN="${PHASE2_PYTHON:-${PROJECT_PYTHON:-python}}"
+
 log() {
   printf '%s [watchdog] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$WATCHDOG_LOG"
 }
 
 pipeline_complete() {
-  /home/teacher1/miniconda3/envs/UT-p1/bin/python - <<'PY'
+  "$PYTHON_BIN" - <<'PY'
 import json
 from pathlib import Path
 

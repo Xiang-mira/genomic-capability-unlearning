@@ -169,7 +169,7 @@ def classify_row(row: dict[str, Any], random_target_drop: float | None) -> dict[
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project-root", default="/home/teacher1/UT-project1/project1")
+    parser.add_argument("--project-root", default=str(Path(__file__).resolve().parents[1]))
     parser.add_argument("--route-root", default="data/phase2/route_decision_20260715")
     parser.add_argument("--task5a-summary-csv", default="data/phase2/audits/task5a_identity_reaudit_20260713/task5a_identity_reaudit_summary.csv")
     parser.add_argument("--task5b-decision-md", default="data/phase2/audits/task5b_capability_reaudit_20260713/task5b_decision.md")

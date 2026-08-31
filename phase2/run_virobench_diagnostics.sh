@@ -4,7 +4,7 @@ set -euo pipefail
 # Orchestrates the ViroBench diagnostic workflow. Long-running commands are
 # intentionally explicit so they can be resumed or copied into a scheduler.
 
-PYTHON=${PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}
+PYTHON=${PYTHON:-${PROJECT_PYTHON:-python}}
 DEVICE=${DEVICE:-cuda:0}
 OUT_ROOT=${OUT_ROOT:-data/phase2/virobench_diagnostics}
 CKPT_ROOT=${CKPT_ROOT:-data/phase2/checkpoints_tuned}

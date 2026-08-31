@@ -2,49 +2,59 @@ from __future__ import annotations
 
 import csv
 import json
+import pathlib
 import sys
 import types
+
+from tests._stub_support import register_stub
 from pathlib import Path
 
 evo_module = types.ModuleType("evo")
 evo_tokenizer_module = types.ModuleType("evo.tokenizer")
 evo_tokenizer_module.CharLevelTokenizer = object
 evo_module.tokenizer = evo_tokenizer_module
-sys.modules.setdefault("evo", evo_module)
-sys.modules.setdefault("evo.tokenizer", evo_tokenizer_module)
+register_stub("evo", evo_module)
+register_stub("evo.tokenizer", evo_tokenizer_module)
 
 phase1_module = types.ModuleType("phase1")
 phase1_utils_module = types.ModuleType("phase1.utils")
 phase1_utils_module.load_local_checkpoint = lambda *args, **kwargs: None
 phase1_module.utils = phase1_utils_module
-sys.modules.setdefault("phase1", phase1_module)
-sys.modules.setdefault("phase1.utils", phase1_utils_module)
+# If this stub is actually installed (bare environment, no torch/stripedhyena),
+# keep the real package search path on it so sibling modules such as
+# phase1.build_refseq_family_target_dataset still import from disk instead of
+# failing with "'phase1' is not a package".
+phase1_module.__path__ = [str(pathlib.Path(__file__).resolve().parents[1] / "phase1")]
+register_stub("phase1", phase1_module)
+register_stub("phase1.utils", phase1_utils_module)
 
 phase2_lora_utils = types.ModuleType("phase2.lora_utils")
+phase2_lora_utils.LabelEncoding = object
 phase2_lora_utils.PooledEvoClassifier = object
 phase2_lora_utils.classification_metrics = lambda *args, **kwargs: {}
 phase2_lora_utils.count_total = lambda *args, **kwargs: 0
 phase2_lora_utils.count_trainable = lambda *args, **kwargs: 0
 phase2_lora_utils.encode_labels = lambda *args, **kwargs: (None, None)
+phase2_lora_utils.freeze_all = lambda *args, **kwargs: None
 phase2_lora_utils.inject_lora_all_blocks = lambda *args, **kwargs: ([], [])
 phase2_lora_utils.merge_lora_adapters = lambda *args, **kwargs: []
 phase2_lora_utils.regression_metrics = lambda *args, **kwargs: {}
 phase2_lora_utils.remove_lora_adapters = lambda *args, **kwargs: None
-sys.modules.setdefault("phase2.lora_utils", phase2_lora_utils)
+register_stub("phase2.lora_utils", phase2_lora_utils)
 
 phase2_notify = types.ModuleType("phase2.notify")
 phase2_notify.notify = lambda *args, **kwargs: None
-sys.modules.setdefault("phase2.notify", phase2_notify)
+register_stub("phase2.notify", phase2_notify)
 
 phase2_checkpoint_io = types.ModuleType("phase2.checkpoint_io")
 phase2_checkpoint_io.apply_checkpoint = lambda *args, **kwargs: None
 phase2_checkpoint_io.save_checkpoint = lambda *args, **kwargs: None
 phase2_checkpoint_io.snapshot_state = lambda *args, **kwargs: {}
-sys.modules.setdefault("phase2.checkpoint_io", phase2_checkpoint_io)
+register_stub("phase2.checkpoint_io", phase2_checkpoint_io)
 
 phase2_utils = types.ModuleType("phase2.utils")
 phase2_utils.tokenize_batch = lambda *args, **kwargs: None
-sys.modules.setdefault("phase2.utils", phase2_utils)
+register_stub("phase2.utils", phase2_utils)
 
 from phase2.eval_benchmarks import (
     BenchmarkRecord,

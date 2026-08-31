@@ -31,7 +31,7 @@ from phase2.run_metadata import build_run_metadata, write_metadata
 
 DEFAULT_OUT_DIR = PROJECT_ROOT / "data/phase2/standalone_single_lora_intervention_20260730"
 DEFAULT_PREFILTER_DIRNAME = "standalone_prefilter_runs"
-DEFAULT_PROJECT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PROJECT_PYTHON = project_python()
 DEFAULT_BENCHMARK_MANIFEST = PROJECT_ROOT / "data/benchmarks/hvue_gue_manifest.csv"
 # Freeze prefilter retain triage to the established slim GUE retain panel plus
 # the full viral non-target panel already present in the manifest.
@@ -232,6 +232,7 @@ import json
 import torch
 from phase1.utils import load_local_checkpoint
 from phase2.checkpoint_io import apply_checkpoint
+from phase2.project_python import project_python
 from evo.tokenizer import CharLevelTokenizer
 
 model = load_local_checkpoint({repr(str(args.model_dir))}, {repr(args.config_path)}, device={repr(args.device)})

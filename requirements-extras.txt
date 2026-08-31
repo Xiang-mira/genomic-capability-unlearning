@@ -1,0 +1,29 @@
+# Optional dependencies, needed only by the protein-language-model benchmark
+# qualification controllers in phase2/. The Phase 1-3 genomic unlearning
+# pipeline runs without any of these.
+#
+#   pip install -r requirements.txt -r requirements-extras.txt
+#
+# Which controller needs what:
+#
+#   phase2/proteingym_esm2_qualification.py        transformers
+#   phase2/proteingym_esm2_top20_expansion.py      transformers
+#   phase2/evomil_esm1b_qualification.py           fair-esm, biopython
+#   phase2/phistruct_qualification.py              (BLAST+ / HMMER, see below)
+#   phase2/vpf_plm_qualification.py                tensorflow, tf-keras, biopython
+#   phase2/vpf_plm_compat.py                       tensorflow, tf-keras
+
+-r requirements.txt
+
+transformers>=4.40        # verified 4.48.1
+biopython>=1.81           # verified 1.87
+fair-esm>=2.0             # ESM-1b weights loader (EvoMIL controller)
+tensorflow>=2.15          # verified 2.21.0 (VPF-PLM controller only)
+tf-keras>=2.15            # Keras 2 compatibility shim for the VPF-PLM controller
+
+# Non-Python tools that must be on $PATH for the PHIStruct and EvoMIL
+# controllers. Install via conda-forge/bioconda or your system package manager;
+# point $BLAST_BIN_DIR at them if they are not beside the project interpreter.
+#
+#   blast+   (makeblastdb, blastp)
+#   hmmer    (hmmsearch)   -- PHIStruct sanity baseline only

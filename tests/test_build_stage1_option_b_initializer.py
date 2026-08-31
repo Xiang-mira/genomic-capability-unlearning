@@ -1,30 +1,38 @@
 from __future__ import annotations
 
 import argparse
+import pathlib
 import sys
 import types
+
+from tests._stub_support import register_stub
 from pathlib import Path
 
 evo_module = types.ModuleType("evo")
 evo_tokenizer_module = types.ModuleType("evo.tokenizer")
 evo_tokenizer_module.CharLevelTokenizer = object
 evo_module.tokenizer = evo_tokenizer_module
-sys.modules["evo"] = evo_module
-sys.modules["evo.tokenizer"] = evo_tokenizer_module
+register_stub("evo", evo_module)
+register_stub("evo.tokenizer", evo_tokenizer_module)
 
 phase1_module = types.ModuleType("phase1")
 phase1_utils_module = types.ModuleType("phase1.utils")
 phase1_utils_module.load_local_checkpoint = lambda *args, **kwargs: None
 phase1_utils_module.read_manifest = lambda *args, **kwargs: []
 phase1_module.utils = phase1_utils_module
-sys.modules["phase1"] = phase1_module
-sys.modules["phase1.utils"] = phase1_utils_module
+# If this stub is actually installed (bare environment, no torch/stripedhyena),
+# keep the real package search path on it so sibling modules such as
+# phase1.build_refseq_family_target_dataset still import from disk instead of
+# failing with "'phase1' is not a package".
+phase1_module.__path__ = [str(pathlib.Path(__file__).resolve().parents[1] / "phase1")]
+register_stub("phase1", phase1_module)
+register_stub("phase1.utils", phase1_utils_module)
 
 checkpoint_io_module = types.ModuleType("phase2.checkpoint_io")
 checkpoint_io_module.save_checkpoint = lambda *args, **kwargs: None
 checkpoint_io_module.set_trainable_by_suffixes = lambda *args, **kwargs: []
 checkpoint_io_module.snapshot_state = lambda *args, **kwargs: {}
-sys.modules["phase2.checkpoint_io"] = checkpoint_io_module
+register_stub("phase2.checkpoint_io", checkpoint_io_module)
 
 eval_benchmarks_module = types.ModuleType("phase2.eval_benchmarks")
 
@@ -38,19 +46,19 @@ class _BenchmarkRecord:
 eval_benchmarks_module.BenchmarkRecord = _BenchmarkRecord
 eval_benchmarks_module.apply_checkpoint = lambda *args, **kwargs: None
 eval_benchmarks_module.read_benchmark_manifest = lambda *args, **kwargs: []
-sys.modules["phase2.eval_benchmarks"] = eval_benchmarks_module
+register_stub("phase2.eval_benchmarks", eval_benchmarks_module)
 
 lora_utils_module = types.ModuleType("phase2.lora_utils")
 lora_utils_module.PooledEvoClassifier = object
 lora_utils_module.encode_labels = lambda labels: (None, types.SimpleNamespace(label_to_id={"0": 0, "1": 1}, num_classes=2))
-sys.modules["phase2.lora_utils"] = lora_utils_module
+register_stub("phase2.lora_utils", lora_utils_module)
 
 phase2_utils_module = types.ModuleType("phase2.utils")
 phase2_utils_module.get_trainable_params = lambda *args, **kwargs: []
 phase2_utils_module.iterate_batches = lambda records, batch_size, shuffle, rng: iter([records[:batch_size]])
 phase2_utils_module.language_model_loss = lambda *args, **kwargs: None
 phase2_utils_module.tokenize_batch = lambda *args, **kwargs: None
-sys.modules["phase2.utils"] = phase2_utils_module
+register_stub("phase2.utils", phase2_utils_module)
 
 from phase2.build_stage1_option_b_initializer import (
     build_initializer_metadata,

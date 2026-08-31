@@ -8,10 +8,17 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import sys
+from pathlib import Path as _Path
+if str(_Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+
+from phase2.project_python import project_python_path
+
 
 DEFAULT_OUT_ROOT = Path("data/phase2/lora_subspace_targeting_20260729")
 DEFAULT_MANIFEST = Path("data/phase2/stage1_formal_target_manifests/stage1_formal_targets_available_manifest.csv")
-DEFAULT_PYTHON = Path("/home/teacher1/miniconda3/envs/UT-p1/bin/python")
+DEFAULT_PYTHON = project_python_path()
 DEFAULT_TASK = "hvue_human_host_tropism"
 KMER_AUROC_TEST = 0.8554553475149496
 FROZEN_STAGE1_RULES = {

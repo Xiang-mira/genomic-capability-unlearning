@@ -47,9 +47,14 @@ def hash_existing_paths(paths: Iterable[str | os.PathLike[str]]) -> dict[str, st
 def git_info() -> dict[str, object]:
     def run_git(args: list[str]) -> str:
         try:
-            return subprocess.check_output(["git", *args], text=True, stderr=subprocess.DEVNULL).strip()
+            output = subprocess.check_output(["git", *args], text=True, stderr=subprocess.DEVNULL)
         except Exception:
             return ""
+        if not isinstance(output, str):
+            # A caller may have patched subprocess for its own reasons; never let
+            # provenance capture inject a non-serialisable value into meta.json.
+            return ""
+        return output.strip()
 
     status = run_git(["status", "--short"])
     return {

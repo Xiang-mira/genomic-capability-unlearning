@@ -1,17 +1,36 @@
 """
-Probe-guided GD-style unlearning for Evo-1-8k-base on the merged Phase 2
-selective-unlearning objective.
+Gradient Difference (GD) unlearning for Evo-1-8k-base.
+
+The classic formulation: ascend the language-modelling loss on the forget set
+while descending it on the retain set.
 
 Per step:
-  L_forget = squared standardized probe component on positive target batches
-  L_retain = representation MSE to a frozen reference model on retain batches
-  loss = alpha_forget * L_forget + alpha_retain * L_retain
+  L_forget = next-token cross-entropy on a forget batch
+  L_retain = next-token cross-entropy on a retain batch
+  loss     = -alpha_forget * L_forget + alpha_retain * L_retain
+             (maximize forget loss, minimize retain loss)
 
 Condition controls which parameter groups receive grad:
   full       : entire model
   localized  : layers loaded from localized_layers.json (causal layers from patching)
   probe      : probe-visible layers 0..10
   random     : matched random blocks sampled from probe-visible layers
+
+This objective produced every archived GD result in the repository that has a
+committed meta.json (`lora_gd_*` in data/phase2/checkpoints_lora_grid/, and
+`gd_full_ar5`), including the headline 44-task benchmark rows. It was restored
+here after a period in which this filename instead contained a probe-guided
+representation objective; that objective now lives in
+`phase2/unlearn_probe_repr.py`. See docs/RESULTS.md for the reproducibility
+consequences.
+
+NOTE ON DIVERGENCE. `-alpha_forget * L_forget` is unbounded below, so this
+objective diverges if run too long or too hot: the archived runs pushed retain
+perplexity from ~4.2 to 15.7 (localized) and 37.9 (full). That is inherent to
+the formulation, not a bug, and it is why GD trades forgetting against general
+capability roughly one-for-one in docs/RESULTS.md. `--forget-loss-cap` is
+available to bound the forget term; it defaults to 0.0 (disabled) so the
+archived behaviour is reproduced exactly.
 """
 import argparse
 import json
@@ -19,10 +38,9 @@ import os
 import random
 import sys
 import time
-from typing import Dict, List
+from typing import List
 
 import torch
-import torch.nn.functional as F
 from safetensors.torch import save_file
 from tqdm import tqdm
 
@@ -30,12 +48,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from phase1 import utils as phase1_utils
 from evo.tokenizer import CharLevelTokenizer
-from phase2.probe_utils import (
-    apply_checkpoint,
-    load_probe,
-    load_target_specs,
-    normalized_standard_probe_direction,
-)
+from phase2.probe_utils import apply_checkpoint
 from phase2.run_metadata import build_run_metadata, write_metadata
 from phase2 import utils as phase2_utils
 
@@ -46,6 +59,7 @@ count_trainable = getattr(phase2_utils, "count_trainable", None)
 freeze_all = getattr(phase2_utils, "freeze_all", None)
 get_localized_layers = getattr(phase2_utils, "get_localized_layers", None)
 iterate_batches = getattr(phase2_utils, "iterate_batches", None)
+language_model_loss = getattr(phase2_utils, "language_model_loss", None)
 set_block_grad = getattr(phase2_utils, "set_block_grad", None)
 tokenize_batch = getattr(phase2_utils, "tokenize_batch", None)
 
@@ -64,10 +78,6 @@ def parse_save_steps(spec: str) -> set[int]:
 
 def filter_train(records):
     return [r for r in records if r.split == "train"]
-
-
-def filter_positive_train(records):
-    return [r for r in records if r.split == "train" and r.label == 1]
 
 
 def configure_trainable_blocks(model, condition: str, seed: int, localized_layers_path: str) -> List[int]:
@@ -107,73 +117,61 @@ def resolve_init_ckpt(args) -> tuple[str | None, str]:
     return None, "base_model"
 
 
-class NextNormCapture:
-    def __init__(self, model, layers: List[int]):
-        self.model = model
-        self.layers = sorted(set(layers))
-        self.mask = None
-        self.outputs: Dict[int, torch.Tensor] = {}
-        self.num_layers = len(model.blocks)
-        self.handles = [
-            model.blocks[layer_idx].register_forward_hook(self._make_hook(layer_idx))
-            for layer_idx in self.layers
-        ]
+def save_block_deltas(model, layers: List[int], out_path: str) -> None:
+    """Write the trained blocks' absolute weights (whole state dict when full).
 
-    def _make_hook(self, layer_idx: int):
-        def hook(_module, _inputs, output):
-            hidden = output[0] if isinstance(output, tuple) else output
-            if layer_idx + 1 < self.num_layers:
-                hidden = self.model.blocks[layer_idx + 1].pre_norm(hidden)
-            else:
-                hidden = self.model.norm(hidden)
-            if self.mask is None:
-                raise RuntimeError("Mask must be set before running the model.")
-            denom = self.mask.sum(dim=1, keepdim=True).clamp(min=1)
-            pooled = (hidden * self.mask.unsqueeze(-1).float()).sum(dim=1) / denom
-            self.outputs[layer_idx] = pooled
-
-        return hook
-
-    def set_mask(self, mask: torch.Tensor) -> None:
-        self.mask = mask
-
-    def clear(self) -> None:
-        self.outputs = {}
-
-    def get(self, layer_idx: int) -> torch.Tensor:
-        return self.outputs[layer_idx]
-
-    def close(self) -> None:
-        for handle in self.handles:
-            handle.remove()
-
-
-def save_block_deltas(model, ref_state, layers: List[int], out_path: str) -> None:
-    """Save only the (modified - reference) deltas for trained blocks.
-    Keeps checkpoints compact: 7 blocks ~ 200M params * 2 bytes ~ 400 MB.
+    Kept byte-compatible with the archived GD checkpoints. New methods should
+    prefer `phase2.checkpoint_io.save_checkpoint`, which additionally records a
+    `checkpoint_policy` and gates on free disk.
     """
-    delta = {}
-    sd = model.state_dict()
-    for layer_idx in layers:
-        prefix = f"blocks.{layer_idx}."
-        for key, val in sd.items():
-            if key.startswith(prefix):
-                delta[key] = val.detach().to(torch.bfloat16).cpu()
-    # also save embedding/unembed if full
+    tensors = {}
+    state = model.state_dict()
     if len(layers) == len(model.blocks):
-        # full-model: store the full state dict via save_file
-        for key, val in sd.items():
-            delta[key] = val.detach().to(torch.bfloat16).cpu()
+        for key, val in state.items():
+            tensors[key] = val.detach().to(torch.bfloat16).cpu()
+    else:
+        for layer_idx in layers:
+            prefix = f"blocks.{layer_idx}."
+            for key, val in state.items():
+                if key.startswith(prefix):
+                    tensors[key] = val.detach().to(torch.bfloat16).cpu()
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    save_file(delta, out_path)
+    save_file(tensors, out_path)
+
+
+def gd_loss_terms(
+    l_forget: torch.Tensor,
+    l_retain: torch.Tensor,
+    *,
+    alpha_forget: float,
+    alpha_retain: float,
+    forget_loss_cap: float = 0.0,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Compose the gradient-difference objective.
+
+    Returns `(effective_forget_loss, weighted_forget_term, weighted_retain_term)`.
+    The total objective is the sum of the two weighted terms.
+
+    The forget term is *negated*: gradient difference ascends the forget loss.
+    That makes the objective unbounded below, so `forget_loss_cap > 0` clamps the
+    forget cross-entropy before weighting. A cap of 0.0 disables clamping and
+    reproduces the archived runs exactly.
+    """
+    effective_forget = l_forget
+    if forget_loss_cap > 0.0:
+        effective_forget = torch.clamp(l_forget, max=forget_loss_cap)
+    return (
+        effective_forget,
+        -alpha_forget * effective_forget,
+        alpha_retain * l_retain,
+    )
 
 
 def build_gd_metadata(
     *,
     args,
     layers: List[int],
-    loss_layers: List[int],
-    target_specs: List[dict],
+    trainable_param_count: int,
     init_source: str,
     init_ckpt: str | None,
     save_steps: List[int],
@@ -183,17 +181,15 @@ def build_gd_metadata(
 ) -> dict:
     extra = {
         "method": "gradient_difference",
-        "loss_type": "probe_guided_representation",
+        "loss_type": "cross_entropy_gradient_difference",
+        "objective": "-alpha_forget * CE(forget) + alpha_retain * CE(retain)",
         "condition": args.condition,
         "layers": layers,
-        "loss_layers": loss_layers,
-        "target_names": [spec["name"] for spec in target_specs],
-        "internal_target_config": args.internal_target_config,
         "steps": args.steps,
         "lr": args.lr,
         "alpha_forget": args.alpha_forget,
         "alpha_retain": args.alpha_retain,
-        "retain_cosine_weight": args.retain_cosine_weight,
+        "forget_loss_cap": args.forget_loss_cap,
         "batch_size": args.batch_size,
         "max_length": args.max_length,
         "forget_csv": args.forget_csv,
@@ -214,20 +210,21 @@ def build_gd_metadata(
         args=args,
         source_checkpoint=init_ckpt or args.model_dir,
         init_checkpoint=init_ckpt or "",
-        data_paths=[args.internal_target_config, args.forget_csv, args.retain_csv, args.localized_layers_path],
-        loss_layers=loss_layers,
+        data_paths=[args.forget_csv, args.retain_csv, args.localized_layers_path],
+        trainable_param_count=trainable_param_count,
         seed=args.seed,
         extra=extra,
     )
 
 
+
 def main() -> None:
     if read_manifest is None:
         raise ImportError("phase1.utils.read_manifest is required to run unlearn_gd.py")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--forget-csv", default="data/phase2/splits/forget.csv")
     parser.add_argument("--retain-csv", default="data/phase2/splits/retain.csv")
-    parser.add_argument("--internal-target-config", default="phase2/internal_eval_targets.json")
     parser.add_argument("--model-dir", default="./evo-1-8k-base")
     parser.add_argument("--config-path", default="configs/evo-1-8k-base_inference.yml")
     parser.add_argument("--out-dir", default="data/phase2/checkpoints")
@@ -239,19 +236,29 @@ def main() -> None:
     parser.add_argument("--steps", type=int, default=1000)
     parser.add_argument("--alpha-forget", type=float, default=1.0)
     parser.add_argument("--alpha-retain", type=float, default=5.0)
-    parser.add_argument("--retain-cosine-weight", type=float, default=0.0)
+    parser.add_argument(
+        "--forget-loss-cap",
+        type=float,
+        default=0.0,
+        help=(
+            "Optional upper bound on the forget cross-entropy before weighting. "
+            "0.0 disables it and reproduces the archived runs. Set it to bound "
+            "the unbounded ascent term when GD diverges."
+        ),
+    )
     parser.add_argument("--log-every", type=int, default=10)
     parser.add_argument(
         "--save-steps",
-        default="100,200,500,1000",
-        help="Comma-separated training steps to save as intermediate checkpoints, e.g. 100,200,500,1000.",
+        default="",
+        help="Comma-separated intermediate steps to checkpoint, e.g. 100,200,500,1000.",
     )
     parser.add_argument("--run-name", type=str, default=None,
-                        help="Override the output directory name (default: gd_<condition>).")
+                        help="Checkpoint directory name; defaults to gd_<condition>.")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     parser.add_argument("--init-ckpt", default="")
-    parser.add_argument("--init-from-run", default="")
+    parser.add_argument("--init-from-run", default="",
+                        help="Initialize from <out-dir>/<run>/weights.safetensors, e.g. a projection baseline.")
     parser.add_argument(
         "--localized-layers-path",
         default="data/family_targets/coronaviridae/localized_layers.json",
@@ -262,7 +269,7 @@ def main() -> None:
     rng = random.Random(args.seed)
 
     print(f"[GD] condition={args.condition} steps={args.steps} lr={args.lr}")
-    print("[GD] loss=probe_guided_representation")
+    print("[GD] loss=-alpha_forget*CE(forget) + alpha_retain*CE(retain)")
     save_steps = {step for step in parse_save_steps(args.save_steps) if 1 <= step <= args.steps}
     run_name = args.run_name if args.run_name else f"gd_{args.condition}"
     run_dir = os.path.join(args.out_dir, run_name)
@@ -271,71 +278,40 @@ def main() -> None:
     if save_steps:
         print(f"[GD] intermediate save steps: {sorted(save_steps)}")
 
-    target_specs = load_target_specs(args.internal_target_config)
-    loss_layers = sorted({layer for spec in target_specs for layer in spec["layers"]})
     model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
     if init_ckpt:
         apply_checkpoint(model, init_ckpt)
+        print(f"[GD] initialized from {init_source}")
     model.train()
-    ref_model = load_local_checkpoint(args.model_dir, args.config_path, device=args.device)
-    ref_model.eval()
-    for param in ref_model.parameters():
-        param.requires_grad_(False)
     tokenizer = CharLevelTokenizer(512)
 
     layers = configure_trainable_blocks(model, args.condition, args.seed, args.localized_layers_path)
-    if args.condition == "localized":
-        missing_loss_layers = [layer for layer in loss_layers if layer not in layers]
-        if missing_loss_layers:
-            raise ValueError(
-                f"Localized GD must train all probe loss layers. Missing {missing_loss_layers}; "
-                f"trainable={layers}"
-            )
     print(f"[GD] trainable layers: {layers}")
-    print(f"[GD] probe loss layers: {loss_layers}")
-    print(f"[GD] trainable params: {count_trainable(model):,}")
+    trainable_param_count = count_trainable(model)
+    print(f"[GD] trainable params: {trainable_param_count:,}")
 
     trainable = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(trainable, lr=args.lr, weight_decay=0.0)
 
+    forget = filter_train(read_manifest(args.forget_csv))
     retain = filter_train(read_manifest(args.retain_csv))
+    if not forget:
+        raise ValueError(f"No train rows in {args.forget_csv}")
     if not retain:
-        raise ValueError(f"No train retain records found in {args.retain_csv}")
-
-    for spec in target_specs:
-        spec["train_records"] = filter_positive_train(read_manifest(spec["manifest"]))
-        if not spec["train_records"]:
-            raise ValueError(
-                f"No positive train records found for target={spec['name']} in {spec['manifest']}"
-            )
-        spec["probes"] = {
-            layer: load_probe(spec["probe_dir"], layer, device=args.device)
-            for layer in spec["layers"]
-        }
-        spec["directions"] = {
-            layer: normalized_standard_probe_direction(spec["probes"][layer]).to(args.device)
-            for layer in spec["layers"]
-        }
-        print(
-            f"[GD] target={spec['name']} layers={spec['layers']} "
-            f"forget_train={len(spec['train_records'])}"
-        )
-    print(f"[GD] retain train={len(retain)}")
+        raise ValueError(f"No train rows in {args.retain_csv}")
+    print(f"[GD] forget train={len(forget)}  retain train={len(retain)}")
 
     log_rows = []
-    target_iters = {spec["name"]: iter([]) for spec in target_specs}
+    forget_iter = iter([])
     retain_iter = iter([])
 
-    def next_target_batch(spec: dict):
-        nonlocal target_iters
-        target_name = spec["name"]
+    def next_forget_batch():
+        nonlocal forget_iter
         try:
-            return next(target_iters[target_name])
+            return next(forget_iter)
         except StopIteration:
-            target_iters[target_name] = iter(
-                iterate_batches(spec["train_records"], args.batch_size, shuffle=True, rng=rng)
-            )
-            return next(target_iters[target_name])
+            forget_iter = iter(iterate_batches(forget, args.batch_size, shuffle=True, rng=rng))
+            return next(forget_iter)
 
     def next_retain_batch():
         nonlocal retain_iter
@@ -345,83 +321,30 @@ def main() -> None:
             retain_iter = iter(iterate_batches(retain, args.batch_size, shuffle=True, rng=rng))
             return next(retain_iter)
 
-    model_capture = NextNormCapture(model, loss_layers)
-    ref_capture = NextNormCapture(ref_model, loss_layers)
-
     pbar = tqdm(range(args.steps), desc=f"GD-{args.condition}")
     t0 = time.time()
     for step in pbar:
         optimizer.zero_grad(set_to_none=True)
 
-        forget_losses = []
-        forget_metrics = {}
-        for spec in target_specs:
-            fbatch = next_target_batch(spec)
-            f_ids, f_mask = tokenize_batch(
-                [r.sequence for r in fbatch],
-                tokenizer,
-                args.max_length,
-                args.device,
-            )
-            model_capture.set_mask(f_mask)
-            model_capture.clear()
-            _ = model(f_ids, padding_mask=f_mask)
-            target_layer_losses = []
-            layer_metrics = {}
-            for layer in spec["layers"]:
-                pooled = model_capture.get(layer).float()
-                probe = spec["probes"][layer]
-                direction = spec["directions"][layer]
-                standardized = (pooled - probe["mean"]) / probe["scale"].clamp(min=1e-12)
-                components = standardized @ direction
-                layer_loss = (components ** 2).mean()
-                target_layer_losses.append(layer_loss)
-                layer_metrics[str(layer)] = {
-                    "probe_component_rms": torch.sqrt((components ** 2).mean()).item(),
-                }
-            target_loss = torch.stack(target_layer_losses).mean()
-            forget_losses.append(target_loss)
-            forget_metrics[spec["name"]] = {
-                "forget_loss": target_loss.item(),
-                "layer_metrics": layer_metrics,
-            }
-        L_forget = torch.stack(forget_losses).mean()
+        # Forget loss: ascend.
+        fbatch = next_forget_batch()
+        f_ids, f_mask = tokenize_batch([r.sequence for r in fbatch], tokenizer, args.max_length, args.device)
+        f_logits, _ = model(f_ids, padding_mask=f_mask)
+        L_forget = language_model_loss(f_logits, f_ids, f_mask)
 
+        # Retain loss: descend.
         rbatch = next_retain_batch()
-        r_ids, r_mask = tokenize_batch(
-            [r.sequence for r in rbatch],
-            tokenizer,
-            args.max_length,
-            args.device,
+        r_ids, r_mask = tokenize_batch([r.sequence for r in rbatch], tokenizer, args.max_length, args.device)
+        r_logits, _ = model(r_ids, padding_mask=r_mask)
+        L_retain = language_model_loss(r_logits, r_ids, r_mask)
+
+        L_forget_effective, weighted_forget, weighted_retain = gd_loss_terms(
+            L_forget,
+            L_retain,
+            alpha_forget=args.alpha_forget,
+            alpha_retain=args.alpha_retain,
+            forget_loss_cap=args.forget_loss_cap,
         )
-        ref_capture.set_mask(r_mask)
-        ref_capture.clear()
-        with torch.no_grad():
-            _ = ref_model(r_ids, padding_mask=r_mask)
-        model_capture.set_mask(r_mask)
-        model_capture.clear()
-        _ = model(r_ids, padding_mask=r_mask)
-
-        retain_mse_losses = []
-        retain_cosine_losses = []
-        retain_layer_metrics = {}
-        for layer in loss_layers:
-            ref_pooled = ref_capture.get(layer).detach().float()
-            pooled = model_capture.get(layer).float()
-            mse = ((pooled - ref_pooled) ** 2).mean()
-            cosine_penalty = 1.0 - F.cosine_similarity(pooled, ref_pooled, dim=-1).mean()
-            retain_mse_losses.append(mse)
-            retain_cosine_losses.append(cosine_penalty)
-            retain_layer_metrics[str(layer)] = {
-                "retain_mse": mse.item(),
-                "retain_cosine_penalty": cosine_penalty.item(),
-            }
-        L_retain_mse = torch.stack(retain_mse_losses).mean()
-        L_retain_cosine = torch.stack(retain_cosine_losses).mean()
-        L_retain = L_retain_mse + args.retain_cosine_weight * L_retain_cosine
-
-        weighted_forget = args.alpha_forget * L_forget
-        weighted_retain = args.alpha_retain * L_retain
         loss = weighted_forget + weighted_retain
         loss.backward()
         if args.grad_clip > 0:
@@ -429,32 +352,27 @@ def main() -> None:
         optimizer.step()
 
         current_step = step + 1
-        if (step + 1) % args.log_every == 0 or step == 0:
+        if current_step % args.log_every == 0 or step == 0:
             row = {
                 "step": current_step,
                 "L_forget": L_forget.item(),
-                "L_retain_mse": L_retain_mse.item(),
-                "L_retain_cosine": L_retain_cosine.item(),
-                "L_retain_total": L_retain.item(),
+                "L_forget_effective": L_forget_effective.item(),
+                "L_retain": L_retain.item(),
                 "weighted_forget_term": weighted_forget.item(),
                 "weighted_retain_term": weighted_retain.item(),
                 "loss": loss.item(),
-                "forget_target_metrics": forget_metrics,
-                "retain_layer_metrics": retain_layer_metrics,
             }
             log_rows.append(row)
-            pbar.set_postfix(Lf=f"{row['L_forget']:.4f}", Lr=f"{row['L_retain_total']:.4f}")
+            pbar.set_postfix(Lf=f"{row['L_forget']:.3f}", Lr=f"{row['L_retain']:.3f}")
         if current_step in save_steps:
             step_dir = os.path.join(run_dir, f"step_{current_step:06d}")
-            save_block_deltas(model, ref_state=None, layers=layers,
-                              out_path=os.path.join(step_dir, "weights.safetensors"))
+            save_block_deltas(model, layers, os.path.join(step_dir, "weights.safetensors"))
             write_metadata(
                 os.path.join(step_dir, "meta.json"),
                 build_gd_metadata(
                     args=args,
                     layers=layers,
-                    loss_layers=loss_layers,
-                    target_specs=target_specs,
+                    trainable_param_count=trainable_param_count,
                     init_source=init_source,
                     init_ckpt=init_ckpt,
                     save_steps=sorted(save_steps),
@@ -466,16 +384,13 @@ def main() -> None:
     elapsed = time.time() - t0
     print(f"[GD] done in {elapsed:.1f}s")
 
-    # Save deltas
-    save_block_deltas(model, ref_state=None, layers=layers,
-                      out_path=os.path.join(run_dir, "weights.safetensors"))
+    save_block_deltas(model, layers, os.path.join(run_dir, "weights.safetensors"))
     write_metadata(
         os.path.join(run_dir, "meta.json"),
         build_gd_metadata(
             args=args,
             layers=layers,
-            loss_layers=loss_layers,
-            target_specs=target_specs,
+            trainable_param_count=trainable_param_count,
             init_source=init_source,
             init_ckpt=init_ckpt,
             save_steps=sorted(save_steps),
@@ -484,8 +399,6 @@ def main() -> None:
     )
     with open(os.path.join(run_dir, "log.json"), "w") as f:
         json.dump(log_rows, f, indent=2)
-    model_capture.close()
-    ref_capture.close()
     print(f"[GD] saved to {run_dir}")
 
 

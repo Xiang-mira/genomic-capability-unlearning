@@ -6,7 +6,8 @@
 #   bash phase2/run.sh prepare_benchmarks  # rebuild benchmark manifest from raw HVUE/GUE/viral-retain dirs
 #   bash phase2/run.sh prepare_hiyata_lora # derive Hiyata Host Tropism train/val/test LoRA manifest
 #   bash phase2/run.sh kmer_hiyata         # k-mer baseline on the derived Hiyata LoRA manifest
-#   bash phase2/run.sh gd                  # all four GD conditions (full, localized, probe, random)
+#   bash phase2/run.sh gd                  # classic CE gradient difference, all four conditions
+#   bash phase2/run.sh probe_repr          # probe-guided representation training, all four conditions
 #   bash phase2/run.sh rmu                 # all three RMU conditions
 #   bash phase2/run.sh verify_retain       # verify canonical retain.csv still contains GUE + viral retain rows
 #   bash phase2/run.sh probe_nullspace     # projection-only localized probe baseline
@@ -22,7 +23,7 @@
 
 set -euo pipefail
 
-PHASE2_PYTHON=${PHASE2_PYTHON:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}
+PHASE2_PYTHON=${PHASE2_PYTHON:-${PROJECT_PYTHON:-python}}
 CKPT_ROOT=data/phase2/checkpoints
 BENCH_CKPT_ROOT=${BENCH_CKPT_ROOT:-data/phase2/checkpoints_tuned}
 STEPS=${STEPS:-1000}
@@ -92,7 +93,11 @@ RMU_DIRECTION_SEQS=${RMU_DIRECTION_SEQS:-500}
 PROBE_NULLSPACE_RUN=${PROBE_NULLSPACE_RUN:-probe_nullspace_joint_l5_l9}
 PROBE_GUIDED_RUN=${PROBE_GUIDED_RUN:-probe_guided_projinit_ar5_s200}
 PROBE_INIT_RUN=${PROBE_INIT_RUN:-$PROBE_NULLSPACE_RUN}
-GD_INIT_RUN=${GD_INIT_RUN:-$PROBE_NULLSPACE_RUN}
+GD_INIT_RUN=${GD_INIT_RUN:-}
+GD_ALPHA_FORGET=${GD_ALPHA_FORGET:-1.0}
+GD_ALPHA_RETAIN=${GD_ALPHA_RETAIN:-5.0}
+GD_FORGET_LOSS_CAP=${GD_FORGET_LOSS_CAP:-0.0}
+PROBE_REPR_INIT_RUN=${PROBE_REPR_INIT_RUN:-$PROBE_NULLSPACE_RUN}
 RMU_PRIMARY_CONFIG=${RMU_PRIMARY_CONFIG:-phase2/sweep_configs/rmu_localized_nonhuman.json}
 
 verify_retain() {
@@ -115,16 +120,44 @@ ensure_pilot_manifest() {
         --test-per-label "$BENCH_PILOT_TEST_PER_LABEL"
 }
 
+# Classic gradient difference: -alpha_forget * CE(forget) + alpha_retain * CE(retain).
+# This is the objective that produced the archived lora_gd_* results. It takes no
+# probe target config; set GD_INIT_RUN="" to train from the base model.
 run_gd() {
     for cond in localized probe random full; do
         echo "=== GD $cond ==="
+        local init_args=()
+        if [ -n "$GD_INIT_RUN" ]; then
+            init_args=(--init-from-run "$GD_INIT_RUN")
+        fi
         "$PHASE2_PYTHON" -u phase2/unlearn_gd.py \
+            --forget-csv "$SPLIT_DIR/forget.csv" \
+            --retain-csv "$SPLIT_DIR/retain.csv" \
+            --out-dir "$CKPT_ROOT" \
+            --run-name "gd_$cond" \
+            "${init_args[@]}" \
+            --condition "$cond" \
+            --steps "$STEPS" --lr "$LR" \
+            --alpha-forget "$GD_ALPHA_FORGET" --alpha-retain "$GD_ALPHA_RETAIN" \
+            --forget-loss-cap "$GD_FORGET_LOSS_CAP" \
+            --batch-size "$BATCH" --max-length "$MAX_LEN" \
+            --save-steps "$SAVE_STEPS" \
+            --localized-layers-path "$LOCALIZED_LAYERS_PATH"
+    done
+}
+
+# Probe-guided representation training. Formerly the contents of unlearn_gd.py;
+# this is the objective behind the archived refseq_gd_projinit_* runs.
+run_probe_repr() {
+    for cond in localized probe random full; do
+        echo "=== probe-repr $cond ==="
+        "$PHASE2_PYTHON" -u phase2/unlearn_probe_repr.py \
             --forget-csv "$SPLIT_DIR/forget.csv" \
             --retain-csv "$SPLIT_DIR/retain.csv" \
             --internal-target-config "$INTERNAL_TARGET_CONFIG" \
             --out-dir "$CKPT_ROOT" \
-            --run-name "gd_projinit_$cond" \
-            --init-from-run "$GD_INIT_RUN" \
+            --run-name "probe_repr_projinit_$cond" \
+            --init-from-run "$PROBE_REPR_INIT_RUN" \
             --condition "$cond" \
             --steps "$STEPS" --lr "$LR" \
             --batch-size "$BATCH" --max-length "$MAX_LEN" \
@@ -446,6 +479,7 @@ case "${1:-all}" in
     prepare_hiyata_lora) prepare_hiyata_lora ;;
     kmer_hiyata) run_kmer_hiyata ;;
     gd) run_gd ;;
+    probe_repr) run_probe_repr ;;
     rmu) run_rmu ;;
     verify_retain) verify_retain ;;
     probe_nullspace) run_probe_nullspace ;;
@@ -468,13 +502,14 @@ case "${1:-all}" in
         run_probe_nullspace
         run_probe_guided
         run_gd
+        run_probe_repr
         run_rmu
         run_eval
         run_benchmarks
         ;;
     *)
         echo "Unknown target: $1"
-        echo "Usage: bash phase2/run.sh [splits|audit|prepare_benchmarks|prepare_hiyata_lora|kmer_hiyata|gd|rmu|verify_retain|probe_nullspace|projection_screen|probe_guided|rmu_primary|eval|benchmarks|benchmark_pilot|benchmark_full_top|taxonomy_heldout_base|taxonomy_heldout_ckpts|taxonomy_heldout|all]"
+        echo "Usage: bash phase2/run.sh [splits|audit|prepare_benchmarks|prepare_hiyata_lora|kmer_hiyata|gd|probe_repr|rmu|verify_retain|probe_nullspace|projection_screen|probe_guided|rmu_primary|eval|benchmarks|benchmark_pilot|benchmark_full_top|taxonomy_heldout_base|taxonomy_heldout_ckpts|taxonomy_heldout|all]"
         exit 1
         ;;
 esac

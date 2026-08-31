@@ -12,9 +12,11 @@ from typing import Any
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from phase2.project_python import project_python
 
-PROJECT_ROOT = Path("/home/teacher1/UT-project1/project1")
-DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PYTHON = project_python()
 
 CHECKPOINTS = {
     "best_gd_from_task5a": "data/phase2/checkpoints_tuned/refseq_gd_projinit_full_ar5_s200/weights.safetensors",
@@ -81,8 +83,8 @@ def scientific_state_md(project_root: Path) -> str:
             "- `data/phase2/audits/task5a_identity_reaudit_20260713`",
             "- `data/phase2/audits/task7r_capability_probe_20260714`",
             "- `data/phase2/audits/task7s_clean_gate_20260715`",
-            "- `docs/full_benchmark_results.md`",
-            "- `docs/causal_chain_validation_plan.md`",
+            "- `docs/RESULTS.md`",
+            "- `README.md`",
         ]
     )
 

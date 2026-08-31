@@ -38,6 +38,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from phase2.signed_bootstrap import paired_grouped_prediction_bootstrap
+from phase2.project_python import project_python
 
 try:
     import torch
@@ -50,7 +51,9 @@ except Exception:  # pragma: no cover
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PYTHON = project_python()
+# NCBI asks for a contact address on E-utilities traffic. Set $NCBI_CONTACT_EMAIL.
+NCBI_CONTACT_EMAIL = os.environ.get("NCBI_CONTACT_EMAIL", "unlearning-pipeline@example.org")
 DEFAULT_OUT_ROOT = PROJECT_ROOT / "data/phase2/evomil_qualification"
 DEFAULT_REPO = PROJECT_ROOT / "data/external/evomil/EvoMIL"
 DEFAULT_LOG = PROJECT_ROOT / "logs/evomil_esm1b_qualification.log"
@@ -427,7 +430,7 @@ def finalize_task_after_reconstruction(args: argparse.Namespace) -> dict[str, An
 
 def ncbi_fetch(accessions: Sequence[str], rettype: str, retmode: str, timeout: int, retries: int) -> tuple[str, list[dict[str, Any]]]:
     ids = ",".join(accessions)
-    query = urllib.parse.urlencode({"db": "nuccore", "id": ids, "rettype": rettype, "retmode": retmode, "tool": "codex_evomil_reconstruction", "email": "teacher1@example.com"})
+    query = urllib.parse.urlencode({"db": "nuccore", "id": ids, "rettype": rettype, "retmode": retmode, "tool": "codex_evomil_reconstruction", "email": NCBI_CONTACT_EMAIL})
     url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?{query}"
     started = time.time()
     proc = subprocess.run(
@@ -1172,7 +1175,10 @@ def run_homology_baseline(args: argparse.Namespace) -> dict[str, Any]:
             for rec in SeqIO.parse(str(row.protein_faa_path), "fasta"):
                 handle.write(f">{row.virus_id}|{row.host_label}|{rec.id}\n{str(rec.seq).replace('*','')}\n")
     env = os.environ.copy()
-    env["PATH"] = f"/home/teacher1/miniconda3/envs/UT-p1/bin:{env.get('PATH','')}"
+    # BLAST+ binaries normally live beside the project interpreter. Override with
+    # $BLAST_BIN_DIR when makeblastdb/blastp are installed elsewhere.
+    blast_bin_dir = os.environ.get("BLAST_BIN_DIR") or str(Path(project_python()).parent)
+    env["PATH"] = f"{blast_bin_dir}:{env.get('PATH','')}"
     db = work / "train_db"
     subprocess.run(["makeblastdb", "-in", str(train_faa), "-dbtype", "prot", "-out", str(db)], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=args.blast_timeout)
     out_tsv = work / "test.tsv"

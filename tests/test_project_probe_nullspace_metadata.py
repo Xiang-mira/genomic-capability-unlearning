@@ -4,6 +4,8 @@ import argparse
 import sys
 import types
 
+from tests._stub_support import register_stub
+
 phase2_probe_utils = types.ModuleType("phase2.probe_utils")
 phase2_probe_utils.apply_checkpoint = lambda *args, **kwargs: None
 phase2_probe_utils.load_probe = lambda *args, **kwargs: {"path": "probe.npz"}
@@ -13,7 +15,7 @@ phase2_probe_utils.normalized_standard_probe_direction = lambda *args, **kwargs:
 phase2_probe_utils.orthonormal_basis = lambda *args, **kwargs: None
 phase2_probe_utils.parse_layers = lambda spec: [int(spec)] if spec else []
 phase2_probe_utils.projection_matrix = lambda *args, **kwargs: None
-sys.modules.setdefault("phase2.probe_utils", phase2_probe_utils)
+register_stub("phase2.probe_utils", phase2_probe_utils)
 
 from phase2.project_probe_nullspace import build_probe_nullspace_metadata
 

@@ -21,6 +21,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+import sys
+from pathlib import Path as _Path
+if str(_Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+
+from phase2.project_python import project_python_path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_STAGE1_ROOT = PROJECT_ROOT / "data/phase2/stage1_formal_experiment_20260727"
@@ -31,7 +38,7 @@ DEFAULT_TASK = "hvue_human_host_tropism"
 STRONG_MATCHED_INPUT_KMER_AUROC = 0.8554553475149496
 STRONG_MATCHED_INPUT_KMER_MCC = 0.5991934875548052
 FULL_SEQUENCE_STRONG_AUROC = 0.8930006862072345
-DEFAULT_STAGE1_PYTHON = Path("/home/teacher1/miniconda3/envs/UT-p1/bin/python")
+DEFAULT_STAGE1_PYTHON = project_python_path()
 
 
 @dataclass(frozen=True)

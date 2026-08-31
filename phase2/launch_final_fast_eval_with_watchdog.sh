@@ -11,7 +11,7 @@ if [[ -f .env.local ]]; then
   set +a
 fi
 
-PYTHON_BIN="${PYTHON_BIN:-/home/teacher1/miniconda3/envs/UT-p1/bin/python}"
+PYTHON_BIN="${PYTHON_BIN:-${PROJECT_PYTHON:-python}}"
 LOG_DIR="${LOG_DIR:-logs}"
 mkdir -p "$LOG_DIR"
 LAUNCH_LOG="$LOG_DIR/final_fast_eval_launcher_$(date +%Y%m%d_%H%M%S).log"

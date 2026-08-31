@@ -36,10 +36,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from phase2.signed_bootstrap import paired_grouped_prediction_bootstrap
+from phase2.project_python import project_python
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PYTHON = project_python()
 DEFAULT_PHISTRUCT_ROOT = PROJECT_ROOT / "data/phase2/phistruct_qualification"
 DEFAULT_AUDIT_ROOT = DEFAULT_PHISTRUCT_ROOT / "phistruct_failure_audit"
 DEFAULT_EVOMIL_ROOT = PROJECT_ROOT / "data/phase2/evomil_qualification"

@@ -16,10 +16,19 @@ from typing import Dict, Iterable, List, Optional
 
 
 METHOD_SCRIPT = {
+    # Classic gradient difference: -a_f * CE(forget) + a_r * CE(retain).
     "gd": "phase2/unlearn_gd.py",
+    # Representation misdirection, multi-layer.
     "rmu": "phase2/unlearn_rmu.py",
+    # Training-free joint probe null-space projection.
     "probe_nullspace": "phase2/project_probe_nullspace.py",
+    # Probe-boundary training; --forget-objective {logit_zero, component_zero}.
     "probe_guided": "phase2/unlearn_probe.py",
+    # Probe-guided representation training with separate trainable / loss layers.
+    # This objective lived in unlearn_gd.py for part of the project's history;
+    # see the HISTORY note in phase2/unlearn_probe_repr.py before comparing to
+    # archived results.
+    "probe_repr": "phase2/unlearn_probe_repr.py",
 }
 
 

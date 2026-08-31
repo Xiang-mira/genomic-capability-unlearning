@@ -2,7 +2,21 @@ import csv
 import json
 from pathlib import Path
 
-from phase2.standalone_single_lora_intervention import run
+import pytest
+
+from phase2.standalone_single_lora_intervention import (
+    BASE_RECOVERY_EVIDENCE_PATH,
+    run,
+)
+
+# `run()` reads the Stage 1 base-recovery evidence table from a fixed repository
+# path. That table is a large generated artifact under the git-ignored data/
+# tree, so it is absent in a fresh clone. Skip rather than fail there; see
+# README.md (Data contracts) for how to regenerate it.
+pytestmark = pytest.mark.skipif(
+    not BASE_RECOVERY_EVIDENCE_PATH.exists(),
+    reason=f"requires generated artifact {BASE_RECOVERY_EVIDENCE_PATH}",
+)
 
 
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> None:

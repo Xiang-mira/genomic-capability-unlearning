@@ -26,13 +26,14 @@ from phase2.run_metadata import build_run_metadata, file_sha256, stable_hash, wr
 from phase2.run_task5a_identity_reaudit import TASK3_CONTEXT
 from phase2.summarize_clean_capability_gate_smoke import smoke_summary_signature
 from phase2.summarize_identity_capability_calibration import summary_signature as calibration_summary_signature
+from phase2.project_python import project_python
 
 
 class QueueStopped(RuntimeError):
     pass
 
 
-DEFAULT_PROJECT_PYTHON = "/home/teacher1/miniconda3/envs/UT-p1/bin/python"
+DEFAULT_PROJECT_PYTHON = project_python()
 
 
 def now() -> str:
@@ -149,7 +150,7 @@ def project_python(args: argparse.Namespace) -> str:
     if not Path(candidate).exists():
         raise FileNotFoundError(
             f"Configured project python does not exist: {candidate}. "
-            "Expected the UT-p1 environment described in docs/project_environment.md."
+            "Expected an environment satisfying environment.yml; see README.md, Quickstart."
         )
     return candidate
 

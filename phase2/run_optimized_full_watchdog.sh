@@ -9,12 +9,14 @@ OUT_ROOT="${FULL_BENCHMARK_OUT_ROOT:-data/phase2/full_benchmarks_lora_optimized_
 WATCHDOG_LOG="${WATCHDOG_LOG:-logs/optimized_full_watchdog.log}"
 mkdir -p logs
 
+PYTHON_BIN="${PHASE2_PYTHON:-${PROJECT_PYTHON:-python}}"
+
 log() {
   printf '%s [optimized-watchdog] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$WATCHDOG_LOG"
 }
 
 pipeline_complete() {
-  /home/teacher1/miniconda3/envs/UT-p1/bin/python - "$OUT_ROOT" <<'PY'
+  "$PYTHON_BIN" - "$OUT_ROOT" <<'PY'
 import csv
 import json
 import sys
